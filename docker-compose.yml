@@ -2,6 +2,14 @@ version: '2'
 services:
   redis:
     image: redis:3.2.1-alpine
+  db:
+    image: couchdb:1.6.1
+  nginx:
+    build:
+      context: ./nginx
+    links:
+      - web
+      - db
   web:
     image: cpsc310-pullrequest-server
     build:
@@ -10,7 +18,4 @@ services:
       - "4430:4430"
     links:
       - redis
-    depends_on:
-      - redis
-    environment:
-      - REDIS_PORT=http://redis:45876
+      - nginx
