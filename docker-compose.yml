@@ -7,6 +7,6 @@ services:
     ports:
       - "4430:4430"
     environment:
-      REDIS_HOST: "***Testing***"
+      REDIS_HOST: redis
   redis:
     image: redis:3.2.1-alpine
