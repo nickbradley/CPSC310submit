@@ -1,22 +1,10 @@
 version: '2'
 services:
   web:
-    build: /pull-request
+    image: cpsc310-pullrequest-server
+    build:
+      context: ./pull-request
     ports:
       - "4430:4430"
-    depends_on:
-      - nginx
-      - redis
-      - couchdb
-      - worker
-    env_file:
-      - web.env
-    environment:
-      PORT: 4430
-      REDIS_HOST: redis:6379
-  worker:
-    build: /job-runner
-  nginx:
   redis:
     image: redis:3.2.1-alpine
-  couchdb:
