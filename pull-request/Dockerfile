@@ -9,4 +9,6 @@ ADD cpsc310-2016Fall.key /app
 WORKDIR /app
 RUN npm install
 
+EXPOSE 4430
+
 CMD ["node", "server.js"]
