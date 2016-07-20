@@ -4,17 +4,15 @@ services:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
-  nginx:
-    build:
-      context: ./nginx
-    links:
-      - web
-      - db
   web:
     image: cpsc310-pullrequest-server
-    build:
-      context: ./pull-request
+    build: ./pull-request
     ports:
       - "4430:4430"
     links:
       - redis
+  nginx:
+    build: ./nginx
+    links:
+      - web
+      - db
