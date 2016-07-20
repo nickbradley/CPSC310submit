@@ -1,5 +1,7 @@
 version: '2'
 services:
+  redis:
+    image: redis:3.2.1-alpine
   web:
     image: cpsc310-pullrequest-server
     build:
@@ -10,5 +12,5 @@ services:
       REDIS_HOST: redis
     links:
       - redis
-  redis:
-    image: redis:3.2.1-alpine
+    depends_on:
+      - redis
