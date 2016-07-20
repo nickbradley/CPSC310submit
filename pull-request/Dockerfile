@@ -1,2 +1,3 @@
 FROM node:6.3.0
-CMD ["node", "server.js"]
+COPY server.js /app
+CMD ["node", "/app/server.js"]
