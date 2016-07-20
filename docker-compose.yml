@@ -12,7 +12,7 @@ services:
     env_file:
       - web.env
     environment:
-      PORT:"4430"
+      PORT: 4430
       REDIS_HOST: redis:6379
   worker:
     build: /job-runner
