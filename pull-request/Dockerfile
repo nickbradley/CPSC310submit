@@ -2,7 +2,7 @@ FROM node:6.3.0
 RUN mkdir /app
 
 ADD server.js /app
-
+ADD package.json /app
 WORKDIR /app
 RUN npm install
 
