@@ -18,4 +18,3 @@ services:
       - "4430:4430"
     links:
       - redis
-      - nginx
