@@ -5,8 +5,9 @@ services:
   db:
     image: couchdb:1.6.1
   web:
-    image: cpsc310-pullrequest-server
     build: ./pull-request
+    ports:
+      - "4430"
     links:
       - redis
   nginx:
