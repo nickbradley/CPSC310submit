@@ -12,3 +12,5 @@ services:
       - redis
     depends_on:
       - redis
+    environment:
+      - REDIS_PORT=http://redis:45876
