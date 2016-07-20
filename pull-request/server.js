@@ -6,12 +6,10 @@ var Queue = require('bull');
 var jobQueue = Queue('CPSC310 Test Job Queue', '6379', 'redis');
 
 jobQueue.process(function(opts, done){
-  console.log(opts);
+  //console.log(opts);
 });
 
 jobQueue.add("****////HELLO////****");
-
-console.log(process.env);
 
 try {
   var httpsOptions = {
@@ -24,6 +22,7 @@ catch (ex) {
 }
 
 https.createServer(httpsOptions, (req, res) => {
+  console.log('I got a request.');
   res.writeHead(200);
   res.end();
 }).listen('4430');
