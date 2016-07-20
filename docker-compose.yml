@@ -8,8 +8,6 @@ services:
       context: ./pull-request
     ports:
       - "4430:4430"
-    environment:
-      REDIS_HOST: redis:8654
     links:
       - redis
     depends_on:
