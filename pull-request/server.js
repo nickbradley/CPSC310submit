@@ -23,6 +23,6 @@ catch (ex) {
 
 https.createServer(httpsOptions, (req, res) => {
   console.log('I got a request.');
-  res.writeHead(200);
+  res.writeHead(200, { 'Content-Type': 'text/plain'});
   res.end();
 }).listen('4430');
