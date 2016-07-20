@@ -6,5 +6,7 @@ services:
       context: ./pull-request
     ports:
       - "4430:4430"
+    environment:
+      REDIS_HOST: "***Testing***"
   redis:
     image: redis:3.2.1-alpine
