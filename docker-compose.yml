@@ -4,10 +4,13 @@ services:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
+  job:
+    build: ./job-runner
   web:
     build: ./pull-request
     links:
       - redis
+      - job
   nginx:
     build: ./nginx
     ports:
