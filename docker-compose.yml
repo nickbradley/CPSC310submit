@@ -8,6 +8,8 @@ services:
     build: ./pull-request
     ports:
       - "4430"
+    expose:
+      - "4430"
     links:
       - redis
   nginx:
