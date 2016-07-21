@@ -21,6 +21,6 @@ services:
       - web
       - db
 
-  volumes:
-    cpsc310-couchdb-store:
-      external: true
+volumes:
+  cpsc310-couchdb-store:
+    external: true
