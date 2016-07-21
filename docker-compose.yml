@@ -5,7 +5,7 @@ services:
   db:
     image: couchdb:1.6.1
     volumes:
-      - cpsc310-couchdb-store:/usr/local/var/lib/couchdb
+      - db-data:/usr/local/var/lib/couchdb
   job:
     build: ./job-runner
   web:
@@ -20,3 +20,8 @@ services:
     links:
       - web
       - db
+
+  volumes:
+    db-data:
+      external:
+        name: cpsc310-couchdb-store
