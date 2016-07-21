@@ -12,6 +12,8 @@ services:
       - redis
   nginx:
     build: ./nginx
+    ports:
+      - "443"
     links:
       - web
       - db
