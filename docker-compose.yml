@@ -4,6 +4,8 @@ services:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
+    volumes:
+      - db_storage:/usr/local/var/lib/couchdb
   job:
     build: ./job-runner
   web:
@@ -18,3 +20,6 @@ services:
     links:
       - web
       - db
+
+volumes:
+    db_storage:

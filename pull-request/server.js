@@ -234,7 +234,7 @@ function processPayload(payload) {
 
   db.get(fullname, function(err, doc) {
     if (err) {
-      logger.err("Vaildate request error");
+      logger.error("Vaildate request error");
       postMsg = 'Request denied: invalid user/repo pair.';
       //sendGitHubPullRequestComment('Request denied: invalid user/repo pair.', postUrl);
     }
