@@ -13,6 +13,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "winston": "~2.2.0",
     "bull": "~1.0.0"
   }
 }
