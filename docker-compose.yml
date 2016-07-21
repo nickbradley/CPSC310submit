@@ -4,7 +4,8 @@ services:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
-    expose: "5984"
+    expose:
+      - "5984"
   web:
     build: ./pull-request
     ports:
