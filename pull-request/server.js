@@ -41,7 +41,6 @@ https.createServer(httpsOptions, (req, res) => {
 
 
 
-console.log(process.env);
 
 var https = require('https');
 var url = require('url');
@@ -83,14 +82,14 @@ var logger = new (winston.Logger)({
 logger.info('CPSC310 GitHub Listener has started.');
 
 // Get environment variables
-var MAX_REQUESTS = 10;
+var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
 
-var PORT = 4430;
-var REDIS_PORT =  6379;
-var REDIS_ADDR = 'redis' || '127.0.0.1';
-var DB_PORT = 5984;
-var DB_ADDR = 'db' || '127.0.0.1';
-var DB_NAME = 'cspc310';
+var PORT = process.env.PORT || 4430;
+var REDIS_PORT = process.env.REDIS_PORT || 6379;
+var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';  // 'redis' is set by docker-compose in /etc/hosts
+var DB_PORT = process.env.DB_PORT || 5984;
+var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
+var DB_NAME = process.env.DB_NAME || 'cspc310';
 
 var TOKEN = process.env.GITHUB_API_KEY;
 
