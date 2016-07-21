@@ -4,9 +4,8 @@ services:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
-    environment:
-      COUCHDB_USER: test
-      COUCHDB_PASSWORD: test
+    env_file:
+      - ./db.env
     volumes:
       - db-data:/usr/local/var/lib/couchdb
   job:
