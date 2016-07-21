@@ -6,8 +6,6 @@ services:
     image: couchdb:1.6.1
   web:
     build: ./pull-request
-    ports:
-      - "4430"
     expose:
       - "4430"
     links:
