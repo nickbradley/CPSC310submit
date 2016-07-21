@@ -12,7 +12,7 @@ services:
       - redis
   nginx:
     build: ./nginx
-    expose:
+    ports:
       - "443"
     links:
       - web
