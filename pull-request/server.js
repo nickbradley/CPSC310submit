@@ -125,8 +125,8 @@ db.get('cpsc310', function(err, body) {
 // Read in the SSL certificate and key
 try {
   var httpsOptions = {
-    "key": fs.readFileSync(process.env.npm_package_config_cert_key_file),
-    "cert": fs.readFileSync(process.env.npm_package_config_cert_cert_file)
+    "key": fs.readFileSync('/app/cpsc310-2016Fall.key'),
+    "cert": fs.readFileSync('/app/cpsc310-2016Fall.crt')
   };
 }
 catch (ex) {
