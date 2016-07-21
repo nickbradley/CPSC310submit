@@ -1,5 +1,6 @@
 FROM node:6.3.0
 RUN mkdir /app
+RUN mkdir /app/logs
 
 ADD server.js /app
 ADD package.json /app
