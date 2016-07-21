@@ -12,6 +12,11 @@ services:
     build: ./job-runner
   web:
     build: ./pull-request
+    env_file:
+      - ./web.env
+    environment:
+      - MAX_REQUESTS: 10
+      - DB_NAME: cpsc310
     links:
       - redis
       - job

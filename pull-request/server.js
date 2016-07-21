@@ -92,7 +92,7 @@ var DB_PORT = 5984;
 var DB_ADDR = 'db' || '127.0.0.1';
 var DB_NAME = 'cspc310';
 
-var TOKEN = '123'//process.env.API_KEY;
+var TOKEN = process.env.GITHUB_API_KEY;
 
 if (!TOKEN) {
   throw 'Required environment variable GitHub API token is not set.';
