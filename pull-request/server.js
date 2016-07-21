@@ -41,7 +41,7 @@ https.createServer(httpsOptions, (req, res) => {
 
 
 
-
+console.log(process.env);
 
 var https = require('https');
 var url = require('url');
