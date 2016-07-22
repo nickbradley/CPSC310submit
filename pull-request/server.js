@@ -95,6 +95,7 @@ nano.db.list(function(err, body){
   });
 
 https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
+startMessageQueue();
 //https.createServer(httpsOptions, ()=>{console.log('Hello!!!!')}).listen(PORT);
 logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT)
 });
@@ -321,7 +322,7 @@ console.log("*** Comment posted to github:", comment);
 }  // sendGitHubPullRequestComment
 
 
-
+function startMessageQueue() {
 // Send results as the tests finish
 msgQueue.process(function(opts, done) {
   var log = opts.data.log;
@@ -358,3 +359,4 @@ msgQueue.process(function(opts, done) {
   };
   done();
 });
+}
