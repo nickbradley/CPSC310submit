@@ -83,6 +83,8 @@ logger.info('CPSC310 GitHub Listener has started.');
 
 // Get environment variables
 var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
+var CRT_FILE = process.env.CRT_FILE || '/app/cpsc310-2016Fall.crt';
+var KEY_FILE = process.env.KEY_FILE || '/app/cpsc310-2016Fall.key';
 
 var PORT = process.env.PORT || 4430;
 var REDIS_PORT = process.env.REDIS_PORT || 6379;
@@ -124,8 +126,8 @@ db.get('cpsc310', function(err, body) {
 // Read in the SSL certificate and key
 try {
   var httpsOptions = {
-    "key": fs.readFileSync('/app/cpsc310-2016Fall.key'),
-    "cert": fs.readFileSync('/app/cpsc310-2016Fall.crt')
+    "key": fs.readFileSync(KEY_FILE),
+    "cert": fs.readFileSync(CRT_FILE)
   };
 }
 catch (ex) {
@@ -231,7 +233,7 @@ function processPayload(payload) {
   var processDelay = jobQueue.count * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
 
-  db.get(fullname, function(err, doc) {
+  db.get(fullname.replace('/', '|'), function(err, doc) {
     if (err) {
       logger.error("Vaildate request error");
       postMsg = 'Request denied: invalid user/repo pair.';
