@@ -37,7 +37,7 @@ var Queue = require('bull');
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
 var db = nano.use(DB_NAME);
-console.log(nano);
+console.log(nano.db.list());
 // Check existence of databases
 nano.db.list(function(err, body){
   if (err) throw 'Failed to get database list';
