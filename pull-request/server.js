@@ -44,14 +44,14 @@ nano.db.list(function(err, body){
   if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
 })
 
-
+/*
 db.head(DB_NAME, function(err, _, header){
   if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
 });
 db.head(DB_LOGS, function(err, _, header){
   if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
 });
-
+*/
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
