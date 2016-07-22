@@ -4,6 +4,7 @@ RUN mkdir /app
 ADD jobRunner.js /app
 ADD package.json /app
 ADD execTest.sh /app
+RUN chmod a+x /app/execTest.sh
 
 WORKDIR /app
 RUN npm install
