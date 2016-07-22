@@ -69,6 +69,8 @@ var logger = new (winston.Logger)({
 
 logger.info('CPSC310 GitHub Listener has started.');
 
+// Check that connections to db and redis succeeded and start listening
+
 
 // Start listening for requests
 
@@ -165,7 +167,6 @@ function parsePayload(payload) {
     url = parsedPayload.pull_request.url;
   }
   catch(ex) {
-    console.log(ex);
     logger.error('Failed to extract required field from payload.', ex);
     return {isValid: false};
   }
@@ -234,23 +235,6 @@ function processPayload(payload) {
 
 }  // processPayload
 
-/*
-function canExecute(doc, requestLimit) {
-//  if (repo in doc) {
-    if (doc.num_runs < requestLimit-1) {
-      var processDelay = jobQueue.count * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
-      //isNaN(processDelay) ? 0 : processDelay +
-      return {accept: true, msg: 'Request received; should be processed within minutes.'};
-    }
-    else {
-      return {accpet: false, msg: 'Request denied: exceeded number of tests allowed for this repository.'};
-    }
-//  }
-//  else {
-//    return {accpet: false, msg: 'Request denied: invaild repository.'};
-//  }
-}  // canExecute
-*/
 
 function sendGitHubPullRequestComment(comment, commentUrl) {
   // Check that comment is valid JSON and has property "body"
@@ -334,20 +318,20 @@ msgQueue.process(function(opts, done) {
       break;
     case 'completed':
         logger.info(log.msg + " has finished running tests.", log.opts);
-        sendGitHubPullRequestComment('Job done. Show the results.', log.opts.postUrl);
 
-        console.log("I'm going to update", repoTests);
+
         db.insert(repoTests, function(err, body){
           if(err) {
-            console.log(err);
+            logger.error('Failed to update database record', err);
+            sendGitHubPullRequestComment('Failed to update database record', log.opts.postUrl);
+          }
+          else {
+            sendGitHubPullRequestComment('Job done. Show the results.', log.opts.postUrl);
           }
         });
-        // update test count
-        //users[log.opts.username][log.opts.repo].num_runs++;
 
         break;
     case 'failed':
-    console.log(opts);
       logger.error(log.msg + " failed to execute tests.", log.opts, opts.data.error);
       sendGitHubPullRequestComment("Failed to execute tests.", log.opts.postUrl);
       break;

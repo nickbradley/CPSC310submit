@@ -16,7 +16,7 @@ services:
       - ./web.env
     environment:
       MAX_REQUESTS: 10
-      DB_NAME: cpsc310
+      DB_NAME: cpsc310fake
     links:
       - redis
       - job
