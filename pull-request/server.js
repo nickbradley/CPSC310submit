@@ -33,9 +33,10 @@ var winstonCouch = require('winston-couchdb').Couchdb;
 var Queue = require('bull');
 
 // Setup the database connection
-var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
-var db = require('nano')(conn);
-
+//var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
+var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
+var nano = require('nano')(conn);
+var db = nano.use(DB_NAME);
 // Check existence of databases
 nano.db.list(function(err, body){
   if (err) throw 'Failed to get database list';
