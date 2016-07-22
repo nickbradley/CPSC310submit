@@ -66,44 +66,17 @@ var logger = new (winston.Logger)({
 
 
 
-/*
-//var config = require('../env.json');
-//winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 
-//
-//  Setup logging
-//
-var date = (new Date()).toISOString();
-var filename = 'logs/listener.' + date + '.log';// || 'cpsc310_default.log';
-
-//winston.add(require('winston-daily-rotate-file'));
-var logger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Console)(),
-    new (winston.transports.File)({
-      level: 'info',
-      filename: filename
-    }),
-    new (winston.tr)
-    //,
-    //new (winston.transports.File)({
-    //  level: 'debug',
-    //  filename: filename + '.debug',
-    //  handleExceptions: true,
-    //  humanReadableUnhandledException: true
-    //})
-    //new (winston.transports.DailyRotateFile)({ filename: '../logs/cpsc310-github-listener.log' })
-  ]
-});
-
-*/
-//
-//  Startup checks
-//
 logger.info('CPSC310 GitHub Listener has started.');
 
 
+// Start listening for requests
 
+//set timeout {}
+// jobQueue.on('ready', function() {})  // put below line in here
+https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
+//https.createServer(httpsOptions, ()=>{console.log('Hello!!!!')}).listen(PORT);
+logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT)
 
 
 
@@ -383,23 +356,3 @@ msgQueue.process(function(opts, done) {
   };
   done();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Start listening for requests
-
-//set timeout {}
-// jobQueue.on('ready', function() {})  // put below line in here
-https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
-//https.createServer(httpsOptions, ()=>{console.log('Hello!!!!')}).listen(PORT);
-logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT)
