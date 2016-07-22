@@ -16,6 +16,7 @@
  var DB_PORT = process.env.DB_PORT || 5984;
  var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
  var DB_NAME = process.env.DB_NAME || 'cspc310';
+ var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
 
  var TOKEN = process.env.GITHUB_API_KEY;
 
@@ -34,6 +35,15 @@ var Queue = require('bull');
 // Setup the database connection
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
 var db = require('nano')(conn);
+
+// Check existence of databases
+db.head(DB_NAME, function(err, _, header){
+  if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+});
+db.head(DB_LOGS, function(err, _, header){
+  if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+});
+
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
