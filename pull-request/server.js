@@ -240,6 +240,12 @@ function processPayload(payload) {
       //sendGitHubPullRequestComment('Request denied: invalid user/repo pair.', postUrl);
     }
     else {
+      // check that db document is initialized
+      if (!doc.num_runs) doc.num_runs = 0;
+      if (!doc.last_run) doc.last_run = null;
+      if (!doc.results) doc.results = [];
+      if (!doc.abbrv_results) doc.abbrv_results = [];
+
       if (doc.num_runs < MAX_REQUESTS-1) {
         postMsg = 'Request received; should be processed within ' + processDelay + ' minutes.';
         //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);

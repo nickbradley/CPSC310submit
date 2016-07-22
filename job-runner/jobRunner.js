@@ -39,30 +39,21 @@ else {
 
   jobQueue.on('active', function(job, jobPromise) {
     msgQueue.add({status: 'active', log: job.data.log});
-    //console.log("Job active");
   });
   jobQueue.on('completed', function(job, result) {
-    //console.log(result.repoTests.num_runs);
-
-//    var repoTests = JSON.parse(JSON.stringify(result.repoTests));
     var repoTests = result.repoTests;
     var abbrvResults = testResultsFormatter(result.stdout);
-    console.log(repoTests);
+
     repoTests.last_run = new Date();
     repoTests.num_runs++;
     repoTests.results.push(result.stdout);
     repoTests.abbrv_results.push(abbrvResults);
-console.log(repoTests);
+
     msgQueue.add({status: 'completed', log: result.log, repoTests: repoTests});
-    //console.log('job completed', result);
   });
 
   jobQueue.on('failed', function(job, error) {
-
-    console.log('Job', job);
-    console.log('Error', error);
     msgQueue.add({status:'failed', log: job.data.log, error: error});
-    //console.log('Job had error', error);
   });
 
   // Execute a job from the queue
