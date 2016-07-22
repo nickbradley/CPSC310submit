@@ -37,21 +37,9 @@ var Queue = require('bull');
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
 var db = nano.use(DB_NAME);
-console.log(nano.db.list());
-// Check existence of databases
-nano.db.list(function(err, body){
-  if (err) throw 'Failed to get database list';
-  if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
-});
 
-/*
-db.head(DB_NAME, function(err, _, header){
-  if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
-});
-db.head(DB_LOGS, function(err, _, header){
-  if (err) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
-});
-*/
+
+
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
@@ -68,9 +56,32 @@ catch (ex) {
   throw 'SSL certificate or key is missing or not accessible.';
 }
 
-//Setup logging with winston
-try {
-  var logger = new (winston.Logger)({
+
+var logger;
+
+
+
+
+
+
+//logger.info('CPSC310 GitHub Listener has started.');
+
+// Check that connections to db and redis succeeded and start listening
+
+
+// Start listening for requests
+
+//set timeout {}
+// jobQueue.on('ready', function() {})  // put below line in here
+
+// Check existence of databases
+nano.db.list(function(err, body){
+  if (err) throw 'Failed to get database list';
+  if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+  if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+
+  //Setup logging with winston
+  logger = new (winston.Logger)({
     transports: [
       new (winston.transports.Couchdb)({
         host: DB_ADDR,
@@ -82,26 +93,11 @@ try {
       })
     ]
   });
-}
-catch (ex) {
-  throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
-}
 
-
-
-logger.info('CPSC310 GitHub Listener has started.');
-
-// Check that connections to db and redis succeeded and start listening
-
-
-// Start listening for requests
-
-//set timeout {}
-// jobQueue.on('ready', function() {})  // put below line in here
 https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
 //https.createServer(httpsOptions, ()=>{console.log('Hello!!!!')}).listen(PORT);
 logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT)
-
+});
 
 
 
