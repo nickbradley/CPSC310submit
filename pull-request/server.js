@@ -37,14 +37,11 @@ var Queue = require('bull');
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
 var db = nano.use(DB_NAME);
-console.log(db.info());
+
 // Check existence of databases
 nano.db.list(function(err, body){
-  console.log('Listing databases');
-  console.log(body);
   if (err) throw 'Failed to get database list';
   if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
-  if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
 });
 
 /*
@@ -72,19 +69,23 @@ catch (ex) {
 }
 
 //Setup logging with winston
-var logger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Couchdb)({
-      host: DB_ADDR,
-      port: DB_PORT,
-      db: DB_NAME + '-logs',
-      //auth: {username: 'user', password: 'password'},
-      secure: false,
-      level: 'info'
-    })
-  ]
-});
-
+try {
+  var logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Couchdb)({
+        host: DB_ADDR,
+        port: DB_PORT,
+        db: DB_LOGS,
+        //auth: {username: 'user', password: 'password'},
+        secure: false,
+        level: 'info'
+      })
+    ]
+  });
+}
+catch (ex) {
+  throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+}
 
 
 
