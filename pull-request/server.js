@@ -39,6 +39,8 @@ var nano = require('nano')(conn);
 var db = nano.use(DB_NAME);
 // Check existence of databases
 nano.db.list(function(err, body){
+  console.log('Listing databases');
+  console.log(body);
   if (err) throw 'Failed to get database list';
   if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
   if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
