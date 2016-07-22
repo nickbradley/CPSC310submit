@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "winston": "~2.2.0",
+    "winston-couchdb": "~0.6.3",
     "bull": "~1.0.0",
     "nano": "~6.2.0"
   }
