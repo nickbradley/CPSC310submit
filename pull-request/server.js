@@ -1,52 +1,72 @@
-/*
+/**
+ * @author Nick Bradley <nbrad11@cs.ubc.ca>
+ * @summary
+ * @description Listens to pull requests from GitHub.
+ * @version 1.0
+ */
+
+ // Get environment variables
+ var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
+ var CRT_FILE = process.env.CRT_FILE || '/app/cpsc310-2016Fall.crt';
+ var KEY_FILE = process.env.KEY_FILE || '/app/cpsc310-2016Fall.key';
+
+ var PORT = process.env.PORT || 4430;
+ var REDIS_PORT = process.env.REDIS_PORT || 6379;
+ var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';  // 'redis' is set by docker-compose in /etc/hosts
+ var DB_PORT = process.env.DB_PORT || 5984;
+ var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
+ var DB_NAME = process.env.DB_NAME || 'cspc310';
+
+ var TOKEN = process.env.GITHUB_API_KEY;
+
+ if (!TOKEN) {
+   throw 'Required environment variable GitHub API token is not set.';
+ }
+
+// Load required packages
 var https = require('https');
-var fs = require('fs')
+var url = require('url');
+var fs = require('fs');
+var winston = require('winston');
+var winstonCouch = require('winston-couchdb').Couchdb;
 var Queue = require('bull');
 
-// 'redis' should be defined in /etc/hosts by Docker
-var jobQueue = Queue('CPSC310 Test Job Queue', '6379', 'redis');
+// Setup the database connection
+var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
+var db = require('nano')(conn);
 
+// Setup the job and message queues
+var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
+var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
+// Read in the SSL certificate and key
 try {
   var httpsOptions = {
-    "key": fs.readFileSync('/app/cpsc310-2016Fall.key'),
-    "cert": fs.readFileSync('/app/cpsc310-2016Fall.crt')
+    "key": fs.readFileSync(KEY_FILE),
+    "cert": fs.readFileSync(CRT_FILE)
   };
 }
 catch (ex) {
   throw 'SSL certificate or key is missing or not accessible.';
 }
 
-https.createServer(httpsOptions, (req, res) => {
-  console.log('I got a request.');
-  res.writeHead(200, { 'Content-Type': 'text/plain'});
-  res.end();
-}).listen('4430');
-*/
+//Setup logging with winston
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Couchdb)({
+      host: DB_ADDR,
+      port: DB_PORT,
+      db: DB_NAME,
+      //auth: {username: 'user', password: 'password'},
+      secure: false,
+      level: 'info'
+    })
+  ]
+});
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var https = require('https');
-var url = require('url');
-var fs = require('fs');
-var winston = require('winston');
-var Queue = require('bull');
+/*
 //var config = require('../env.json');
 //winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 
@@ -63,7 +83,8 @@ var logger = new (winston.Logger)({
     new (winston.transports.File)({
       level: 'info',
       filename: filename
-    })
+    }),
+    new (winston.tr)
     //,
     //new (winston.transports.File)({
     //  level: 'debug',
@@ -75,38 +96,17 @@ var logger = new (winston.Logger)({
   ]
 });
 
-
+*/
 //
 //  Startup checks
 //
 logger.info('CPSC310 GitHub Listener has started.');
 
-// Get environment variables
-var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
-var CRT_FILE = process.env.CRT_FILE || '/app/cpsc310-2016Fall.crt';
-var KEY_FILE = process.env.KEY_FILE || '/app/cpsc310-2016Fall.key';
 
-var PORT = process.env.PORT || 4430;
-var REDIS_PORT = process.env.REDIS_PORT || 6379;
-var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';  // 'redis' is set by docker-compose in /etc/hosts
-var DB_PORT = process.env.DB_PORT || 5984;
-var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
-var DB_NAME = process.env.DB_NAME || 'cspc310';
 
-var TOKEN = process.env.GITHUB_API_KEY;
 
-if (!TOKEN) {
-  throw 'Required environment variable GitHub API token is not set.';
-}
 
-// Setup the job and message queues
-var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
-var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
-// Setup the database connection
-var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
-console.log("Connecting to database: ", conn);
-var db = require('nano')(conn);
 
 // Check that we connected to the users document
 /*
@@ -123,16 +123,7 @@ db.get('cpsc310', function(err, body) {
 });
 */
 
-// Read in the SSL certificate and key
-try {
-  var httpsOptions = {
-    "key": fs.readFileSync(KEY_FILE),
-    "cert": fs.readFileSync(CRT_FILE)
-  };
-}
-catch (ex) {
-  throw 'SSL certificate or key is missing or not accessible.';
-}
+
 
 
 
