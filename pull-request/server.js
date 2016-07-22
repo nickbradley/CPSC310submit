@@ -56,7 +56,7 @@ var logger = new (winston.Logger)({
     new (winston.transports.Couchdb)({
       host: DB_ADDR,
       port: DB_PORT,
-      db: DB_NAME + '-Logs',
+      db: DB_NAME + '-logs',
       //auth: {username: 'user', password: 'password'},
       secure: false,
       level: 'info'
