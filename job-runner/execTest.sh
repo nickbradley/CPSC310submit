@@ -22,7 +22,7 @@ mkidr "${STUDENT_REPO}" && cd "$_" && git clone "$_"
 # Run docker
 echo "*** Begin test output ***"
 
-docker run tester -v "${TEST_REPO}":you -v "${STUDENT_REPO}":you 
+docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src 
 
 echo "*** End test output ***"
 
