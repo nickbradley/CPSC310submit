@@ -4,7 +4,7 @@ TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
 TEST_REPO=~/repos/test
-STUDENT_REPO=~/repos/$(uuidgen)
+STUDENT_REPO=~/repos/$(mktemp -d)
 
 
 # Clone the testing repository if this is the first run
@@ -22,7 +22,7 @@ mkidr "${STUDENT_REPO}" && cd "$_" && git clone "$_"
 # Run docker
 echo "*** Begin test output ***"
 
-docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src 
+docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src
 
 echo "*** End test output ***"
 
