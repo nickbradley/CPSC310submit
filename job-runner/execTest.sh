@@ -16,7 +16,7 @@ else
 fi
 
 # Clone the students repository
-mkidr "${STUDENT_REPO}" && cd "$_" && git clone "$_"
+mkdir "${STUDENT_REPO}" && cd "$_" && git clone "$_"
 
 
 # Run docker
