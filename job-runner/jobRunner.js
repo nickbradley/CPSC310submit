@@ -96,6 +96,7 @@ else {
       else {
         console.log('No error');
         console.log(stdout);
+        console.log(stderr);
         done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
       }
     });
