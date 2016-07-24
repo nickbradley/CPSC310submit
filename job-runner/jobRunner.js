@@ -11,7 +11,7 @@ var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';
 var WORKERS = process.env.WORKERS || 1;
 
 var CMD_PATH = 'execTest.sh';
-var TEST_REPO_URL = 'www.fake.com';
+var TEST_REPO_URL = 'https://github.com/nickbradley/cpsc310-tester.git';
 var CMD_TIMEOUT = 5000; // milliseconds
 
 
