@@ -16,13 +16,13 @@ else
 fi
 
 # Clone the students repository
-mkdir "${STUDENT_REPO}" && cd "$_" && git clone "$_"
+mkdir -p "${STUDENT_REPO}" && cd "$_" && git clone "$_"
 
 
 # Run docker
 echo "*** Begin test output ***"
 
-docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src
+docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src -v /var/run/docker.sock:/var/run/docker.sock
 
 echo "*** End test output ***"
 
