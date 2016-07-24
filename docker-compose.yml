@@ -15,6 +15,7 @@ services:
       # any containers started inside of job will run on the host as a sibiling container
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
+      - /etc/sysconfig/docker:/etc/sysconfig/docker
   web:
     build: ./pull-request
     env_file:
