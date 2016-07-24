@@ -87,10 +87,10 @@ else {
     if (!cmd) {
       done(Error('Parameter opts missing property data.cmd or data.payload.'));
     }
-
+    console.log(cmd);
     execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
       if (error !== null) {
-        console.log('Error');
+        console.log('Error', error);
         done(Error('Exec failed to run cmd.'));
       }
       else {
