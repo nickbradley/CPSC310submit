@@ -1,3 +1,29 @@
 #! /bin/bash
 
-echo Hello World
+TEST_REPO_URL=$1
+STUDENT_REPO_URL=$2
+
+TEST_REPO=~/repos/test
+STUDENT_REPO=~/repos/$(uuidgen)
+
+
+# Clone the testing repository if this is the first run
+# otherwise, pull the latest version
+if [ -d "${TEST_REPO}" ]
+  then cd "${TEST_REPO}" && git pull
+else
+  git clone "${TEST_REPO_URL}"
+fi
+
+# Clone the students repository
+mkidr "${STUDENT_REPO}" && cd "$_" && git clone "$_"
+
+
+# Run docker
+echo "*** Begin test output ***"
+
+docker run tester -v "${TEST_REPO}":you -v "${STUDENT_REPO}":you 
+
+echo "*** End test output ***"
+
+rm -rf "${STUDENT_REPO}"

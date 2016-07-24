@@ -1,15 +1,26 @@
+/**
+ * @author Nick Bradley <nbrad11@cs.ubc.ca>
+ * @summary
+ * @description
+ * @version
+ */
+
+// Get environment variables
+var REDIS_PORT = process.env.REDIS_PORT || 6379;
+var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';
+var WORKERS = process.env.WORKERS || 1;
+
+var CMD_PATH = 'execTest.sh';
+var TEST_REPO_URL = 'www.fake.com';
+var CMD_TIMEOUT = 5000; // milliseconds
+
+
 var Queue = require('bull');
 var cluster = require('cluster');
 var execFile = require('child_process').execFile;
 
 
-var REDIS_PORT = 6379;
-var REDIS_ADDR = 'redis' || '127.0.0.1';
-var WORKERS = 1;//config.jobs.count || 1;
 
-var CMD_PATH = 'execTest.sh';
-var TEST_REPO_URL = '';
-var CMD_TIMEOUT = 5000; // milliseconds
 
 
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
@@ -59,13 +70,8 @@ else {
   // Execute a job from the queue
   jobQueue.process(function(opts, done) {
     var result;
-    //var cmd = opts.data.cmd;
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
-    //var cmd = 'execTest.sh';
-
-    //console.log(repoTests);
-
     var cmd = ('./' + CMD_PATH).replace('//', '/');
     var srcRepoUrl = opts.data.log.url;
     var testRepoUrl = TEST_REPO_URL;
@@ -80,56 +86,15 @@ else {
 
     if (!cmd) {
       done(Error('Parameter opts missing property data.cmd or data.payload.'));
-}
+    }
 
-console.log('Starting to process job');
-    execFile(cmd, [srcRepoUrl, testRepoUrl], execOpts, function(error, stdout, stderr) {
+    execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
       if (error !== null) {
         done(Error('Exec failed to run cmd.'));
       }
       else {
-        console.log(stdout);
         done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
-        }
-        console.log("job done");
-
+      }
     });
-
-    /*
-    if (cmd && payload) {
-      console.log('Processing cmd: ' + cmd);
-      var child = exec(cmd, function (error, stdout, stderr) {
-        if (error !== null) {
-          result = {
-            "successful": false,
-            "stdout": stdout,
-            "stderr": stderr,
-            "error": error
-          };
-        }
-        else {
-          result = {
-            "successful": true,
-            "stdout": stdout,
-            "stderr": stderr,
-            "error": ""
-          };
-        }
-
-        opts.data.result = result;
-        msgQueue.add(opts.data);
-      });  // exec
-    }
-    else {
-      opts.data.result = {
-        "successful": false,
-        "stdout": "",
-        "stderr": "",
-        "error": "Parameter opts missing property data.cmd or data.payload."
-      };
-      msgQueue.add(opts.data);
-    }
-    */
-    //done();
   });
 }
