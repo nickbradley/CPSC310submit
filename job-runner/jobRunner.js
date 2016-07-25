@@ -73,7 +73,7 @@ else {
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
     var cmd = ('./' + CMD_PATH).replace('//', '/');
-    var srcRepoUrl = opts.data.log.url;
+    var srcRepoUrl = opts.data.log.opts.url;
     var testRepoUrl = TEST_REPO_URL;
     var execOpts = {
       cwd: null,  // Current working directory

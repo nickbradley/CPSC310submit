@@ -5,24 +5,24 @@
  * @version 1.0
  */
 
- // Get environment variables
- var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
- var CRT_FILE = process.env.CRT_FILE || '/app/cpsc310-2016Fall.crt';
- var KEY_FILE = process.env.KEY_FILE || '/app/cpsc310-2016Fall.key';
+// Get environment variables
+var MAX_REQUESTS = process.env.MAX_REQUESTS || 10;
+var CRT_FILE = process.env.CRT_FILE || '/app/cpsc310-2016Fall.crt';
+var KEY_FILE = process.env.KEY_FILE || '/app/cpsc310-2016Fall.key';
 
- var PORT = process.env.PORT || 4430;
- var REDIS_PORT = process.env.REDIS_PORT || 6379;
- var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';  // 'redis' is set by docker-compose in /etc/hosts
- var DB_PORT = process.env.DB_PORT || 5984;
- var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
- var DB_NAME = process.env.DB_NAME || 'cspc310';
- var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
+var PORT = process.env.PORT || 4430;
+var REDIS_PORT = process.env.REDIS_PORT || 6379;
+var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';  // 'redis' is set by docker-compose in /etc/hosts
+var DB_PORT = process.env.DB_PORT || 5984;
+var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by docker-compose in /etc/hosts
+var DB_NAME = process.env.DB_NAME || 'cspc310';
+var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
 
- var TOKEN = process.env.GITHUB_API_KEY;
+var TOKEN = process.env.GITHUB_API_KEY;
 
- if (!TOKEN) {
-   throw 'Required environment variable GitHub API token is not set.';
- }
+if (!TOKEN) {
+  throw 'Required environment variable GitHub API token is not set.';
+}
 
 // Load required packages
 var https = require('https');
@@ -32,14 +32,13 @@ var winston = require('winston');
 var winstonCouch = require('winston-couchdb').Couchdb;
 var Queue = require('bull');
 
+// Define logging
+var logger;
+
 // Setup the database connection
-//var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT, pathname: DB_NAME});
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
 var db = nano.use(DB_NAME);
-
-
-
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
@@ -57,11 +56,6 @@ catch (ex) {
 }
 
 
-var logger;
-
-
-
-
 
 
 //logger.info('CPSC310 GitHub Listener has started.');
@@ -74,9 +68,11 @@ var logger;
 //set timeout {}
 // jobQueue.on('ready', function() {})  // put below line in here
 
-// Check existence of databases
+console.log('Preparing to start CPSC310 GitHub Listener');
+
+// Check existence of databases and start listening for requests
 nano.db.list(function(err, body){
-  if (err) throw 'Failed to get database list';
+  if (err) throw 'Failed to retrieve database list ' + err;
   if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
   if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
 
@@ -94,28 +90,13 @@ nano.db.list(function(err, body){
     ]
   });
 
-https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
-startMessageQueue();
-//https.createServer(httpsOptions, ()=>{console.log('Hello!!!!')}).listen(PORT);
-logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT)
+  https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
+  startMessageQueue();
+
+  logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT);
 });
 
 
-
-// Check that we connected to the users document
-/*
-db.head('users', function(err, _, headers) {
-  if (err) {
-    throw 'Failed to connect to database document "users" at ' + conn;
-  }
-});
-*/
-/*
-db.get('cpsc310', function(err, body) {
-    console.log(err);
-    //console.log(body);
-});
-*/
 
 
 
