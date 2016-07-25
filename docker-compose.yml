@@ -14,6 +14,7 @@ services:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
       - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
   web:
     build: ./pull-request
     env_file:
