@@ -72,7 +72,7 @@ else {
     var result;
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
-    var cmd = ('sudo ./' + CMD_PATH).replace('//', '/');
+    var cmd = ('./' + CMD_PATH).replace('//', '/');
     var srcRepoUrl = opts.data.log.url;
     var testRepoUrl = TEST_REPO_URL;
     var execOpts = {
