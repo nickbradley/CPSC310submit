@@ -17,7 +17,6 @@ fi
 
 # Clone the students repository
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
-REGEX="https://api.github.com/repos/(.*)"
 if [[ ${STUDENT_REPO_URL} =~ $REGEX ]]
 then
   USER_NAME="${BASH_REMATCH[1]}"
@@ -25,7 +24,7 @@ then
   PULL_REQUEST="${BASH_REMATCH[3]}"
 else
   echo "${STUDENT_REPO_URL} is not in the correct input format."
-  #exit 1
+  exit 1
 fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
