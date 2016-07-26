@@ -34,6 +34,9 @@ mkdir -p "${STUDENT_REPO}" && cd "$_" \
 && git fetch origin pull/${PULL_REQUEST}/head \
 && git checkout -b pullrequest FETCH_HEAD
 
+ls
+ls "${TEST_REPO}"
+ls "${STUDENT_REPO}"
 # Run docker
 echo "*** Begin test output ***"
 
