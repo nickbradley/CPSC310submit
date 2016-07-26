@@ -45,4 +45,4 @@ docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run hello-world
 echo "*** End test output ***"
 
-rm -rf "${STUDENT_REPO}"
+#rm -rf "${STUDENT_REPO}"
