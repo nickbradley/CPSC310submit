@@ -37,9 +37,9 @@ mkdir -p "${STUDENT_REPO}" && cd "$_" \
 # Run docker
 echo "*** Begin test output ***"
 
-#docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src
+docker run cpsc310/tester -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
-docker run hello-world
+#docker run hello-world
 echo "*** End test output ***"
 
 rm -rf "${STUDENT_REPO}"
