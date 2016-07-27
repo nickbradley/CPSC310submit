@@ -3,8 +3,8 @@
 TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
-TEST_REPO=/home/root/repos/test
-STUDENT_REPO=/home/root/repos$(mktemp -d)
+TEST_REPO=/app/repos/test
+STUDENT_REPO=/app/repos$(mktemp -d)
 
 
 # Clone the testing repository if this is the first run
