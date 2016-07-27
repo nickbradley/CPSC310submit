@@ -37,6 +37,8 @@ git checkout -b pullrequest FETCH_HEAD
 
 # Run docker
 echo "*** Begin test output ***"
+ls -l "${TEST_REPO}"
+ls -l "${STUDENT_REPO}"
 echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
