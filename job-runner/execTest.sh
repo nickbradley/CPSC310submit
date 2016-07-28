@@ -3,6 +3,8 @@
 TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
+echo
+
 TEST_REPO=/repos/test
 STUDENT_REPO=/repos/src
 
@@ -15,6 +17,8 @@ STUDENT_REPO=/repos/src
 #else
 #  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
 #fi
+
+cd "${TEST_REPO}" && git pull
 
 # Clone the students repository
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
@@ -38,11 +42,16 @@ fi
 
 # Run docker
 echo "*** Begin test output ***"
-echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
-docker run -v cpsc310-repo-test:/test -v cpsc310-repo-source:/src cpsc310/tester
+#echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
+docker run -v cpsc310-repo-test:/test -v cpsc310-repo-source:/src cpsc310/tester && \
 #docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
 #docker run hello-world
 echo "*** End test output ***"
 
 #rm -rf "${STUDENT_REPO}"
+
+
+
+
+#sudo docker run -i -v cpsc310-repo-test:/test -v cpsc310-repo-source:/src cpsc310/tester /bin/bash
