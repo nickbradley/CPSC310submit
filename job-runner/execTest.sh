@@ -4,7 +4,7 @@ TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
 TEST_REPO=/repos/test
-STUDENT_REPO=/repos$(mktemp -d)
+STUDENT_REPO=/repos/src$(mktemp -d)
 
 
 # Clone the testing repository if this is the first run
@@ -37,6 +37,7 @@ git checkout -b pullrequest FETCH_HEAD
 
 # Run docker
 echo "*** Begin test output ***"
+echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
 #docker run hello-world
