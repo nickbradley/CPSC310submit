@@ -14,8 +14,7 @@ services:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
       - /var/run/docker.sock:/var/run/docker.sock
-      - repo-test-data:/repos/test
-      - repo-source-data:/repos/src
+      - repo-data:/repos
     privileged: true
   web:
     build: ./pull-request
@@ -39,9 +38,9 @@ volumes:
   db-data:
     external:
       name: cpsc310-couchdb-store
-  repo-test-data:
+  repo-data:
     external:
-      name: cpsc310-repo-test
+      name: cpsc310-repo-store
   repo-source-data:
     external:
       name: cpsc310-repo-source

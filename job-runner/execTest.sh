@@ -3,22 +3,21 @@
 TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
-echo
 
 TEST_REPO=/repos/test
-STUDENT_REPO=/repos/src
+STUDENT_REPO=/repos/src$(mktemp -d)
 
 
 
 # Clone the testing repository if this is the first run
 # otherwise, pull the latest version
-#if [[ -d "${TEST_REPO}" ]]
-# then cd "${TEST_REPO}" && git pull
-#else
-#  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
-#fi
+if [[ -d "${TEST_REPO}" ]]
+ then cd "${TEST_REPO}" && git pull
+else
+  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+fi
 
-cd "${TEST_REPO}" && git pull
+#cd "${TEST_REPO}" && git pull
 
 # Clone the students repository
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
@@ -43,7 +42,7 @@ fi
 # Run docker
 echo "*** Begin test output ***"
 #echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
-docker run -v cpsc310-repo-test:/test -v cpsc310-repo-source:/src cpsc310/tester && \
+docker run -v cpsc310-repo-store:/repos cpsc310/tester && \
 #docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
 #docker run hello-world
