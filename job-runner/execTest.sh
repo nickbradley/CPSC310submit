@@ -33,16 +33,16 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-#mkdir -p "${STUDENT_REPO}"
-#cd "${STUDENT_REPO}"
-#git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}"
-#git fetch origin pull/${PULL_REQUEST}/head
-#git checkout -b pullrequest FETCH_HEAD
+mkdir -p "${STUDENT_REPO}"
+cd "${STUDENT_REPO}"
+git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}"
+git fetch origin pull/${PULL_REQUEST}/head
+git checkout -b pullrequest FETCH_HEAD
 
 # Run docker
 echo "*** Begin test output ***"
 #echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
-docker run -v cpsc310-repo-store:/repos cpsc310/tester && \
+docker run -v cpsc310-repo-store/repos/test:/repos/test cpsc310/tester && \
 #docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
 #docker run hello-world
