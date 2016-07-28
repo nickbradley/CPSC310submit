@@ -13,7 +13,7 @@ STUDENT_REPO=/repos/src
 #if [[ -d "${TEST_REPO}" ]]
 # then cd "${TEST_REPO}" && git pull
 #else
-  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+#  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
 #fi
 
 # Clone the students repository
@@ -30,11 +30,11 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-mkdir -p "${STUDENT_REPO}"
-cd "${STUDENT_REPO}"
-git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}"
-git fetch origin pull/${PULL_REQUEST}/head
-git checkout -b pullrequest FETCH_HEAD
+#mkdir -p "${STUDENT_REPO}"
+#cd "${STUDENT_REPO}"
+#git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}"
+#git fetch origin pull/${PULL_REQUEST}/head
+#git checkout -b pullrequest FETCH_HEAD
 
 # Run docker
 echo "*** Begin test output ***"
