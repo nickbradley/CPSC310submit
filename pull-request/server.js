@@ -41,18 +41,7 @@ var logger;
 // Setup the database connection
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
-var dbAuth;
-nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
-  if (err) {
-    throw 'Failed to login to database.';
-  }
 
-  if (headers && headers['set-cookie']) {
-    dbAuth = headers['set-cookie'];
-  }
-
-  var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + dbAuth});
-});
 
 
 // Setup the job and message queues
@@ -129,7 +118,7 @@ function dbAuth(doc, callback) {
     }
 
     callback(require('nano')({url: conn + '/' + DB_NAME, cookie: auth}), doc);
-  }
+  })
 };
 
 
