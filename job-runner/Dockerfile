@@ -7,13 +7,14 @@ RUN apt-get update
 RUN apt-get -t jessie-backports install "docker.io" -y
 
 RUN mkdir /app
+ADD package.json /app
+RUN npm install
 
 ADD jobRunner.js /app
-ADD package.json /app
 ADD execTest.sh /app
 RUN chmod a+x /app/execTest.sh
 
 WORKDIR /app
-RUN npm install
+
 
 CMD ["node", "jobRunner.js"]

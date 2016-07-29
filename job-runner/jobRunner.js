@@ -90,6 +90,7 @@ else {
     execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
       if (error !== null) {
         console.log(error);
+        console.log('------------------[ERROR]------------------');
         done(Error('Exec failed to run cmd.'));
       }
       else {
