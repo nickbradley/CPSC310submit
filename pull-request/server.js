@@ -18,6 +18,9 @@ var DB_ADDR = process.env.DB_ADDR || 'db' || '127.0.0.1';  // 'db' is set by doc
 var DB_NAME = process.env.DB_NAME || 'cspc310';
 var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
 
+
+var DB_USER = 'jan';
+var DB_PASS = 'apple';
 var TOKEN = process.env.GITHUB_API_KEY;
 
 if (!TOKEN) {
@@ -38,7 +41,19 @@ var logger;
 // Setup the database connection
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
-var db = nano.use(DB_NAME);
+var dbAuth;
+nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
+  if (err) {
+    throw 'Failed to login to database.';
+  }
+
+  if (headers && headers['set-cookie']) {
+    dbAuth = headers['set-cookie'];
+  }
+
+  var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + dbAuth});
+});
+
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
@@ -98,7 +113,9 @@ nano.db.list(function(err, body){
 
 
 
+function dbconnect(callback) {
 
+}
 
 
 
@@ -199,43 +216,58 @@ function processPayload(payload) {
   //var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
 
-  db.get(fullname.replace('/', '|'), function(err, doc) {
-    if (err) {
-      logger.error("Vaildate request error");
-      //postMsg = 'Request denied: invalid user/repo pair.';
-      sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
-    }
-    else {
-      // check that db document is initialized
-      if (!doc.num_runs) doc.num_runs = 0;
-      if (!doc.last_run) doc.last_run = null;
-      if (!doc.results) doc.results = [];
-      if (!doc.abbrv_results) doc.abbrv_results = [];
 
-      if (doc.num_runs < MAX_REQUESTS-1) {
-        queueLengthPromise.then(function(queueLength) {
-            postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
-            sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-            //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
-            job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
-            try {
-              jobQueue.add(job);
-              logger.info(log.msg + " queued for processing.", log.opts)
-            }
-            catch (ex) {
-              logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
-              throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
-            }
-        })
+  nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
+    if (err) {
+      throw 'Failed to login to database.';
+    }
+
+    if (headers && headers['set-cookie']) {
+      dbAuth = headers['set-cookie'];
+    }
+
+    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + dbAuth});
+  
+    db.get(fullname.replace('/', '|'), function(err, doc) {
+      if (err) {
+        logger.error("Vaildate request error");
+        //postMsg = 'Request denied: invalid user/repo pair.';
+        sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
       }
       else {
-        postMsg = 'Request denied: exceeded number of tests allowed for this repository.'
-        sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
-      }
-    }
+        // check that db document is initialized
+        if (!doc.num_runs) doc.num_runs = 0;
+        if (!doc.last_run) doc.last_run = null;
+        if (!doc.results) doc.results = [];
+        if (!doc.abbrv_results) doc.abbrv_results = [];
 
-    //sendGitHubPullRequestComment(postMsg, postUrl);
+        if (doc.num_runs < MAX_REQUESTS-1) {
+          queueLengthPromise.then(function(queueLength) {
+              postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
+              sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+              //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
+              job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
+              try {
+                jobQueue.add(job);
+                logger.info(log.msg + " queued for processing.", log.opts)
+              }
+              catch (ex) {
+                logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
+                throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
+              }
+          })
+        }
+        else {
+          postMsg = 'Request denied: exceeded number of tests allowed for this repository.'
+          sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
+        }
+      }
+
+      //sendGitHubPullRequestComment(postMsg, postUrl);
+    });
   });
+
+
 
 }  // processPayload
 
