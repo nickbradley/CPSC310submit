@@ -211,15 +211,11 @@ function processPayload(payload) {
       "postUrl": postUrl
     }
   };
-  var queueLengthPromise = jobQueue.count();
-  //console.log(jobQueue.count());
-  //var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
-  var postMsg;
-
 
   dbAuth(fullname.replace('/', '|'), function(db, doc) {
 
     db.get(doc, function(err, doc) {
+      var queueLengthPromise = jobQueue.count();
       if (err) {
         logger.error("Vaildate request error");
         //postMsg = 'Request denied: invalid user/repo pair.';
@@ -346,15 +342,16 @@ msgQueue.process(function(opts, done) {
     case 'completed':
         logger.info(log.msg + " has finished running tests.", log.opts);
 
-
-        db.insert(repoTests, function(err, body){
-          if(err) {
-            logger.error('Failed to update database record', err);
-            sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
-          }
-          else {
-            sendGitHubPullRequestComment(log.opts.postUrl, 'Job done. Show the results.');
-          }
+        dbAuth(repoTests, function(db, doc){
+          db.insert(doc, function(err, body){
+            if(err) {
+              logger.error('Failed to update database record', err);
+              sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
+            }
+            else {
+              sendGitHubPullRequestComment(log.opts.postUrl, 'Job done. Show the results.');
+            }
+          })
         });
 
         break;
