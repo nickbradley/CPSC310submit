@@ -113,13 +113,24 @@ nano.db.list(function(err, body){
 
 
 
-function dbconnect(callback) {
-
-}
 
 
 
+function dbAuth(doc, callback) {
+  var auth;
 
+  nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
+    if (err) {
+      throw 'Failed to login to database.';
+    }
+
+    if (headers && headers['set-cookie']) {
+      auth = headers['set-cookie'][0];
+    }
+
+    callback(require('nano')({url: conn + '/' + DB_NAME, cookie: auth}), doc);
+  }
+};
 
 
 
@@ -217,20 +228,9 @@ function processPayload(payload) {
   var postMsg;
 
 
-  nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
-    if (err) {
-      throw 'Failed to login to database.';
-    }
+  dbAuth(fullname.replace('/', '|'), function(db, doc) {
 
-    if (headers && headers['set-cookie']) {
-      dbAuth = headers['set-cookie'][0];
-    }
-    console.log(dbAuth);
-    //console.log(dbAuth[0]);
-
-    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: dbAuth});
-
-    db.get(fullname.replace('/', '|'), function(err, doc) {
+    db.get(doc, function(err, doc) {
       if (err) {
         logger.error("Vaildate request error");
         //postMsg = 'Request denied: invalid user/repo pair.';
