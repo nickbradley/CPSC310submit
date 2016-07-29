@@ -336,7 +336,7 @@ msgQueue.process(function(opts, done) {
       break;
     case 'completed':
         logger.info(log.msg + " has finished running tests.", log.opts);
-
+        /*
         dbAuth(repoTests, function(db, doc){
           db.insert(doc, function(err, body){
             if(err) {
@@ -349,7 +349,8 @@ msgQueue.process(function(opts, done) {
             }
           })
         });
-
+        */
+        console.log('********** TESTS COMPLETED *****************');
         break;
     case 'failed':
     console.log(opts.data.error);
