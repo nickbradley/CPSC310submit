@@ -195,6 +195,7 @@ function processPayload(payload) {
       "postUrl": postUrl
     }
   };
+  var countPromise = jobQueue.count();
   console.log(jobQueue.count());
   var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
@@ -213,25 +214,29 @@ function processPayload(payload) {
       if (!doc.abbrv_results) doc.abbrv_results = [];
 
       if (doc.num_runs < MAX_REQUESTS-1) {
-        postMsg = 'Request received; should be processed within ' + processDelay + ' minutes.';
-        //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
-        job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
-        try {
-          jobQueue.add(job);
-          logger.info(log.msg + " queued for processing.", log.opts)
-        }
-        catch (ex) {
-          logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
-          throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
-        }
-
+        countPromise.then(function(count) {
+          console.log('Queue count is', count);
+            postMsg = 'Request received; should be processed within ' + processDelay + ' minutes.';
+            sendGitHubPullRequestComment(postMsg, postUrl);
+            //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
+            job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
+            try {
+              jobQueue.add(job);
+              logger.info(log.msg + " queued for processing.", log.opts)
+            }
+            catch (ex) {
+              logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
+              throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
+            }
+        })
       }
       else {
         postMsg = 'Request denied: exceeded number of tests allowed for this repository.'
+        sendGitHubPullRequestComment(postMsg, postUrl);
       }
     }
 
-    sendGitHubPullRequestComment(postMsg, postUrl);
+    //sendGitHubPullRequestComment(postMsg, postUrl);
   });
 
 }  // processPayload
