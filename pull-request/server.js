@@ -195,8 +195,8 @@ function processPayload(payload) {
       "postUrl": postUrl
     }
   };
-  console.log(jobQueue);
-  var processDelay = jobQueue.count * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
+  console.log(jobQueue.count());
+  var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
 
   db.get(fullname.replace('/', '|'), function(err, doc) {
