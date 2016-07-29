@@ -338,7 +338,6 @@ msgQueue.process(function(opts, done) {
         logger.info(log.msg + " has finished running tests.", log.opts);
 
         dbAuth(repoTests, function(db, doc){
-          console.log(doc);
           db.insert(doc, function(err, body){
             if(err) {
               console.log(err);
@@ -353,6 +352,7 @@ msgQueue.process(function(opts, done) {
 
         break;
     case 'failed':
+    console.log(opts.data.error);
       logger.error(log.msg + ' failed to execute tests.', log.opts, opts.data.error);
       sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to execute tests.');
       break;
