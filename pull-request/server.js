@@ -195,9 +195,9 @@ function processPayload(payload) {
       "postUrl": postUrl
     }
   };
-  var countPromise = jobQueue.count();
-  console.log(jobQueue.count());
-  var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
+  var queueLengthPromise = jobQueue.count();
+  //console.log(jobQueue.count());
+  //var processDelay = jobQueue.count() * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
 
   db.get(fullname.replace('/', '|'), function(err, doc) {
@@ -214,9 +214,8 @@ function processPayload(payload) {
       if (!doc.abbrv_results) doc.abbrv_results = [];
 
       if (doc.num_runs < MAX_REQUESTS-1) {
-        countPromise.then(function(count) {
-          console.log('Queue count is', count);
-            postMsg = 'Request received; should be processed within ' + processDelay + ' minutes.';
+        queueLengthPromise.then(function(queueLength) {
+            postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
             sendGitHubPullRequestComment(postMsg, postUrl);
             //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
             job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
