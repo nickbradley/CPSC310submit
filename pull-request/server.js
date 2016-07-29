@@ -226,7 +226,7 @@ function processPayload(payload) {
       dbAuth = headers['set-cookie'];
     }
     console.log(dbAuth);
-    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + dbAuth});
+    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + 'amFuOjU3OUJBRTAzOmIvvSBn_AGCRVxN3D-hjA8Ei1RQ'});
 
     db.get(fullname.replace('/', '|'), function(err, doc) {
       if (err) {
