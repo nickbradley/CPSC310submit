@@ -10,6 +10,10 @@ services:
       - db-data:/usr/local/var/lib/couchdb
   job:
     build: ./job-runner
+    environment:
+      WORKERS: 10
+      TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
+      CMD_SCRIPT: 'execTest.sh'
     volumes:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
@@ -21,7 +25,7 @@ services:
     env_file:
       - ./web.env
     environment:
-      MAX_REQUESTS: 10
+      MAX_REQUESTS: 1000000
       DB_NAME: cpsc310
     links:
       - redis

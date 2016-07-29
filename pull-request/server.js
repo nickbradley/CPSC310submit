@@ -23,9 +23,10 @@ var DB_USER = 'jan';
 var DB_PASS = 'apple';
 var TOKEN = process.env.GITHUB_API_KEY;
 
-if (!TOKEN) {
-  throw 'Required environment variable GitHub API token is not set.';
-}
+if (!DB_USERNAME) throw 'Required environment variable DB_USERNAME is not set.';
+if (!DB_PASSWORD) throw 'Required environment variable DB_PASSWORD is not set.';
+if (!TOKEN)  throw 'Required environment variable GITHUB_API_KEY is not set.';
+
 
 // Load required packages
 var https = require('https');
@@ -104,7 +105,12 @@ nano.db.list(function(err, body){
 
 
 
-
+/**
+ * Authenticates against DB
+ * @param {string} doc A document id in the DB
+ * @param callback Function to call after successfully authenticating.
+ * @throws Failed to login to database.
+ */
 function dbAuth(doc, callback) {
   var auth;
 
@@ -213,12 +219,9 @@ function processPayload(payload) {
   };
 
   dbAuth(fullname.replace('/', '|'), function(db, doc) {
-
     db.get(doc, function(err, doc) {
-      var queueLengthPromise = jobQueue.count();
       if (err) {
         logger.error("Vaildate request error");
-        //postMsg = 'Request denied: invalid user/repo pair.';
         sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
       }
       else {
@@ -229,13 +232,11 @@ function processPayload(payload) {
         if (!doc.abbrv_results) doc.abbrv_results = [];
 
         if (doc.num_runs < MAX_REQUESTS-1) {
-          queueLengthPromise.then(function(queueLength) {
-              postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
+          jobQueue.count().then(function(queueLength) {
               sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-              //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
-              job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
+
               try {
-                jobQueue.add(job);
+                jobQueue.add({ log: log, repoTests: doc });
                 logger.info(log.msg + " queued for processing.", log.opts)
               }
               catch (ex) {
@@ -245,17 +246,11 @@ function processPayload(payload) {
           })
         }
         else {
-          postMsg = 'Request denied: exceeded number of tests allowed for this repository.'
           sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
         }
       }
-
-      //sendGitHubPullRequestComment(postMsg, postUrl);
-    });
-  });
-
-
-
+    });  // db.get
+  });  // dbAuth
 }  // processPayload
 
 
