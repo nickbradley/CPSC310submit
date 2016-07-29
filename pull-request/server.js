@@ -19,8 +19,8 @@ var DB_NAME = process.env.DB_NAME || 'cspc310';
 var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
 
 
-var DB_USER = 'jan';
-var DB_PASS = 'apple';
+var DB_USERNAME = 'jan';
+var DB_PASSWORD = 'apple';
 var TOKEN = process.env.GITHUB_API_KEY;
 
 if (!DB_USERNAME) throw 'Required environment variable DB_USERNAME is not set.';
@@ -114,7 +114,7 @@ nano.db.list(function(err, body){
 function dbAuth(doc, callback) {
   var auth;
 
-  nano.auth(DB_USER, DB_PASS, function(err, body, headers) {
+  nano.auth(DB_USERNAME, DB_PASSWORD, function(err, body, headers) {
     if (err) {
       throw 'Failed to login to database.';
     }
