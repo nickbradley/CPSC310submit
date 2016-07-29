@@ -181,7 +181,6 @@ function parsePayload(payload) {
 
 
 function processPayload(payload) {
-  //var repo = payload.data.pull_request.head.repo.name;
   var fullname = payload.data.pull_request.head.repo.full_name;
   var repoId = payload.data.pull_request.id;
   var repoUrl = payload.data.pull_request.url;
@@ -203,8 +202,8 @@ function processPayload(payload) {
   db.get(fullname.replace('/', '|'), function(err, doc) {
     if (err) {
       logger.error("Vaildate request error");
-      postMsg = 'Request denied: invalid user/repo pair.';
-      //sendGitHubPullRequestComment('Request denied: invalid user/repo pair.', postUrl);
+      //postMsg = 'Request denied: invalid user/repo pair.';
+      sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
     }
     else {
       // check that db document is initialized
@@ -216,7 +215,7 @@ function processPayload(payload) {
       if (doc.num_runs < MAX_REQUESTS-1) {
         queueLengthPromise.then(function(queueLength) {
             postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
-            sendGitHubPullRequestComment(postMsg, postUrl);
+            sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.');
             //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
             job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
             try {
@@ -231,7 +230,7 @@ function processPayload(payload) {
       }
       else {
         postMsg = 'Request denied: exceeded number of tests allowed for this repository.'
-        sendGitHubPullRequestComment(postMsg, postUrl);
+        sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
       }
     }
 
@@ -241,7 +240,7 @@ function processPayload(payload) {
 }  // processPayload
 
 
-function sendGitHubPullRequestComment(comment, commentUrl) {
+function sendGitHubPullRequestComment(commentUrl, comment) {
   // Check that comment is valid JSON and has property "body"
   //if (!comment || !comment.hasOwnProperty('body')) {
   //  logger.error('sendGitHubPullRequestComment: Required parameter comment is missing property body.');
@@ -328,17 +327,17 @@ msgQueue.process(function(opts, done) {
         db.insert(repoTests, function(err, body){
           if(err) {
             logger.error('Failed to update database record', err);
-            sendGitHubPullRequestComment('Failed to update database record', log.opts.postUrl);
+            sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
           }
           else {
-            sendGitHubPullRequestComment('Job done. Show the results.', log.opts.postUrl);
+            sendGitHubPullRequestComment(log.opts.postUrl, 'Job done. Show the results.');
           }
         });
 
         break;
     case 'failed':
-      logger.error(log.msg + " failed to execute tests.", log.opts, opts.data.error);
-      sendGitHubPullRequestComment("Failed to execute tests.", log.opts.postUrl);
+      logger.error(log.msg + ' failed to execute tests.', log.opts, opts.data.error);
+      sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to execute tests.');
       break;
     default:
       logger.error('Unknown status:', status);
