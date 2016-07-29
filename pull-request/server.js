@@ -223,10 +223,12 @@ function processPayload(payload) {
     }
 
     if (headers && headers['set-cookie']) {
-      dbAuth = headers['set-cookie'];
+      dbAuth = headers['set-cookie'][0];
     }
     console.log(dbAuth);
-    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + 'amFuOjU3OUJBRTAzOmIvvSBn_AGCRVxN3D-hjA8Ei1RQ'});
+    //console.log(dbAuth[0]);
+
+    var db = require('nano')({url: conn + '/' + DB_NAME, cookie: dbAuth});
 
     db.get(fullname.replace('/', '|'), function(err, doc) {
       if (err) {
