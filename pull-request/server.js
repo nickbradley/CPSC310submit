@@ -215,7 +215,7 @@ function processPayload(payload) {
       if (doc.num_runs < MAX_REQUESTS-1) {
         queueLengthPromise.then(function(queueLength) {
             postMsg = 'Request received; should be processed within ' + queueLength * 2 + 2 + ' minutes.';
-            sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + +queueLength * 2 + 2 + ' minutes.');
+            sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (+queueLength * 2 + 2) + ' minutes.');
             //sendGitHubPullRequestComment('Request received; should be processed within ' + processDelay + ' minutes.', postUrl);
             job = { cmd: 'docker run fedora echo hello from fedora docker', log: log, repoTests: doc };
             try {
