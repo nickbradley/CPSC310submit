@@ -11,11 +11,11 @@ STUDENT_REPO=/repos/src$(mktemp -d)
 
 # Clone the testing repository if this is the first run
 # otherwise, pull the latest version
-if [[ -d "${TEST_REPO}" ]]
- then cd "${TEST_REPO}" && git pull
-else
-  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
-fi
+#if [[ -d "${TEST_REPO}" ]]
+# then cd "${TEST_REPO}" && git pull
+#else
+#  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+#fi
 
 #cd "${TEST_REPO}" && git pull
 
