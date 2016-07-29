@@ -128,7 +128,7 @@ function receiveGitHubPullRequest(req, res) {
     req.on('end', function() {
       var payload = parsePayload(reqPayload);
 
-      if (payload.isValid) {
+      if (payload.isValid && payload.data.action == "opened") {
         res.writeHead(200, { 'Content-Type': 'text/plain'})
         res.end();
 
@@ -195,6 +195,7 @@ function processPayload(payload) {
       "postUrl": postUrl
     }
   };
+  console.log(jobQueue);
   var processDelay = jobQueue.count * 2 + 2; // 2 min * the number of entries in the queue; min delay is 2 min.
   var postMsg;
 
