@@ -225,9 +225,9 @@ function processPayload(payload) {
     if (headers && headers['set-cookie']) {
       dbAuth = headers['set-cookie'];
     }
-
+    console.log(dbAuth);
     var db = require('nano')({url: conn + '/' + DB_NAME, cookie: 'AuthSession=' + dbAuth});
-  
+
     db.get(fullname.replace('/', '|'), function(err, doc) {
       if (err) {
         logger.error("Vaildate request error");
