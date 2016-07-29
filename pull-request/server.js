@@ -338,8 +338,10 @@ msgQueue.process(function(opts, done) {
         logger.info(log.msg + " has finished running tests.", log.opts);
 
         dbAuth(repoTests, function(db, doc){
+          console.log(doc);
           db.insert(doc, function(err, body){
             if(err) {
+              console.log(err);
               logger.error('Failed to update database record', err);
               sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
             }
