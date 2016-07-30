@@ -11,7 +11,7 @@ services:
   job:
     build: ./job-runner
     environment:
-      WORKERS: 1
+      WORKERS: 5
       TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
       CMD_SCRIPT: 'execTest.sh'
     volumes:
