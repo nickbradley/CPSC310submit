@@ -20,7 +20,7 @@ if (!TEST_REPO_URL) throw 'Required environment variable TEST_REPO_URL is not se
 // Load required packages
 var Queue = require('bull');
 var cluster = require('cluster');
-var execFile = require('child_process').execFileSync;
+var execFile = require('child_process').execFile;
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
@@ -112,6 +112,6 @@ else {
         done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
       }
     });
-    
+
   });
 }
