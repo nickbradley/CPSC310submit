@@ -75,12 +75,13 @@ else {
   // Execute a job from the queue
   jobQueue.process(function(opts, done) {
     console.log("Job done by worker", cluster.worker.id, opts.jobId);
-
+/*
     sleep(500).then(()=>{
       console.log(console.log('done'))
     })
     console.log('After sleep')
-/*
+*/
+
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
     var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
@@ -111,6 +112,6 @@ else {
         done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
       }
     });
-    */
+    
   });
 }
