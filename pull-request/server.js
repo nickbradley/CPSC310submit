@@ -367,10 +367,10 @@ jobQueue.on('failed', function(job, error) {
 
 
 jobQueue.process(10, function(job, done){
-  var log = opts.data.log;
-  var repoTests = opts.data.repoTests;
+  var log = job.opts.data.log;
+  var repoTests = job.opts.data.repoTests;
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
-  var srcRepoUrl = opts.data.log.opts.url;
+  var srcRepoUrl = job.opts.data.log.opts.url;
   var testRepoUrl = TEST_REPO_URL;
   var execOpts = {
     cwd: null,  // Current working directory
