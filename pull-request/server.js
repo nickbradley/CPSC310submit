@@ -342,15 +342,49 @@ function testResultsFormatter(result) {
 jobQueue.on('active', function(job, jobPromise) {
   logger.info(job.data.log.msg + " has started running tests.", job.data.log.opts);
 });
+
 jobQueue.on('completed', function(job, result) {
-  var repoTests = result.repoTests;
-  var abbrvResults = testResultsFormatter(result.stdout);
+  var fullname = "nickbradley/Test";
 
-  repoTests.last_run = new Date();
-  repoTests.num_runs++;
-  repoTests.results.push(result.stdout);
-  repoTests.abbrv_results.push(abbrvResults);
+  dbAuth(fullname, function(db, doc) {
+    db.get(doc, function(err, doc) {
+      if (err) {
+        console.log('Error retrieving document ' + fullname + '.', err);
+      }
+      else {
+        var rev = doc;
+        rev.last_run = new Date();
+        rev.num_runs++;
+        rev.results.push(result.stdout);
+        rev.abbrv_results.push(testResultsFormatter(result.stdout));
 
+        db.insert(rev, function(err, body) {
+          if(err) {
+            console.log('Error updating document ' + fullname + '.', err);
+          }
+          else {
+            console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
+          }
+        })  // db.insert
+      }
+    })  // db.get
+  })  // dbAuth
+
+
+
+
+
+
+
+  //var repoTests = result.repoTests;
+  //var abbrvResults = testResultsFormatter(result.stdout);
+
+  //repoTests.last_run = new Date();
+  //repoTests.num_runs++;
+  //repoTests.results.push(result.stdout);
+  //repoTests.abbrv_results.push(abbrvResults);
+  //console.log()
+  /*
   dbAuth(repoTests, function(db, doc){
     db.insert(doc, function(err, body){
       if(err) {
@@ -363,10 +397,10 @@ jobQueue.on('completed', function(job, result) {
       }
     })
   });
+*/
 
-
-  logger.info(job.data.log.msg + " has finished running tests.", job.data.log.opts);
-  console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
+  //logger.info(job.data.log.msg + " has finished running tests.", job.data.log.opts);
+  //console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
   //sendGitHubPullRequestComment
   //msgQueue.add({status: 'completed', log: result.log, repoTests: repoTests});
 });
