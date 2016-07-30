@@ -44,7 +44,7 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-mkdir -p "${STUDENT_REPO}" && cd "$_" && \
+mkdir -p "${STUDENT_REPO}" && cd "${STUDENT_REPO}" && \
 git clone "https://github.com/${USER_NAME}/${REPO_NAME}" && \
 git fetch origin pull/${PULL_REQUEST}/head && \
 git checkout -b pullrequest FETCH_HEAD
