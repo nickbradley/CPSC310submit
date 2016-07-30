@@ -356,10 +356,10 @@ jobQueue.on('completed', function(job, result) {
       if(err) {
         console.log(err);
         logger.error('Failed to update database record', err);
-        sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
+        sendGitHubPullRequestComment(job.data.log.opts.postUrl, 'Failed to update database record');
       }
       else {
-        sendGitHubPullRequestComment(log.opts.postUrl, 'Job done. Show the results.');
+        sendGitHubPullRequestComment(job.data.log.opts.postUrl, 'Job done. Show the results.');
       }
     })
   });
