@@ -38,7 +38,7 @@ services:
     privileged: true
     links:
       - redis
-      - job
+#      - job
   nginx:
     build: ./nginx
     ports:
