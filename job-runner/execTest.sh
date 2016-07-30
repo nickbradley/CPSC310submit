@@ -3,9 +3,10 @@
 TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
-
+TEMP_DIR=$(mktemp -d)
+echo "Temp dir: ${TEMP_DIR}"
 TEST_REPO=/repos/test
-STUDENT_REPO=/repos/src$(mktemp -d)
+STUDENT_REPO=/repos/src${TEMP_DIR}
 
 #echo '----------------| ERROR FROM execTest.sh |----------------';
 #exit 1;
@@ -43,7 +44,7 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-mkdir -p "${STUDENT_REPO}" && cd "$_"
+mkdir -p "${STUDENT_REPO}" && cd "$_" || (echo "error mkdir" && exit 1);
 git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}" || (echo "error cloning" && exit 1);
 git fetch origin pull/${PULL_REQUEST}/head || (echo "error fetching" && exit 1);
 git checkout -b pullrequest FETCH_HEAD || (echo "error checking out" && exit 1);
