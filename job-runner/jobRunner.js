@@ -64,6 +64,7 @@ else {
   });
 
   jobQueue.on('failed', function(job, error) {
+    console.log(error);
     msgQueue.add({status:'failed', log: job.data.log, error: error});
   });
 
