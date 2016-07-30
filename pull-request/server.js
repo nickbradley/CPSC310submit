@@ -367,6 +367,7 @@ jobQueue.on('failed', function(job, error) {
 
 
 jobQueue.process(10, function(job, done){
+  console.log('Job object', job);
   var log = job.opts.data.log;
   var repoTests = job.opts.data.repoTests;
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
