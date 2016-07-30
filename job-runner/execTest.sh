@@ -43,8 +43,8 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-#mkdir -p "${STUDENT_REPO}" || echo "mkdir error"; exit 1;
-#cd "${STUDENT_REPO}"
+mkdir -p "${STUDENT_REPO}" || echo "mkdir error"; exit 1;
+cd "${STUDENT_REPO}"
 #git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}" || echo "error cloning"; exit 1;
 #git fetch origin pull/${PULL_REQUEST}/head || echo "error fetching"; exit 1;
 #git checkout -b pullrequest FETCH_HEAD || echo "error checking out"; exit 1;
