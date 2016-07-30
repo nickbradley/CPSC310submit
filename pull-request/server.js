@@ -358,6 +358,7 @@ jobQueue.on('completed', function(job, result) {
 });
 
 jobQueue.on('failed', function(job, error) {
+  console.log('Job failed with error', error);
   logger.error(job.data.log.msg + ' failed to execute tests.', job.data.log.opts, error);
   sendGitHubPullRequestComment(job.data.log.opts.postUrl, 'Failed to execute tests.');
   //console.log(error);
