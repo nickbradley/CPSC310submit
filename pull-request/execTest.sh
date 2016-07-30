@@ -44,10 +44,16 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-mkdir -p "${STUDENT_REPO}" && cd "$_" || (echo "error mkdir" && exit 1);
-git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}" || (echo "error cloning" && exit 1);
-git fetch origin pull/${PULL_REQUEST}/head || (echo "error fetching" && exit 1);
-git checkout -b pullrequest FETCH_HEAD || (echo "error checking out" && exit 1);
+mkdir -p "${STUDENT_REPO}" && cd "$_" && \
+git clone "https://github.com/${USER_NAME}/${REPO_NAME}" && \
+git fetch origin pull/${PULL_REQUEST}/head && \
+git checkout -b pullrequest FETCH_HEAD
+
+if [ $? -ne 0 ]
+then
+  echo "Error getting pull request from GitHub."
+  exit 1
+fi
 
 # Run docker
 echo "*** Begin test output ***"
