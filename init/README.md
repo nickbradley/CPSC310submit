@@ -74,3 +74,4 @@ curl -X PUT http://localhost:5984/cpsc310/_security \
 
 
      curl -u jan:apple http://localhost:5984/cpsc310/
+     curl -u jan:apple -X PUT http://localhost:5984/cpsc310/nickbradley%2FTest -d '{}'

@@ -352,11 +352,23 @@ jobQueue.on('completed', function(job, result) {
         console.log('Error retrieving document ' + fullname + '.', err);
       }
       else {
-        var rev = doc;
-        rev.last_run = new Date();
-        rev.num_runs++;
-        rev.results.push(result.stdout);
-        rev.abbrv_results.push(testResultsFormatter(result.stdout));
+        //var rev = doc;
+
+        // check that db document is initialized
+        //rev.num_runs = doc.num_runs++ || 1;
+        //rev.last_run = new Date();
+        //rev.results = Array.isArray(doc.results) ? doc.results.push(result.stdout) : [result.stdout];
+        //rev.output = Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)];
+        
+        var rev = {
+          _id: doc._id,
+          _rev: doc._rev,
+
+          last_run: new Date(),
+          num_runs: doc.num_runs++ || 1,
+          results: Array.isArray(doc.results) ? doc.results.push(result.stdout) : [result.stdout],
+          output: Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
+        };
 
         db.insert(rev, function(err, body) {
           if(err) {
