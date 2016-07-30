@@ -28,18 +28,6 @@ if (!DB_PASSWORD) throw 'Required environment variable DB_PASSWORD is not set.';
 if (!TOKEN)  throw 'Required environment variable GITHUB_API_KEY is not set.';
 
 
-var WORKERS = process.env.WORKERS || 1;
-var CMD_TIMEOUT = process.env.CMD_TIMEOUT || 500000; // milliseconds
-
-var CMD_SCRIPT = process.env.CMD_SCRIPT; //'execTest.sh';
-var TEST_REPO_URL = process.env.TEST_REPO_URL;
-
-if (!CMD_SCRIPT) throw 'Required environment variable CMD_SCRIPT is not set.';
-if (!TEST_REPO_URL) throw 'Required environment variable TEST_REPO_URL is not set.';
-
-
-
-
 // Load required packages
 var https = require('https');
 var url = require('url');
@@ -47,7 +35,6 @@ var fs = require('fs');
 var winston = require('winston');
 var winstonCouch = require('winston-couchdb').Couchdb;
 var Queue = require('bull');
-var execFile = require('child_process').execFile;
 
 // Define logging
 var logger;
@@ -60,7 +47,7 @@ var nano = require('nano')(conn);
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
-//var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
+var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
 // Read in the SSL certificate and key
 try {
@@ -109,7 +96,7 @@ nano.db.list(function(err, body){
   });
 
   https.createServer(httpsOptions, receiveGitHubPullRequest).listen(PORT);
-  //startMessageQueue();
+  startMessageQueue();
 
   logger.info('CPSC310 GitHub Listener is up and running on port ' + PORT);
 });
@@ -332,76 +319,6 @@ console.log("*** Comment posted to github:", comment);
   req.end();
   */
 }  // sendGitHubPullRequestComment
-
-function testResultsFormatter(result) {
-  // accepts the stdout from the docker command
-  // returns a string that will be posted to GitHub
-  return result;
-}
-
-jobQueue.on('active', function(job, jobPromise) {
-  logger.info(job.data.log.msg + " has started running tests.", job.data.log.opts);
-});
-jobQueue.on('completed', function(job, result) {
-  var repoTests = result.repoTests;
-  var abbrvResults = testResultsFormatter(result.stdout);
-
-  repoTests.last_run = new Date();
-  repoTests.num_runs++;
-  repoTests.results.push(result.stdout);
-  repoTests.abbrv_results.push(abbrvResults);
-
-  logger.info(job.data.log.msg + " has finished running tests.", job.data.log.opts);
-  console.log('********** TESTS COMPLETED *****************');
-  //sendGitHubPullRequestComment
-  //msgQueue.add({status: 'completed', log: result.log, repoTests: repoTests});
-});
-
-jobQueue.on('failed', function(job, error) {
-  logger.error(log.msg + ' failed to execute tests.', log.opts, opts.data.error);
-  sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to execute tests.');
-  //console.log(error);
-  //msgQueue.add({status:'failed', log: job.data.log, error: error});
-});
-
-
-jobQueue.process(10, function(job, done){
-  var log = opts.data.log;
-  var repoTests = opts.data.repoTests;
-  var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
-  var srcRepoUrl = opts.data.log.opts.url;
-  var testRepoUrl = TEST_REPO_URL;
-  var execOpts = {
-    cwd: null,  // Current working directory
-    env: null,  // Environment key-value pairs
-    encoding: 'utf8',
-    timeout: CMD_TIMEOUT,
-    maxBuffer: 500*1024,  // 500 KB
-  };
-
-  if (!cmd || !srcRepoUrl || !testRepoUrl) {
-    done(Error('Parameter opts missing property cmd, srcReporUrl or testRepoUrl.'));
-  }
-
-  // Run the script file
-  execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
-    if (error !== null) {
-      console.log('stdout', stdout);
-      console.log('stderr', stderr);
-      console.log('error', error);
-      console.log('------------------[ERROR]------------------');
-      done(Error('Exec failed to run cmd.'));
-    }
-    else {
-      console.log(stdout);
-      console.log(stderr);
-      done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
-    }
-  });
-
-}); //jobQueue.process
-
-
 
 
 function startMessageQueue() {
