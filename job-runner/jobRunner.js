@@ -27,6 +27,10 @@ var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
 var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
 
+function sleep (time) {
+  return new Promise((reslove) => setTimeout(resolve, time));
+}
+
 function testResultsFormatter(result) {
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
@@ -72,6 +76,10 @@ else {
   jobQueue.process(function(opts, done) {
     console.log("Job done by worker", cluster.worker.id, opts.jobId);
 
+    sleep(500).then(()=>{
+      console.log(console.log('done'))
+    })
+/*
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
     var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
@@ -102,5 +110,6 @@ else {
         done(null, { stdout: stdout, stderr: stderr, log: log, repoTests: repoTests });
       }
     });
+    */
   });
 }
