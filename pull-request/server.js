@@ -367,7 +367,7 @@ jobQueue.on('failed', function(job, error) {
 
 
 jobQueue.process(10, function(job, done){
-  console.log('Job object', job);
+  console.log('--------------| Processing Job ' + job.jobId + ' |------------------');
   var log = job.data.log;
   var repoTests = job.data.repoTests;
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
