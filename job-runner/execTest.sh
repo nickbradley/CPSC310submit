@@ -60,9 +60,10 @@ docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester 
 #docker run hello-world
 echo "*** End test output ***"
 
-rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
+#rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
 
 
 
 
 #sudo docker run -i -v cpsc310-repo-test:/test -v cpsc310-repo-source:/src cpsc310/tester /bin/bash
+exit 0;
