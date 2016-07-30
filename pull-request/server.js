@@ -351,8 +351,22 @@ jobQueue.on('completed', function(job, result) {
   repoTests.results.push(result.stdout);
   repoTests.abbrv_results.push(abbrvResults);
 
+  dbAuth(repoTests, function(db, doc){
+    db.insert(doc, function(err, body){
+      if(err) {
+        console.log(err);
+        logger.error('Failed to update database record', err);
+        sendGitHubPullRequestComment(log.opts.postUrl, 'Failed to update database record');
+      }
+      else {
+        sendGitHubPullRequestComment(log.opts.postUrl, 'Job done. Show the results.');
+      }
+    })
+  });
+
+
   logger.info(job.data.log.msg + " has finished running tests.", job.data.log.opts);
-  console.log('********** TESTS COMPLETED *****************');
+  console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
   //sendGitHubPullRequestComment
   //msgQueue.add({status: 'completed', log: result.log, repoTests: repoTests});
 });
