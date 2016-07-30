@@ -9,7 +9,7 @@
 var REDIS_PORT = process.env.REDIS_PORT || 6379;
 var REDIS_ADDR = process.env.REDIS_ADDR || 'redis' || '127.0.0.1';
 var WORKERS = process.env.WORKERS || 1;
-var CMD_TIMEOUT = process.env.CMD_TIMEOUT || 5000; // milliseconds
+var CMD_TIMEOUT = process.env.CMD_TIMEOUT || 500000; // milliseconds
 
 var CMD_SCRIPT = process.env.CMD_SCRIPT; //'execTest.sh';
 var TEST_REPO_URL = process.env.TEST_REPO_URL;
