@@ -8,18 +8,18 @@ services:
       - ./db.env
     volumes:
       - db-data:/usr/local/var/lib/couchdb
-  job:
-    build: ./job-runner
-    environment:
-      WORKERS: 3
-      TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
-      CMD_SCRIPT: 'execTest.sh'
-    volumes:
-      # expose the host docker socket
-      # any containers started inside of job will run on the host as a sibiling container
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /repos:/repos:z
-    privileged: true
+  #job:
+  #  build: ./job-runner
+  #  environment:
+  #    WORKERS: 3
+  #    TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
+  #    CMD_SCRIPT: 'execTest.sh'
+  #  volumes:
+  #    # expose the host docker socket
+  #    # any containers started inside of job will run on the host as a sibiling container
+  #    - /var/run/docker.sock:/var/run/docker.sock
+  #    - /repos:/repos:z
+  #  privileged: true
   web:
     build: ./pull-request
     env_file:
