@@ -28,7 +28,7 @@ var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
 
 function sleep (time) {
-  return new Promise((reslove) => setTimeout(resolve, time));
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 function testResultsFormatter(result) {
@@ -79,6 +79,7 @@ else {
     sleep(500).then(()=>{
       console.log(console.log('done'))
     })
+    console.log('After sleep')
 /*
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
