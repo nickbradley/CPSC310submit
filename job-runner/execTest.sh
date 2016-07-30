@@ -7,8 +7,8 @@ STUDENT_REPO_URL=$2
 TEST_REPO=/repos/test
 STUDENT_REPO=/repos/src$(mktemp -d)
 
-echo '----------------| ERROR FROM execTest.sh |----------------';
-exit 1;
+#echo '----------------| ERROR FROM execTest.sh |----------------';
+#exit 1;
 
 # Clone the testing repository if this is the first run
 # otherwise, pull the latest version
