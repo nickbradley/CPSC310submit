@@ -359,7 +359,7 @@ jobQueue.on('completed', function(job, result) {
         //rev.last_run = new Date();
         //rev.results = Array.isArray(doc.results) ? doc.results.push(result.stdout) : [result.stdout];
         //rev.output = Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)];
-        
+
         var rev = {
           _id: doc._id,
           _rev: doc._rev,
@@ -369,7 +369,7 @@ jobQueue.on('completed', function(job, result) {
           results: Array.isArray(doc.results) ? doc.results.push(result.stdout) : [result.stdout],
           output: Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
         };
-
+        console.log('Going to insert ', rev);
         db.insert(rev, function(err, body) {
           if(err) {
             console.log('Error updating document ' + fullname + '.', err);
