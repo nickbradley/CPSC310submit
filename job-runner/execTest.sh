@@ -33,23 +33,23 @@ fi
 #  git clone https://github.com/nickbradley/Test
 #  git fetch origin pull/5/head
 #  git checkout -b pullrequest FETCH_HEAD
-mkdir -p "${STUDENT_REPO}"
+mkdir -p "${STUDENT_REPO}" || echo "mkdir error"; exit 1;
 cd "${STUDENT_REPO}"
-git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}"
-git fetch origin pull/${PULL_REQUEST}/head
-git checkout -b pullrequest FETCH_HEAD
+git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}" || echo "error cloning"; exit 1;
+git fetch origin pull/${PULL_REQUEST}/head || echo "error fetching"; exit 1;
+git checkout -b pullrequest FETCH_HEAD || echo "error checking out"; exit 1;
 
 # Run docker
 echo "*** Begin test output ***"
 #echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v cpsc310-repo-store/repos/test:/repos/test cpsc310/tester && \
-docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
+docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester || echo "error docker"; exit 1;
 #docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v /var/run/docker.sock:/var/run/docker.sock fedora
 #docker run hello-world
 echo "*** End test output ***"
 
-rm -rf "${STUDENT_REPO}"
+rm -rf "${STUDENT_REPO}" || echo "error removing"; exit 1;
 
 
 
