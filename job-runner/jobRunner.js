@@ -69,6 +69,8 @@ else {
 
   // Execute a job from the queue
   jobQueue.process(function(opts, done) {
+    console.log("Job done by worker", cluster.worker.id, job.jobId);
+
     var log = opts.data.log;
     var repoTests = opts.data.repoTests;
     var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
