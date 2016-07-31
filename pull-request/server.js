@@ -249,7 +249,9 @@ function processPayload(payload) {
           logger.error('processPullRequest: Failed to add job to queue.', ex);
           throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
         }
-      });
+      }).catch(function(reason) {
+            console.log('Handle rejected promise ('+reason+') here.');
+        });
     }
     else {
       sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
