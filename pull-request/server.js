@@ -75,11 +75,26 @@ catch (ex) {
 }
 
 
-var userRequests = {
+var userRequests;
+/* = {
   "nickbradley/Test": 0
-};
+};*/
 
+dbAuth('', function(db, docId){
+  db.view('student_repos', 'num_runs', function(err, body) {
+    if (err) {
+      console.log('Error getting number of runs', err);
+    }
+    else {
+      userRequests =body.rows.reduce(function(o, v, i) {
+        o[i] = {v.key: v.value};
+        return o;
+      }, {});
 
+      console.log('userRequests ', userRequests);
+    }
+  })
+})
 
 //logger.info('CPSC310 GitHub Listener has started.');
 
@@ -385,7 +400,7 @@ dbInsertQueue.process(function(job, done) {
           results: Array.isArray(doc.results) ? doc.results.concat(result.stdout) : [result.stdout],
           output: Array.isArray(doc.output) ? doc.output.concat(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
         };
-        console.log('Going to insert ', rev);
+
         db.insert(rev, function(err, body) {
           if(err) {
             console.log('Error updating document ' + docId + '.', err);

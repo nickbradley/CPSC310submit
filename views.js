@@ -1,0 +1,7 @@
+{
+  "viewname": {
+    "map": "function(doc) {
+
+    }"
+  }
+}
