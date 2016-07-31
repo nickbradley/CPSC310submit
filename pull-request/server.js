@@ -52,6 +52,10 @@ var execFile = require('child_process').execFile;
 // Define logging
 var logger;
 
+// Dictionary of database docIds and num_runs.
+// Used to ensure student does not exceed MAX_REQUESTS
+var userRequests;
+
 // Setup the database connection
 var conn = url.format({protocol: 'http', hostname: DB_ADDR, port: DB_PORT});
 var nano = require('nano')(conn);
@@ -75,28 +79,8 @@ catch (ex) {
 }
 
 
-var userRequests;
-/* = {
-  "nickbradley/Test": 0
-};*/
 
-dbAuth('', function(db, docId){
-  db.view('student_repos', 'num_runs', function(err, body) {
-    if (err) {
-      console.log('Error getting number of runs', err);
-    }
-    else {
-      /*
-      userRequests =body.rows.reduce(function(o, v, i) {
-        o[v.key] = v.value;
-        return o;
-      }, {});
-*/
-      userRequests = body.rows.reduce((prev, curr) => { prev[curr.key] = curr.value; return prev; }, {});
-      console.log('userRequests ', userRequests);
-    }
-  })
-})
+
 
 //logger.info('CPSC310 GitHub Listener has started.');
 
@@ -115,6 +99,24 @@ nano.db.list(function(err, body){
   if (err) throw 'Failed to retrieve database list ' + err;
   if (body.indexOf(DB_NAME) < 0) throw 'Failed to connect to database ' + DB_NAME + ' at ' + conn + '. Make sure database server is running and that the database exists.';
   if (body.indexOf(DB_LOGS) < 0) throw 'Failed to connect to database ' + DB_LOGS + ' at ' + conn + '. Make sure database server is running and that the database exists.';
+
+  // Initialize userRequests with values from the database
+  dbAuth('', function(db, docId){
+    db.view('student_repos', 'num_runs', function(err, body) {
+      if (err) {
+        console.log('Error getting number of runs', err);
+      }
+      else {
+
+        userRequests = body.rows.reduce((prev, curr) => {
+          prev[curr.key] = curr.value;
+          return prev;
+        }, {});
+        console.log('userRequests ', userRequests);
+      }
+    });  // db.view
+  });  // dbAuth
+
 
   //Setup logging with winston
   logger = new (winston.Logger)({
