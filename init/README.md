@@ -14,6 +14,7 @@ sudo yum install docker-compose -y
 cd ~
 git clone cpsc310server
 
+# Make sym links to certs in main directory
 cp certs ~/cpsc310server/pull-request
 
 
