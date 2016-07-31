@@ -75,6 +75,10 @@ catch (ex) {
 }
 
 
+var userRequests = {
+  "nickbradley/Test": 0
+};
+
 
 
 //logger.info('CPSC310 GitHub Listener has started.');
@@ -232,6 +236,30 @@ function processPayload(payload) {
     }
   };
 
+  if (userRequests[fullname]) {
+    if (userRequests[fullname] < MAX_REQUESTS-1) {
+      jobQueue.count().then(function(queueLength) {
+        try {
+          jobQueue.add({ log: log, repoTests: doc });
+          logger.info(log.msg + " queued for processing.", log.opts);
+          sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+          userRequests[fullname]++;
+        }
+        catch (ex) {
+          logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
+          throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
+        }
+      });
+    }
+    else {
+      sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
+    }
+  }
+  else {
+    logger.error("Vaildate request error");
+    sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
+  }
+/*
   dbAuth(fullname.replace('/', '|'), function(db, doc) {
     db.get(doc, function(err, doc) {
       if (err) {
@@ -265,7 +293,8 @@ function processPayload(payload) {
       }
     });  // db.get
   });  // dbAuth
-}  // processPayload
+  */
+};  // processPayload
 
 
 function sendGitHubPullRequestComment(commentUrl, comment) {
@@ -335,7 +364,6 @@ console.log("*** Comment posted to github:", comment);
 }  // sendGitHubPullRequestComment
 
 dbInsertQueue.process(function(job, done) {
-  //console.log(job);
   var docId = job.data.docId;
   var result = job.data.result;
 
@@ -369,7 +397,6 @@ dbInsertQueue.process(function(job, done) {
       }
     })  // db.get
   })  // dbAuth
-
 });
 
 
@@ -386,41 +413,6 @@ jobQueue.on('active', function(job, jobPromise) {
 jobQueue.on('completed', function(job, result) {
   var fullname = "nickbradley/Test";
   dbInsertQueue.add({docId: fullname, result: result});
-
-
-
-
-
-
-
-
-  //var repoTests = result.repoTests;
-  //var abbrvResults = testResultsFormatter(result.stdout);
-
-  //repoTests.last_run = new Date();
-  //repoTests.num_runs++;
-  //repoTests.results.push(result.stdout);
-  //repoTests.abbrv_results.push(abbrvResults);
-  //console.log()
-  /*
-  dbAuth(repoTests, function(db, doc){
-    db.insert(doc, function(err, body){
-      if(err) {
-        console.log(err);
-        logger.error('Failed to update database record', err);
-        sendGitHubPullRequestComment(job.data.log.opts.postUrl, 'Failed to update database record');
-      }
-      else {
-        sendGitHubPullRequestComment(job.data.log.opts.postUrl, 'Job done. Show the results.');
-      }
-    })
-  });
-*/
-
-  //logger.info(job.data.log.msg + " has finished running tests.", job.data.log.opts);
-  //console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
-  //sendGitHubPullRequestComment
-  //msgQueue.add({status: 'completed', log: result.log, repoTests: repoTests});
 });
 
 jobQueue.on('failed', function(job, error) {
