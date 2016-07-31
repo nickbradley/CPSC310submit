@@ -364,6 +364,7 @@ dbInsertQueue.process(function(job, done) {
       }
     })  // db.get
   })  // dbAuth
+  done();
 })
 
 
