@@ -343,6 +343,7 @@ dbInsertQueue.process(function(job, done) {
     db.get(docId, function(err, doc) {
       if (err) {
         console.log('Error retrieving document ' + docId + '.', err);
+        done();
       }
       else {
         var rev = {
@@ -358,16 +359,18 @@ dbInsertQueue.process(function(job, done) {
         db.insert(rev, function(err, body) {
           if(err) {
             console.log('Error updating document ' + docId + '.', err);
+            done();
           }
           else {
             console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
+            done();
           }
         })  // db.insert
       }
     })  // db.get
   })  // dbAuth
-  done();
-})
+
+});
 
 
 function testResultsFormatter(result) {
