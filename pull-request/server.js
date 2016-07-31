@@ -60,6 +60,7 @@ var nano = require('nano')(conn);
 
 // Setup the job and message queues
 var jobQueue = Queue('CPSC310 Test Job Queue', REDIS_PORT, REDIS_ADDR);
+var dbInsertQueue = Queue('CPSC310 Database Insertion Queue', REDIS_PORT, REDIS_ADDR);
 //var msgQueue = Queue('CPSC310 Test Results Queue', REDIS_PORT, REDIS_ADDR);
 
 // Read in the SSL certificate and key
@@ -124,7 +125,7 @@ nano.db.list(function(err, body){
  * @param callback Function to call after successfully authenticating.
  * @throws Failed to login to database.
  */
-function dbAuth(doc, callback) {
+function dbAuth(docId, callback) {
   var auth;
 
   nano.auth(DB_USERNAME, DB_PASSWORD, function(err, body, headers) {
@@ -136,7 +137,7 @@ function dbAuth(doc, callback) {
       auth = headers['set-cookie'][0];
     }
 
-    callback(require('nano')({url: conn + '/' + DB_NAME, cookie: auth}), doc);
+    callback(require('nano')({url: conn + '/' + DB_NAME, cookie: auth}), docId);
   })
 };
 
@@ -333,21 +334,11 @@ console.log("*** Comment posted to github:", comment);
   */
 }  // sendGitHubPullRequestComment
 
-function testResultsFormatter(result) {
-  // accepts the stdout from the docker command
-  // returns a string that will be posted to GitHub
-  return result;
-}
+dbInsertQueue.process(function(job, done) {
+  var docId = job.opts;
 
-jobQueue.on('active', function(job, jobPromise) {
-  logger.info(job.data.log.msg + " has started running tests.", job.data.log.opts);
-});
-
-jobQueue.on('completed', function(job, result) {
-  var fullname = "nickbradley/Test";
-
-  dbAuth(fullname, function(db, doc) {
-    db.get(doc, function(err, doc) {
+  dbAuth(docId, function(db, docId) {
+    db.get(docId, function(err, doc) {
       if (err) {
         console.log('Error retrieving document ' + fullname + '.', err);
       }
@@ -373,6 +364,23 @@ jobQueue.on('completed', function(job, result) {
       }
     })  // db.get
   })  // dbAuth
+})
+
+
+function testResultsFormatter(result) {
+  // accepts the stdout from the docker command
+  // returns a string that will be posted to GitHub
+  return result;
+}
+
+jobQueue.on('active', function(job, jobPromise) {
+  logger.info(job.data.log.msg + " has started running tests.", job.data.log.opts);
+});
+
+jobQueue.on('completed', function(job, result) {
+  var fullname = "nickbradley/Test";
+  dbInsertQueue.add(fullname);
+
 
 
 
