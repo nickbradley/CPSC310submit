@@ -241,9 +241,9 @@ function processPayload(payload) {
       jobQueue.count().then(function(queueLength) {
         try {
           jobQueue.add({ log: log, repoTests: doc });
-          logger.info(log.msg + " queued for processing.", log.opts);
-          sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-          userRequests[fullname]++;
+          //logger.info(log.msg + " queued for processing.", log.opts);
+          //sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+          //userRequests[fullname]++;
         }
         catch (ex) {
           logger.error('processPullRequest: Failed to add job to queue.', ex);
