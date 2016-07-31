@@ -86,12 +86,13 @@ dbAuth('', function(db, docId){
       console.log('Error getting number of runs', err);
     }
     else {
+      /*
       userRequests =body.rows.reduce(function(o, v, i) {
-        //o[i] = {v.key: v.value};
         o[v.key] = v.value;
         return o;
       }, {});
-
+*/
+      userRequests = body.rows.reduce((prev, curr) => prev[curr.key] = curr.value, {});
       console.log('userRequests ', userRequests);
     }
   })
