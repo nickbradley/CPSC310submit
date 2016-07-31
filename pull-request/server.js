@@ -87,7 +87,8 @@ dbAuth('', function(db, docId){
     }
     else {
       userRequests =body.rows.reduce(function(o, v, i) {
-        o[i] = {v.key: v.value};
+        //o[i] = {v.key: v.value};
+        o[v.key] = v.value;
         return o;
       }, {});
 
