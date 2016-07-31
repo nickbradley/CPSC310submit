@@ -335,9 +335,9 @@ console.log("*** Comment posted to github:", comment);
 }  // sendGitHubPullRequestComment
 
 dbInsertQueue.process(function(job, done) {
-  console.log(job);
-  var docId = job.opts.docId;
-  var result = job.opts.result;
+  //console.log(job);
+  var docId = job.data.docId;
+  var result = job.data.result;
 
   dbAuth(docId, function(db, docId) {
     db.get(docId, function(err, doc) {
