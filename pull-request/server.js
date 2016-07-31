@@ -352,22 +352,14 @@ jobQueue.on('completed', function(job, result) {
         console.log('Error retrieving document ' + fullname + '.', err);
       }
       else {
-        //var rev = doc;
-
-        // check that db document is initialized
-        //rev.num_runs = doc.num_runs++ || 1;
-        //rev.last_run = new Date();
-        //rev.results = Array.isArray(doc.results) ? doc.results.push(result.stdout) : [result.stdout];
-        //rev.output = Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)];
-        console.log('Doc before rev is', doc);
         var rev = {
           _id: doc._id,
           _rev: doc._rev,
 
           last_run: new Date(),
           num_runs: ++doc.num_runs || 1,
-          results: Array.isArray(doc.results) ? doc.results.splice(-1, 0, "N/A") : [result.stdout],
-          output: Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
+          results: Array.isArray(doc.results) ? doc.results.concat(result.stdout) : [result.stdout],
+          output: Array.isArray(doc.output) ? doc.output.concat(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
         };
         console.log('Going to insert ', rev);
         db.insert(rev, function(err, body) {
