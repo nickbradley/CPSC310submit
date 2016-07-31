@@ -59,7 +59,8 @@ fi
 echo "*** Begin test output ***"
 #echo docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
 #docker run -v cpsc310-repo-store/repos/test:/repos/test cpsc310/tester && \
-
+sleep 5
+echo "All done."
 #docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester || (echo "error docker" && exit 1);
 
 #docker run -v "${TEST_REPO}":/test -v "${STUDENT_REPO}":/src cpsc310/tester
