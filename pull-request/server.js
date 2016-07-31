@@ -236,7 +236,7 @@ function processPayload(payload) {
     }
   };
 
-  if (userRequests[fullname]) {
+  if (userRequests[fullname] !== undefined) {
     if (userRequests[fullname] < MAX_REQUESTS-1) {
       jobQueue.count().then(function(queueLength) {
         try {
