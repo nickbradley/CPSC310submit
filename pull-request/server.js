@@ -365,8 +365,8 @@ jobQueue.on('completed', function(job, result) {
           _rev: doc._rev,
 
           last_run: new Date(),
-          num_runs: doc.num_runs++ || 1,
-          results: Array.isArray(doc.results) ? doc.results.splice(-1, 0, doc.num_runs) : [result.stdout],
+          num_runs: ++doc.num_runs || 1,
+          results: Array.isArray(doc.results) ? doc.results.splice(-1, 0, "N/A") : [result.stdout],
           output: Array.isArray(doc.output) ? doc.output.push(testResultsFormatter(result.stdout)) : [testResultsFormatter(result.stdout)]
         };
         console.log('Going to insert ', rev);
