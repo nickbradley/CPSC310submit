@@ -335,12 +335,13 @@ console.log("*** Comment posted to github:", comment);
 }  // sendGitHubPullRequestComment
 
 dbInsertQueue.process(function(job, done) {
-  var docId = job.opts;
+  var docId = job.opts.docId;
+  var result = job.opts.result;
 
   dbAuth(docId, function(db, docId) {
     db.get(docId, function(err, doc) {
       if (err) {
-        console.log('Error retrieving document ' + fullname + '.', err);
+        console.log('Error retrieving document ' + docId + '.', err);
       }
       else {
         var rev = {
@@ -355,7 +356,7 @@ dbInsertQueue.process(function(job, done) {
         console.log('Going to insert ', rev);
         db.insert(rev, function(err, body) {
           if(err) {
-            console.log('Error updating document ' + fullname + '.', err);
+            console.log('Error updating document ' + docId + '.', err);
           }
           else {
             console.log('********** JOB '+ job.jobId +' COMPLETED *****************');
@@ -380,7 +381,7 @@ jobQueue.on('active', function(job, jobPromise) {
 
 jobQueue.on('completed', function(job, result) {
   var fullname = "nickbradley/Test";
-  dbInsertQueue.add(fullname);
+  dbInsertQueue.add({docId: fullname, result: result});
 
 
 
