@@ -246,7 +246,7 @@ function processPayload(payload) {
           userRequests[fullname]++;
         }
         catch (ex) {
-          logger.error('processPullRequest: Failed to add job to queue.', {"value": job, "exception": ex});
+          logger.error('processPullRequest: Failed to add job to queue.', ex);
           throw 'Failed to add job to queue. Is redis running at ' + REDIS_ADDR + ':' + REDIS_PORT + '?';
         }
       });
