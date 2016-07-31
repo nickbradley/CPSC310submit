@@ -92,7 +92,7 @@ dbAuth('', function(db, docId){
         return o;
       }, {});
 */
-      userRequests = body.rows.reduce((prev, curr) => prev[curr.key] = curr.value, {});
+      userRequests = body.rows.reduce((prev, curr) => { prev[curr.key] = curr.value; return prev; }, {});
       console.log('userRequests ', userRequests);
     }
   })
