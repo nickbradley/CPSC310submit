@@ -240,7 +240,7 @@ function processPayload(payload) {
     if (userRequests[fullname] < MAX_REQUESTS-1) {
       jobQueue.count().then(function(queueLength) {
         try {
-          jobQueue.add({ log: log, repoTests: doc });
+          jobQueue.add({ log: log, repoTests: fullname });
           //logger.info(log.msg + " queued for processing.", log.opts);
           //sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
           //userRequests[fullname]++;
