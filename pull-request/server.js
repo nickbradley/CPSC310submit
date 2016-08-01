@@ -432,7 +432,7 @@ jobQueue.on('active', function(job, jobPromise) {
 });
 
 jobQueue.on('completed', function(job, result) {
-  var fullname = "nickbradley/Test";
+  var fullname = job.data.log.opts.user;
   dbInsertQueue.add({docId: fullname, result: result});
 });
 
@@ -455,7 +455,7 @@ jobQueue.process(10, function(job, done){
   var execOpts = {
     cwd: null,  // Current working directory
     env: null,  // Environment key-value pairs
-    encoding: 'utf8',
+    encoding: 'utf8', 
     timeout: CMD_TIMEOUT,
     maxBuffer: 500*1024,  // 500 KB
   };
