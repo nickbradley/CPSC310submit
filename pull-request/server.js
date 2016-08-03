@@ -198,8 +198,8 @@ function receiveGitHubPullRequest(req, res) {
         var reqAction = payload.action;
 
         if (reqAction == "opened") {
-          if (userRequests[fullname] !== undefined) {
-            if (userRequests[fullname] < MAX_REQUESTS-1) {
+          if (userRequests[reqFullname] !== undefined) {
+            if (userRequests[reqFullname] < MAX_REQUESTS-1) {
               requestQueue.count().then(function(queueLength) {
                 requestQueue.add({
                   id: reqId,
@@ -208,7 +208,7 @@ function receiveGitHubPullRequest(req, res) {
                   commentUrl: reqCommentUrl
                 });
                 sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-                userRequests[fullname]++;
+                userRequests[reqFullname]++;
                 res.writeHead(200, { 'Content-Type': 'text/plain'})
                 res.end();
               });
