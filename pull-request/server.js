@@ -302,6 +302,7 @@ requestQueue.process(WORKERS, function(job, done) {
 
   // Run the script file
   execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
+    console.log('stdout is ', stdout);
     if (error !== null)
       done(Error('Exec failed to run cmd. ' + error));
     else
@@ -357,9 +358,9 @@ dbInsertQueue.process(function(job, done) {
 dbInsertQueue.on('completed', function(job, result) {
   var pr = job.data.pullRequest;
   var msg = result.output;
-  console.log(msg);
+  //console.log(msg);
   logger.info('Updated database for pull request ' + pr.fullname, pr);
-  comment(pr, msg);
+  //comment(pr, msg);
 });
 dbInsertQueue.on('failed', function(job, error) {
   var pr = job.data.pullRequest;
