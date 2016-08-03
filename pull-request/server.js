@@ -190,36 +190,31 @@ function receiveGitHubPullRequest(req, res) {
     req.on('end', function() {
       //try {
         var payload = JSON.parse(reqPayload);
+        var pr = {
+          id: payload.pull_request.id,
+          url: payload.pull_request.url,
+          fullname: payload.pull_request.head.repo.full_name,
+          commentUrl: payload.pull_request._links.comments.href
+        };
 
-        var reqId = payload.pull_request.id;
-        var reqPullUrl = payload.pull_request.url;
-        var reqCommentUrl = payload.pull_request._links.comments.href;
-        var reqFullname = payload.pull_request.head.repo.full_name;
-        var reqAction = payload.action;
-
-        if (reqAction == "opened") {
-          if (userRequests[reqFullname] !== undefined) {
-            if (userRequests[reqFullname] < MAX_REQUESTS-1) {
+        if (action == "opened") {
+          if (userRequests[pr.fullname] !== undefined) {
+            if (userRequests[pr.fullname] < MAX_REQUESTS-1) {
               requestQueue.count().then(function(queueLength) {
-                requestQueue.add({
-                  id: reqId,
-                  url: reqPullUrl,
-                  fullname: reqFullname,
-                  commentUrl: reqCommentUrl
-                });
-                sendGitHubPullRequestComment(postUrl, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+                requestQueue.add(pr);
+                comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
                 userRequests[reqFullname]++;
                 res.writeHead(200, { 'Content-Type': 'text/plain'})
                 res.end();
               });
             }
             else {
-              sendGitHubPullRequestComment(postUrl, 'Request denied: exceeded number of tests allowed for this repository.');
+              comment(pr, 'Request denied: exceeded number of tests allowed for this repository.');
             }
           }
           else {
             logger.error("Vaildate request error");
-            sendGitHubPullRequestComment(postUrl, 'Request denied: invalid user/repo pair.');
+            comment(pr, 'Request denied: invalid user/repo pair.');
           }
         }
         else {
