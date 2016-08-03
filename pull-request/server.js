@@ -352,7 +352,7 @@ dbInsertQueue.process(function(job, done) {
           if(err)
             done(Error('Error updating document ' + docId + '. ' + err));
           else
-            done(null, { output: rev.output });
+            done(null, { output: testResultsFormatter(result.stdout) });
         });  // db.insert
       }
     });  // db.get
