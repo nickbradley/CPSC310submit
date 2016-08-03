@@ -194,7 +194,7 @@ function receiveGitHubPullRequest(req, res) {
           id: payload.pull_request.id,
           url: payload.pull_request.url,
           fullname: payload.pull_request.head.repo.full_name,
-          commentUrl: payload.pull_request._links.comments.href
+          commentUrl: payload.pull_request._links.review_comments.href
         };
 
         if (payload.action == "opened") {
