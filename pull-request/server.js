@@ -203,7 +203,7 @@ function receiveGitHubPullRequest(req, res) {
               requestQueue.count().then(function(queueLength) {
                 requestQueue.add(pr);
                 comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-                userRequests[reqFullname]++;
+                userRequests[pr.fullname]++;
                 res.writeHead(200, { 'Content-Type': 'text/plain'})
                 res.end();
               });
@@ -243,7 +243,7 @@ function receiveGitHubPullRequest(req, res) {
 
 function comment(pullRequest, msg) {
   var pr = pullRequest;
-  var url = pr.url.parse(commentUrl);
+  var url = pr.url.parse(pr.commentUrl);
   var comment = JSON.stringify({body: msg});
 
   // setup post options
