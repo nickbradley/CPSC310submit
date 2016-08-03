@@ -20,8 +20,9 @@ RUN npm install
 
 ADD server.js /app
 ADD execTest.sh /app
+ADD runTest.sh /app
 RUN chmod a+x /app/execTest.sh
-
+RUN chmod a+x /app/runTest.sh
 
 
 CMD ["node", "server.js"]
