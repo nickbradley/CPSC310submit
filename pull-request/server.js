@@ -358,7 +358,7 @@ dbInsertQueue.process(function(job, done) {
 dbInsertQueue.on('completed', function(job, result) {
   var pr = job.data.pullRequest;
   var msg = result.output;
-  //console.log(msg);
+  console.log('Will comment: ', msg);
   logger.info('Updated database for pull request ' + pr.fullname, pr);
   //comment(pr, msg);
 });
