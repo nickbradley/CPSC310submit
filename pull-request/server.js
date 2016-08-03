@@ -284,7 +284,7 @@ function testResultsFormatter(result) {
 
 requestQueue.process(WORKERS, function(job, done) {
   var pr = job.data;
-  var srcRepo = pr.url;
+  var srcRepoUrl = pr.url;
 
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
   var testRepoUrl = TEST_REPO_URL;
