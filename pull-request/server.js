@@ -223,11 +223,13 @@ function receiveGitHubPullRequest(req, res) {
           }
         }
         else {
+          console.log('Invalid action');
           res.writeHead(400, { 'Content-Type': 'text/plain'})
           res.end();
         }
       }
       catch (ex) {
+        console.log('Invalid payload');
         res.writeHead(400, { 'Content-Type': 'text/plain'})
         res.end();
       }
@@ -235,6 +237,7 @@ function receiveGitHubPullRequest(req, res) {
   }  // if pull request
 
   else {
+    console.log('Invalid header');
     res.writeHead(400, { 'Content-Type': 'text/plain'})
     res.end();
   }
