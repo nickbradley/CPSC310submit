@@ -124,6 +124,7 @@ nano.db.list(function(err, body){
   //Setup logging with winston
   logger = new (winston.Logger)({
     transports: [
+      new (winston.transports.Console)(),
       new (winston.transports.Couchdb)({
         host: DB_ADDR,
         port: DB_PORT,
