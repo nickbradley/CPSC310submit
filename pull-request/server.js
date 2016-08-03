@@ -260,7 +260,8 @@ function comment(pullRequest, msg) {
         'Authorization': 'token ' + TOKEN
     }
   };
-
+console.log('**** Comment Posted ****', msg);
+/*
   // Set up the post request
   var req = https.request(options, function(res) {
     console.log(res.statusCode);
@@ -273,6 +274,7 @@ function comment(pullRequest, msg) {
   // Post the data
   req.write(comment);
   req.end();
+  */
 }  // comment
 
 
@@ -315,6 +317,7 @@ requestQueue.on('active', function(job, jobPromise) {
 });
 requestQueue.on('completed', function(job, result) {
   var pr = job.data;
+  console.log('result is ', result);
   dbInsertQueue.add({ pullRequest: pr, result: result });
   logger.info('Finished running tests for pull request ' + pr.fullname, pr);
 });
