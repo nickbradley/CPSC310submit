@@ -356,9 +356,9 @@ dbInsertQueue.process(function(job, done) {
 });
 dbInsertQueue.on('completed', function(job, result) {
   var pr = job.data.pullRequest;
-  var comment = job.data.output;
+  var msg = job.data.output;
   logger.info('Updated database for pull request ' + pr.fullname, pr);
-  comment(pr, comment);
+  comment(pr, msg);
 });
 dbInsertQueue.on('failed', function(job, error) {
   var pr = job.data.pullRequest;
