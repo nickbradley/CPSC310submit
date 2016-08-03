@@ -262,8 +262,8 @@ function comment(pullRequest, msg) {
 
   // Set up the post request
   var req = https.request(options, function(res) {
-    console.log(res);
-    if (res.statusCode != 200) {
+    console.log(statusCode);
+    if (res.statusCode != 201) {
       logger.error('Failed to post comment for pull request ' + pr.fullname, pr, res.statusCode);
       userRequests[pr.fullname]--;
     }
