@@ -348,7 +348,7 @@ dbInsertQueue.process(function(job, done) {
           if(err)
             done(Error('Error updating document ' + docId + '. ' + err));
           else
-            done(null, { pullRequest: pr, output: rev.output });
+            done(null, { output: rev.output });
         });  // db.insert
       }
     });  // db.get
@@ -356,7 +356,7 @@ dbInsertQueue.process(function(job, done) {
 });
 dbInsertQueue.on('completed', function(job, result) {
   var pr = job.data.pullRequest;
-  var msg = job.data.output;
+  var msg = result.output;
   console.log(msg);
   logger.info('Updated database for pull request ' + pr.fullname, pr);
   comment(pr, msg);
