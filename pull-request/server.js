@@ -314,7 +314,7 @@ requestQueue.on('active', function(job, jobPromise) {
 });
 requestQueue.on('completed', function(job, result) {
   var pr = job.data;
-  dbInsertQueue.add({ docId: pr.fullname, result: result });
+  dbInsertQueue.add({ pullRequest: pr, result: result });
   logger.info('Finished running tests for pull request ' + pr.fullname, pr);
 });
 requestQueue.on('failed', function(job, error) {
@@ -326,7 +326,8 @@ requestQueue.on('failed', function(job, error) {
 
 
 dbInsertQueue.process(function(job, done) {
-  var docId = job.data.docId;
+  var pr = job.data.pullRequest;
+  var docId = pr.fullname;
   var result = job.data.result;
 
   dbAuth(docId, function(db, docId) {
@@ -347,19 +348,20 @@ dbInsertQueue.process(function(job, done) {
           if(err)
             done(Error('Error updating document ' + docId + '. ' + err));
           else
-            done(null, { output: rev.output });
+            done(null, { pullRequest: pr, output: rev.output });
         });  // db.insert
       }
     });  // db.get
   })  // dbAuth
 });
 dbInsertQueue.on('completed', function(job, result) {
-  var pr = job.data;
+  var pr = job.data.pullRequest;
+  var comment = job.data.output;
   logger.info('Updated database for pull request ' + pr.fullname, pr);
-  comment(pr, result.output);
+  comment(pr, comment);
 });
 dbInsertQueue.on('failed', function(job, error) {
-  var pr = job.data;
+  var pr = job.data.pullRequest;
   userRequests[pr.fullname]--;
   logger.error('Failed to update database for pull request ' + pr.fullname, pr, error);
   comment(pr, 'Failed to update database record.');
