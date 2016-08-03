@@ -197,7 +197,7 @@ function receiveGitHubPullRequest(req, res) {
           commentUrl: payload.pull_request._links.comments.href
         };
 
-        if (action == "opened") {
+        if (payload.action == "opened") {
           if (userRequests[pr.fullname] !== undefined) {
             if (userRequests[pr.fullname] < MAX_REQUESTS-1) {
               requestQueue.count().then(function(queueLength) {
