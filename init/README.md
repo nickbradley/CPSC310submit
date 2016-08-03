@@ -11,6 +11,8 @@ sudo yum install docker -y
 sudo yum install docker-compose -y
 
 
+# Set docker to start automatically
+
 cd ~
 git clone cpsc310server
 
