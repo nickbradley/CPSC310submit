@@ -29,7 +29,7 @@ services:
       DB_NAME: cpsc310
       WORKERS: 3
       TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
-      CMD_SCRIPT: 'execTest.sh'
+      CMD_SCRIPT: 'runTest.sh'
     volumes:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
