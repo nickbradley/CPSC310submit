@@ -243,7 +243,7 @@ function receiveGitHubPullRequest(req, res) {
 
 function comment(pullRequest, msg) {
   var pr = pullRequest;
-  var url = pr.url.parse(pr.commentUrl);
+  var url = url.parse(pr.commentUrl);
   var comment = JSON.stringify({body: msg});
 
   // setup post options
