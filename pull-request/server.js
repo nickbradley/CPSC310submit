@@ -243,14 +243,14 @@ function receiveGitHubPullRequest(req, res) {
 
 function comment(pullRequest, msg) {
   var pr = pullRequest;
-  var url = url.parse(pr.commentUrl);
+  var commentUrl = url.parse(pr.commentUrl);
   var comment = JSON.stringify({body: msg});
 
   // setup post options
   var options = {
-    host: url.host,
+    host: commentUrl.host,
     port: '443',
-    path: url.path,
+    path: commentUrl.path,
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -264,7 +264,7 @@ function comment(pullRequest, msg) {
   var req = https.request(options, function(res) {
     if (res.statusCode != 200) {
       logger.error('Failed to post comment for pull request ' + pr.fullname, pr, res.statusCode);
-      userRequests[fullname]--;
+      userRequests[pr.fullname]--;
     }
   });
 
