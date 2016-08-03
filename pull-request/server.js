@@ -194,7 +194,7 @@ function receiveGitHubPullRequest(req, res) {
           id: payload.pull_request.id,
           url: payload.pull_request.url,
           fullname: payload.pull_request.head.repo.full_name,
-          commentUrl: payload.pull_request._links.review_comments.href
+          commentUrl: payload.pull_request._links.comments.href
         };
 
         if (payload.action == "opened") {
@@ -262,6 +262,7 @@ function comment(pullRequest, msg) {
 
   // Set up the post request
   var req = https.request(options, function(res) {
+    console.log(res);
     if (res.statusCode != 200) {
       logger.error('Failed to post comment for pull request ' + pr.fullname, pr, res.statusCode);
       userRequests[pr.fullname]--;
