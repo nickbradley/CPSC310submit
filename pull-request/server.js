@@ -188,7 +188,7 @@ function receiveGitHubPullRequest(req, res) {
     });  // req.on data
 
     req.on('end', function() {
-      try {
+      //try {
         var payload = JSON.parse(reqPayload);
 
         var reqId = payload.pull_request.id;
@@ -227,12 +227,12 @@ function receiveGitHubPullRequest(req, res) {
           res.writeHead(400, { 'Content-Type': 'text/plain'})
           res.end();
         }
-      }
-      catch (ex) {
-        console.log('Invalid payload');
-        res.writeHead(400, { 'Content-Type': 'text/plain'})
-        res.end();
-      }
+      //}
+      //catch (ex) {
+      //  console.log('Invalid payload');
+      //  res.writeHead(400, { 'Content-Type': 'text/plain'})
+      //  res.end();
+      //}
     });  // req.on end
   }  // if pull request
 
