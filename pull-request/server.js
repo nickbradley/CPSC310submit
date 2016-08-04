@@ -244,7 +244,7 @@ function receiveGitHubPullRequest(req, res) {
     });  // req.on end
   }  // if pull request
   else {
-    logger.info('Client request not a pull request.', req);
+    logger.info('Client request not a pull request.');
     res.writeHead(400, { 'Content-Type': 'text/plain'})
     res.end();
   }
