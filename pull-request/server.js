@@ -240,6 +240,7 @@ function receiveGitHubPullRequest(req, res) {
               comment(pr, 'Request denied: invalid user/repo pair.');
               break;
           }
+        }
     });  // req.on end
   }  // if pull request
   else {
