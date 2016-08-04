@@ -207,6 +207,9 @@ function receiveGitHubPullRequest(req, res) {
             res.end();
             return;
         }
+        res.writeHead(200, { 'Content-Type': 'text/plain'})
+        res.end();
+
 
         // Only process a pull request when it is opened
         if (payload.action != "opened") status = 3;
@@ -217,8 +220,6 @@ function receiveGitHubPullRequest(req, res) {
 
         if (status == 0) {
           userRequests[pr.fullname]++;
-          res.writeHead(200, { 'Content-Type': 'text/plain'})
-          res.end();
 
           requestQueue.count().then(function(queueLength) {
             requestQueue.add(pr);
@@ -227,9 +228,6 @@ function receiveGitHubPullRequest(req, res) {
           });
         }
         else {
-          res.writeHead(400, { 'Content-Type': 'text/plain'})
-          res.end();
-
           switch (status) {
             case 1:
               logger.error('Request denied for pull request ' + pr.fullname + '. Test limit reached.');
@@ -239,14 +237,16 @@ function receiveGitHubPullRequest(req, res) {
               logger.error('Request denied for pull request ' + pr.fullname + '. Invalid user/repo pair.');
               comment(pr, 'Request denied: invalid user/repo pair.');
               break;
+            case 3:
+              logger.error('Request was not for an opened pull request ' + pr.fullname + '. ')
           }
         }
     });  // req.on end
   }  // if pull request
   else {
     logger.info('Client request not a pull request.');
-    res.writeHead(400, { 'Content-Type': 'text/plain'})
-    res.end();
+    res.writeHead(403, { 'Content-Type': 'text/plain'})
+    res.end('This service only supports the GitHub Pull Request event.');
   }
 }  // receiveGitHubPullRequest
 
