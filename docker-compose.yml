@@ -1,6 +1,6 @@
 version: '2'
 services:
-  redis:
+  cache:
     image: redis:3.2.1-alpine
   db:
     image: couchdb:1.6.1
@@ -8,19 +8,7 @@ services:
       - ./db.env
     volumes:
       - db-data:/usr/local/var/lib/couchdb
-  #job:
-  #  build: ./job-runner
-  #  environment:
-  #    WORKERS: 3
-  #    TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
-  #    CMD_SCRIPT: 'execTest.sh'
-  #  volumes:
-  #    # expose the host docker socket
-  #    # any containers started inside of job will run on the host as a sibiling container
-  #    - /var/run/docker.sock:/var/run/docker.sock
-  #    - /repos:/repos:z
-  #  privileged: true
-  web:
+  app:
     build: ./pull-request
     env_file:
       - ./web.env
@@ -37,23 +25,16 @@ services:
       - /repos:/repos:z
     privileged: true
     links:
-      - redis
-#      - job
-  nginx:
+      - cache
+  proxy:
     build: ./nginx
     ports:
       - "443:443"
     links:
-      - web
+      - app
       - db
 
 volumes:
   db-data:
     external:
       name: cpsc310-couchdb-store
-  repo-data:
-    external:
-      name: cpsc310-repo-store
-  repo-source-data:
-    external:
-      name: cpsc310-repo-source
