@@ -181,7 +181,7 @@ function receiveGitHubPullRequest(req, res) {
       // kill the connection if >1MB is posted
       if (reqPayload.length > 1e6) {
         reqPayload = '';
-        logger.error('receiveGitHubPullRequest: Request body exceeded maximum length.');
+        logger.error('Request body exceeded maximum length and the connection has been closed.');
         res.writeHead(413, {'Content-Type': 'text/plain' });
         res.end();
         res.connection.destroy();
@@ -189,51 +189,61 @@ function receiveGitHubPullRequest(req, res) {
     });  // req.on data
 
     req.on('end', function() {
-      //try {
-        var payload = JSON.parse(reqPayload);
-        var pr = {
-          id: payload.pull_request.id,
-          url: payload.pull_request.url,
-          fullname: payload.pull_request.head.repo.full_name,
-          commentUrl: payload.pull_request._links.comments.href
-        };
+        var status = 0;
 
-        if (payload.action == "opened") {
-          if (userRequests[pr.fullname] !== undefined) {
-            if (userRequests[pr.fullname] < MAX_REQUESTS-1) {
-              requestQueue.count().then(function(queueLength) {
-                requestQueue.add(pr);
-                comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-                userRequests[pr.fullname]++;
-                res.writeHead(200, { 'Content-Type': 'text/plain'})
-                res.end();
-              });
-            }
-            else {
-              comment(pr, 'Request denied: exceeded number of tests allowed for this repository.');
-            }
-          }
-          else {
-            logger.error("Vaildate request error");
-            comment(pr, 'Request denied: invalid user/repo pair.');
-          }
+        // Extract required fields from GitHub pull request payload
+        try {
+          var payload = JSON.parse(reqPayload);
+          var pr = {
+            id: payload.pull_request.id,
+            url: payload.pull_request.url,
+            fullname: payload.pull_request.head.repo.full_name,
+            commentUrl: payload.pull_request._links.comments.href
+          };
+        }
+        catch (ex) {
+            logger.error('Pull request payload is malformed.', reqPayload)
+            res.writeHead(400, { 'Content-Type': 'text/plain'})
+            res.end();
+            return;
+        }
+
+        // Only process a pull request when it is opened
+        if (payload.action != "opened") status = 3;
+
+        // Username/Repo must exist in database
+        if (userRequests[pr.fullname] === undefined) status = 2;
+        else if (userRequests[pr.fullname] >= MAX_REQUESTS) status = 1;
+
+        if (status == 0) {
+          userRequests[pr.fullname]++;
+          res.writeHead(200, { 'Content-Type': 'text/plain'})
+          res.end();
+
+          requestQueue.count().then(function(queueLength) {
+            requestQueue.add(pr);
+            logger.info('Request received for pull request ' + pr.fullname, pr);
+            comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+          });
         }
         else {
-          console.log('Invalid action');
           res.writeHead(400, { 'Content-Type': 'text/plain'})
           res.end();
-        }
-      //}
-      //catch (ex) {
-      //  console.log('Invalid payload');
-      //  res.writeHead(400, { 'Content-Type': 'text/plain'})
-      //  res.end();
-      //}
+
+          switch (staus) {
+            case 1:
+              logger.error('Request denied for pull request ' + pr.fullname + '. Test limit reached.');
+              comment(pr, 'Request denied: exceeded number of tests allowed for this repository.');
+              break;
+            case 2:
+              logger.error('Request denied for pull request ' + pr.fullname + '. Invalid user/repo pair.');
+              comment(pr, 'Request denied: invalid user/repo pair.');
+              break;
+          }
     });  // req.on end
   }  // if pull request
-
   else {
-    console.log('Invalid header');
+    logger.info('Client request not a pull request.', req);
     res.writeHead(400, { 'Content-Type': 'text/plain'})
     res.end();
   }
