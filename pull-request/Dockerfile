@@ -1,28 +1,24 @@
 FROM node:6.3.0
+MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 # Install docker (we need the client tools to run the test container)
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get -t jessie-backports install "docker.io" -y
+RUN curl -sSL https://get.docker.com/ | sh
 
-
-
+RUN groupadd -r app && useradd -r -g app app
 
 RUN mkdir /app
-RUN mkdir /app/logs
-
-ADD package.json /app
-ADD cpsc310-2016Fall.crt /app
-ADD cpsc310-2016Fall.key /app
-
 WORKDIR /app
+
+COPY cpsc310-2016Fall.key .
+COPY cpsc310-2016Fall.crt .
+
+COPY package.json .
 RUN npm install
 
-ADD server.js /app
-ADD execTest.sh /app
-ADD runTest.sh /app
-RUN chmod a+x /app/execTest.sh
-RUN chmod a+x /app/runTest.sh
+COPY app.js .
+COPY runTest.sh .
 
+RUN chmod a+x runTest.sh
 
-CMD ["node", "server.js"]
+USER app
+CMD ["node", "app.js"]
