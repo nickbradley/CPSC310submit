@@ -230,7 +230,7 @@ function receiveGitHubPullRequest(req, res) {
           res.writeHead(400, { 'Content-Type': 'text/plain'})
           res.end();
 
-          switch (staus) {
+          switch (status) {
             case 1:
               logger.error('Request denied for pull request ' + pr.fullname + '. Test limit reached.');
               comment(pr, 'Request denied: exceeded number of tests allowed for this repository.');
