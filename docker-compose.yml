@@ -9,7 +9,7 @@ services:
     volumes:
       - db-data:/usr/local/var/lib/couchdb
   app:
-    build: ./pull-request
+    build: ./app
     env_file:
       - ./web.env
     environment:
