@@ -8,6 +8,7 @@ TEST_REPO=/repos/test
 STUDENT_REPO=/repos/src$(mktemp -d)
 
 if [[ ! -d "${TEST_REPO}" ]]
+then
   git clone "${TEST_REPO_URL}" "${TEST_REPO}"
 fi
 
