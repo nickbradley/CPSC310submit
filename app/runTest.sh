@@ -10,6 +10,7 @@ STUDENT_REPO=/repos/src$(mktemp -d)
 if [[ ! -d "${TEST_REPO}" ]]
 then
   git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+  cd "${TEST_REPO}" && npm install
 fi
 
 # Clone the students repository
@@ -35,6 +36,7 @@ then
   exit 1
 fi
 
+cd "${STUDENT_REPO}" && npm install
 # Run docker
 echo "*** Begin test output ***"
 echo "TEST"
