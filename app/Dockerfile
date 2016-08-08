@@ -20,5 +20,5 @@ COPY runTest.sh .
 
 RUN chmod a+x runTest.sh
 
-USER app
+#USER app
 CMD ["node", "app.js"]
