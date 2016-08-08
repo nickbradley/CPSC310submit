@@ -106,8 +106,7 @@ nano.db.list(function(err, body){
   dbAuth('', function(db, docId){
     db.view('student_repos', 'num_runs', function(err, body) {
       if (err) {
-        // throw error here
-        console.log('Error getting number of runs', err);
+        throw 'Failed to initialize userRequests. Error while reading student_repos view: ' + err;
       }
       else {
 
@@ -115,7 +114,6 @@ nano.db.list(function(err, body){
           prev[curr.key] = curr.value;
           return prev;
         }, {});
-        console.log('userRequests ', userRequests);
       }
     });  // db.view
   });  // dbAuth
@@ -155,7 +153,7 @@ function dbAuth(docId, callback) {
 
   nano.auth(DB_USERNAME, DB_PASSWORD, function(err, body, headers) {
     if (err) {
-      throw 'Failed to login to database.';
+      throw 'Failed to login to database. ' + err;
     }
 
     if (headers && headers['set-cookie']) {
@@ -181,7 +179,7 @@ function receiveGitHubPullRequest(req, res) {
       // kill the connection if >1MB is posted
       if (reqPayload.length > 1e6) {
         reqPayload = '';
-        logger.error('Request body exceeded maximum length and the connection has been closed.');
+        logger.error('Request body exceeded maximum length. The connection has been closed.');
         res.writeHead(413, {'Content-Type': 'text/plain' });
         res.end();
         res.connection.destroy();
@@ -377,5 +375,5 @@ dbInsertQueue.on('failed', function(job, error) {
   var pr = job.data.pullRequest;
   userRequests[pr.fullname]--;
   logger.error('Failed to update database for pull request ' + pr.fullname, pr, error);
-  comment(pr, 'Failed to update database record.');
+  comment(pr, 'Failed to execute tests.');
 });
