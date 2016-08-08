@@ -37,7 +37,7 @@ fi
 
 # Run docker
 echo "*** Begin test output ***"
-docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester || (echo "error docker" && exit 1);
+docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
 echo "*** End test output ***"
 
 rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
