@@ -37,6 +37,10 @@ fi
 
 # Run docker
 echo "*** Begin test output ***"
+echo "TEST"
+ls "${TEST_REPO}"
+echo "STUDENT"
+ls "${STUDENT_REPO}"
 docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
 echo "*** End test output ***"
 
