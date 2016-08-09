@@ -4,8 +4,8 @@ TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
 
-TEST_REPO=/test
-STUDENT_REPO=/src$(mktemp -d)
+TEST_REPO=/repos/test
+STUDENT_REPO=/repos/src$(mktemp -d)
 
 #if [[ ! -d "${TEST_REPO}" ]]
 #then
