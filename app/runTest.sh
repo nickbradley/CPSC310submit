@@ -35,15 +35,15 @@ then
   echo "Error getting pull request from GitHub."
   exit 1
 fi
-cd "${TEST_REPO}" && npm install
-cd "${STUDENT_REPO}" && npm install
+#cd "${TEST_REPO}" && npm install
+#cd "${STUDENT_REPO}" && npm install
 # Run docker
 echo "*** Begin test output ***"
-echo "TEST"
-ls "${TEST_REPO}"
-echo "STUDENT"
-ls "${STUDENT_REPO}"
-sudo docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
+#echo "TEST"
+#ls "${TEST_REPO}"
+#echo "STUDENT"
+#ls "${STUDENT_REPO}"
+docker run -td -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
 cat "${TEST_REPO}"/results.json
 echo "*** End test output ***"
 
