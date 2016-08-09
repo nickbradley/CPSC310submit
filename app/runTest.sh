@@ -43,7 +43,8 @@ echo "*** Begin test output ***"
 #ls "${TEST_REPO}"
 #echo "STUDENT"
 #ls "${STUDENT_REPO}"
-docker run -td -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
+#docker run -td -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
+docker ps
 echo "Docker exit status $?"
 #cat "${TEST_REPO}"/results.json
 echo "*** End test output ***"
