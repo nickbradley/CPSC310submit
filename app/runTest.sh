@@ -4,8 +4,8 @@ TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
 
-TEST_REPO=/repos/test
-STUDENT_REPO=/repos/src$(mktemp -d)
+TEST_REPO=/test
+STUDENT_REPO=/src$(mktemp -d)
 
 #if [[ ! -d "${TEST_REPO}" ]]
 #then
@@ -50,4 +50,4 @@ echo "*** End test output ***"
 rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
 
 exit 0
- docker run -v /repos/test:/test:z -v /repos/src/tmp/tmp.:/src:z cpsc310/tester
+ #docker run -v /repos/test:/test:z -v /repos/src/tmp/tmp.:/src:z cpsc310/tester
