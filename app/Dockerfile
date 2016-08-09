@@ -2,7 +2,7 @@ FROM node:6.3.0
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 # Install docker (we need the client tools to run the test container)
-RUN curl -sSL https://get.docker.com/ | sh
+RUN curl -sSL https://get.docker.com/ | sed 's/lxc-docker/lxc-docker-1.10.0/' | sh
 
 RUN groupadd -r app && useradd -r -g app app
 
