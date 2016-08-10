@@ -12,7 +12,7 @@ STUDENT_REPO=/repos/src$(mktemp -d)
 #  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
 #  cd "${TEST_REPO}" && npm install
 #fi
-ls -l /repos
+
 # Clone the students repository
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
 if [[ ${STUDENT_REPO_URL} =~ $REGEX ]]
