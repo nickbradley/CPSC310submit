@@ -147,7 +147,7 @@ TODO
   </tr>
   <tr>
     <td>Failed to initialize userRequests. Error while reading student_repos view: <i>error</i></td>
-    <td>The app failed to get a dictionary of requests per user/repo. Likely cause is the view does not exist. See _error_ for details</td>
+    <td>The app failed to get a dictionary of requests per user/repo. Likely cause is the view does not exist. See <i>error</i> for details</td>
     <td></td>
   </tr>
   <tr>
@@ -184,6 +184,7 @@ Note: When referring to a document with a `/` in the \_id, encode the `/` with `
 
 ### Adding GitHub users
 To add a user using Futon:
+
 1.  Open the *cpsc310* database from the Overview screen.
 2.  Click _New Document_.
 3.  Type `<GitHub_username>/<repo_name>` as the *value* for the \_id field. Click the green checkmark and then click _Save Document_.
