@@ -32,9 +32,9 @@ fi
 
 # Set the test repository directory based on the pull request
 case "${REPO_NAME}" in
-"Test") TEST_REPOS=/repos/test ;;
+"Test") TEST_REPO=/repos/test ;;
 esac
-TEST_REPOS=/repos/test 
+#TEST_REPO=/repos/test 
 # Clone the test repo if it doesn't already exist
 if [[ ! -d "${TEST_REPO}" ]]
 then
