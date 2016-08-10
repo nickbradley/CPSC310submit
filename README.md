@@ -4,7 +4,7 @@ This service consumes pull request webhooks from configured repositories on GitH
 ## Usage
 ### Start the service
 Connect to the server using SSH at `<hostname>:22`. After logging in, `cd ~/<appdir>` and run
-`sudo docker-compose up` to start the testing service.
+`sudo docker-compose up` to start the service.
 
 ### Configure the webhook on a GitHub repository
 1. Go to **Settings**, **Webhooks & services**
@@ -61,11 +61,18 @@ TODO
   </tr>
   <tr>
     <td>Request body exceeded maximum length. The connection has been closed.</td>
-    <td></td>
+    <td>The body exceeded 1 MB.</td>
   </tr>
   <tr>
-    <td>Pull request payload is malformed. _payload_</td>
-    <td></td>
+    <td>Pull request payload is malformed. <i>payload</i></td>
+    <td>The request body could not be parsed into JSON or one of the fields was missing or blank:
+      <ul>
+        <li>pull_request.id</li>
+        <li>pull_request.url</li>
+        <li>pull_request.head.repo.full_name</li>
+        <li>pull_request.\_links.comments.href</li>
+      </ul>
+    </td>
   </tr>
   <tr>
     <td>Request denied for pull request _user/repo_. Test limit reached.</td>
