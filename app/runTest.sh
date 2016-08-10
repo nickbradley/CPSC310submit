@@ -3,17 +3,7 @@
 TEST_REPO_URL=$1
 STUDENT_REPO_URL=$2
 
-
-TEST_REPO=/repos/test
-STUDENT_REPO=/repos/src$(mktemp -d)
-
-if [[ ! -d "${TEST_REPO}" ]]
-then
-  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
-#  cd "${TEST_REPO}" && npm install
-fi
-
-# Clone the students repository
+# Pares the student repository URL
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
 if [[ ${STUDENT_REPO_URL} =~ $REGEX ]]
 then
@@ -24,6 +14,9 @@ else
   echo "${STUDENT_REPO_URL} is not in the correct input format."
   exit 1
 fi
+
+# Clone the student repository into a temp directory
+STUDENT_REPO=/repos/src$(mktemp -d)
 
 mkdir -p "${STUDENT_REPO}" && cd "${STUDENT_REPO}" && \
 git clone "https://github.com/${USER_NAME}/${REPO_NAME}" "${STUDENT_REPO}" && \
@@ -36,15 +29,27 @@ then
   exit 1
 fi
 
+
+# Set the test repository directory based on the pull request
+case "${REPO_NAME}" in
+"Test") TEST_REPOS=/repos/test ;;
+esac
+
+# Clone the test repo if it doesn't already exist
+if [[ ! -d "${TEST_REPO}" ]]
+then
+  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+fi
+
+
 # Run docker
 echo "*** Begin test output ***"
 
 docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
 
-#cat "${TEST_REPO}"/results.json
 echo "*** End test output ***"
+
 
 rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
 
 exit 0
- #docker run -v /repos/test:/test:z -v /repos/src/tmp/tmp.:/src:z cpsc310/tester
