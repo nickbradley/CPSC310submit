@@ -70,29 +70,29 @@ TODO
         <li>pull_request.id</li>
         <li>pull_request.url</li>
         <li>pull_request.head.repo.full_name</li>
-        <li>pull_request.\_links.comments.href</li>
+        <li>pull_request._links.comments.href</li>
       </ul>
     </td>
   </tr>
   <tr>
-    <td>Request denied for pull request _user/repo_. Test limit reached.</td>
-    <td></td>
+    <td>Request denied for pull request <i>user/repo</i>. Test limit reached.</td>
+    <td>A user has exceeded the number of pull requests for the repository.</td>
   </tr>
   <tr>
-    <td>Request denied for pull request _user/repo_. Invalid user/repo pair.</td>
-    <td></td>
+    <td>Request denied for pull request <i>user/repo</i>. Invalid user/repo pair.</td>
+    <td>The GitHub username and repository name combination is not in the database. Only registered users are permitted to use the submission service.</td>
   </tr>
   <tr>
-    <td>Request was not for an opened pull request _user/repo_.</td>
-    <td></td>
+    <td>Request was not for an opened pull request <i>user/repo</i>.</td>
+    <td>A GitHub pull request has several events: Pull request opened, closed, reopened, edited, assigned, unassigned, labeled, unlabeled, or synchronized. The submission service will only process pull requests that have been opened.</td>
   </tr>
   <tr>
-    <td>Executing tests failed for pull request _user/repo_ {id: _id_, url: _url_, fullname: _user/repo_, commentUrl: _url_} _error_</td>
-    <td></td>
+    <td>Executing tests failed for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>error</i></td>
+    <td>A error occurred while running the runTest.sh bash script which handles cloning repos and running the testing Docker container. See <i>error</i> for details.</td>
   </tr>
   <tr>
-    <td>Failed to update database for pull request _user/repo_ {id: _id_, url: _url_, fullname: _user/repo_, commentUrl: _url_} _error_</td>
-    <td></td>
+    <td>Failed to update database for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>error</i></td>
+    <td>The tests were run successfully but the results were not added to the database. The database will return the reason for the failure in <i>error</i>.</td>
   </tr>
 </table>
 
