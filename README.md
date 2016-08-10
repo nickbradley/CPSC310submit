@@ -15,7 +15,12 @@ Connect to the server using SSH at `<hostname>:22`. After logging in, `cd ~/<app
   3. Under Which events would you like to trigger this webhook?, select _Let me select individual events._ and choose only _Pull request_.
 
 ### Make a pull request
-TODO
+To make a submission, open a [pull request](https://help.github.com/articles/using-pull-requests/) on a repository configured with the submission service.
+
+1. Navigate to the repository on GitHub.
+2. Click **Fork**.
+3. Make changes to your fork on a new branch.
+4. To submit the changes for testing, click **New pull request**.
 
 ## Administration
 ### Messages and Logging
