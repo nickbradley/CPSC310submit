@@ -27,7 +27,7 @@ TODO
   </tr>
   <tr>
     <td>Request received; should be processed within <i>N</i> minutes.</td>
-    <td>The pull request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. The wait time will be 2 if the queue is empty.</td>
+    <td>The pull request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
   </tr>
   <tr>
     <td><i>Test results</i></td>
@@ -79,6 +79,10 @@ TODO
   <tr>
     <td>Request was not for an opened pull request <i>user/repo</i>.</td>
     <td>A GitHub pull request has several events: Pull request opened, closed, reopened, edited, assigned, unassigned, labeled, unlabeled, or synchronized. The submission service will only process pull requests that have been opened.</td>
+  </tr>
+  <tr>
+    <td>Failed to post comment for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>HTTP Status Code</i></td>
+    <td>The status code returned by GitHub was not 201 (Created).</td>
   </tr>
   <tr>
     <td>Executing tests failed for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>error</i></td>
@@ -150,7 +154,7 @@ TODO
   </tr>
   <tr>
     <td>Failed to initialize userRequests. Error while reading student_repos view: <i>error</i></td>
-    <td>The app failed to get a dictionary of requests per user/repo. Likely cause is the view does not exist. See <i>error</i> for details</td>
+    <td>The app failed to get a dictionary of requests per user/repo. Likely cause is the view does not exist. See <i>error</i> for details.</td>
     <td></td>
   </tr>
   <tr>
@@ -185,7 +189,7 @@ JSON document to PUT.
 
 Note: When referring to a document with a `/` in the \_id, encode the `/` with `%2F` in the cUrl URI.
 
-### Adding GitHub users
+### Adding GitHub users to the database
 To add a user using Futon:
 
 1.  Open the *cpsc310* database from the Overview screen.

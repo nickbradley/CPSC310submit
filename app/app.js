@@ -270,10 +270,9 @@ function comment(pullRequest, msg) {
     }
   };
 console.log('**** Comment Posted ****', msg);
-/*
+
   // Set up the post request
   var req = https.request(options, function(res) {
-    console.log(res.statusCode);
     if (res.statusCode != 201) {
       logger.error('Failed to post comment for pull request ' + pr.fullname, pr, res.statusCode);
       userRequests[pr.fullname]--;
@@ -283,7 +282,7 @@ console.log('**** Comment Posted ****', msg);
   // Post the data
   req.write(comment);
   req.end();
-  */
+
 }  // comment
 
 
