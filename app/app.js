@@ -288,9 +288,11 @@ console.log('**** Comment Posted ****', msg);
 
 
 function testResultsFormatter(result) {
+  var regex = /^\d+ specs, \d+ failures$/m;
+  var match = regex.exec(result);
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
-  return result;
+  return match[0];
 }
 
 requestQueue.process(WORKERS, function(job, done) {
