@@ -23,33 +23,27 @@ TODO
 <table>
   <tr>
     <th>Posted Message</th>
-    <th>Log Message</th>
     <th>Description</th>
   </tr>
   <tr>
     <td>Request received; should be processed within <i>N</i> minutes.</td>
-    <td></td>
-    <td></td>
+    <td>The pull request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. The wait time will be 2 if the queue is empty.</td>
   </tr>
   <tr>
     <td><i>Test results</i></td>
-    <td></td>
-    <td></td>
+    <td>Abbreviated test results from the Docker testing container.</td>
   </tr>
   <tr>
-    <td>Request denied: exceeded number of tests allowed for this repository.</td>
-    <td></td>
-    <td></td>
+    <td>Request denied: exceeded number of submissions allowed for this repository.</td>
+    <td>The user has already made the maximum number of pull requests allowed for the repository.</td>
   </tr>
   <tr>
     <td>Request denied: invalid user/repo pair.</td>
-    <td></td>
-    <td></td>
+    <td>The GitHub user making the pull request is not registered in the database.</td>
   </tr>
   <tr>
     <td>Failed to execute tests.</td>
-    <td></td>
-    <td></td>
+    <td>An error occurred while executing the tests or updating the database -- see error log for details. The failed test will not count towards the user's submission limit.</td>
   </tr>
 </table>
 
@@ -76,7 +70,7 @@ TODO
   </tr>
   <tr>
     <td>Request denied for pull request <i>user/repo</i>. Test limit reached.</td>
-    <td>A user has exceeded the number of pull requests for the repository.</td>
+    <td><i>user</i> has exceeded the number of pull requests for the repository <i>repo</i>. This limit is set by MAX_REQUESTS in docker-compose.yml.</td>
   </tr>
   <tr>
     <td>Request denied for pull request <i>user/repo</i>. Invalid user/repo pair.</td>
@@ -132,9 +126,11 @@ TODO
     <td>SSL certificate or key is missing or not accessible.</td>
     <td>The app was unable to read either the certificate or key file from the corresponding locations specified in CRT_FILE and KEY_FILE.</td>
     <td>The certificate is baked into the app image. Check the following:
-      1. Confirm the certificate and key file are copied to the image by checking app/Dockerfile.
-      2. Confirm that the paths specified for CRT_FILE and KEY_FILE defined in docker-compose.yml match the location of the certificate and key file used in the Dockerfile.
-      3. Check the permissions on the certificate and key files and make adjustments in the Dockerfile.
+      <ol>
+        <li>Confirm the certificate and key file are copied to the image by checking app/Dockerfile.</li>
+        <li>Confirm that the paths specified for CRT_FILE and KEY_FILE defined in docker-compose.yml match the location of the certificate and key file used in the Dockerfile.</li>
+        <li>Check the permissions on the certificate and key files and make adjustments in the Dockerfile.</i>
+      </ol>
     </td>
   </tr>
   <tr>

@@ -229,7 +229,7 @@ function receiveGitHubPullRequest(req, res) {
           switch (status) {
             case 1:
               logger.error('Request denied for pull request ' + pr.fullname + '. Test limit reached.');
-              comment(pr, 'Request denied: exceeded number of tests allowed for this repository.');
+              comment(pr, 'Request denied: exceeded number of submissions allowed for this repository.');
               break;
             case 2:
               logger.error('Request denied for pull request ' + pr.fullname + '. Invalid user/repo pair.');
