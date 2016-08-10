@@ -1,5 +1,5 @@
-# CPSC 310 Automated Testing Service for GitHub
-This testing service consumes pull request webhooks from configured repositories on GitHub. Upon receiving a request, the service will clone the repository, run the tests and publish the results as a comment on the pull request.
+# CPSC 310 Automated Submission Service for GitHub
+This service consumes pull request webhooks from configured repositories on GitHub. Upon receiving a request, the service will clone the repository, run the tests and publish the results as a comment on the pull request.
 
 ## Usage
 ### Start the service
@@ -230,6 +230,7 @@ sudo systemctl enable docker
 
 ### Configure testing service
 To set up the app on production:
+
 1.  Clone the source files from GitHub
 2.  Configure the production environment files
 3.  Install the SSL certificates
@@ -291,6 +292,7 @@ sudo docker-compose up -d
 
 ## Configure CouchDB
 The following will configure the database:
+
 1. Create Users (admin, app, standard)
 2. Create DBs (cpsc310, cpsc310-logs)
 3. Assign users to DB
