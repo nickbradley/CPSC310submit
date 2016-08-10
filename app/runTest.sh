@@ -7,11 +7,11 @@ STUDENT_REPO_URL=$2
 TEST_REPO=/repos/test
 STUDENT_REPO=/repos/src$(mktemp -d)
 
-#if [[ ! -d "${TEST_REPO}" ]]
-#then
-#  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+if [[ ! -d "${TEST_REPO}" ]]
+then
+  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
 #  cd "${TEST_REPO}" && npm install
-#fi
+fi
 
 # Clone the students repository
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
@@ -35,17 +35,13 @@ then
   echo "Error getting pull request from GitHub."
   exit 1
 fi
-#cd "${TEST_REPO}" && npm install
-#cd "${STUDENT_REPO}" && npm install
+
 # Run docker
 echo "*** Begin test output ***"
-#echo "TEST"
-#ls "${TEST_REPO}"
-#echo "STUDENT"
-#ls "${STUDENT_REPO}"
+
 docker run -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
 
-cat "${TEST_REPO}"/results.json
+#cat "${TEST_REPO}"/results.json
 echo "*** End test output ***"
 
 rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
