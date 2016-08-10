@@ -43,12 +43,9 @@ echo "*** Begin test output ***"
 #ls "${TEST_REPO}"
 #echo "STUDENT"
 #ls "${STUDENT_REPO}"
-#docker run -td -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
-ls -l /var/run
-ls -l /run
-docker ps
-echo "Docker exit status $?"
-#cat "${TEST_REPO}"/results.json
+docker run -td -v "${TEST_REPO}":/test:z -v "${STUDENT_REPO}":/src:z cpsc310/tester
+
+cat "${TEST_REPO}"/results.json
 echo "*** End test output ***"
 
 rm -rf "${STUDENT_REPO}" || (echo "error removing" && exit 1);
