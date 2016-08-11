@@ -127,9 +127,24 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
     <td>Set CMD_SCRIPT in docker-compose.yml or web.env</td>
   </tr>
   <tr>
-    <td>Required environment variable TEST_REPO_URL is not set.</td>
-    <td>TEST_REPO_URL has not been set and has no default.</td>
-    <td>Set TEST_REPO_URL in docker-compose.yml or web.env</td>
+    <td>Required environment variable TEST_REPO_URLS is not set.</td>
+    <td>TEST_REPO_URLS has not been set and has no default.</td>
+    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env</td>
+  </tr>
+  <tr>
+    <td>Required environment variable TEST_REPO_URLS is invalid: <i>JSON.parse() exception</i></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Required environment variable TEST_REPO_URLS is invalid: not array.</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Required environment variable TEST_REPO_URLS is invalid: array is empty.</td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>SSL certificate or key is missing or not accessible.</td>
