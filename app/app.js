@@ -311,9 +311,9 @@ requestQueue.process(WORKERS, function(job, done) {
     maxBuffer: 500*1024,  // 500 KB
   };
 
-  if (!cmd || !srcRepoUrl || !testRepoUrl) {
-    done(Error('Parameter opts missing property cmd, srcReporUrl or testRepoUrl.'));
-  }
+  //if (!cmd || !srcRepoUrl || !testRepoUrl) {
+  //  done(Error('Parameter opts missing property cmd, srcReporUrl or testRepoUrl.'));
+  //}
 
   // Run the script file
   //execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
