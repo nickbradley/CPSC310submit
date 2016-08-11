@@ -1,7 +1,15 @@
 #! /bin/bash
 
-TEST_REPO_URL=$1
-STUDENT_REPO_URL=$2
+
+STUDENT_REPO_URL=$1
+echo "${STUDENT_REPO_URL}"
+for var in "$@"
+do
+  echo "$var"
+done
+
+exit 0;
+
 
 # Pares the student repository URL
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"

@@ -270,7 +270,7 @@ function comment(pullRequest, msg) {
     }
   };
 console.log('**** Comment Posted ****', msg);
-
+/*
   // Set up the post request
   var req = https.request(options, function(res) {
     if (res.statusCode != 201) {
@@ -282,7 +282,7 @@ console.log('**** Comment Posted ****', msg);
   // Post the data
   req.write(comment);
   req.end();
-
+*/
 }  // comment
 
 
@@ -292,7 +292,8 @@ function testResultsFormatter(result) {
 
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
-  return match[0];
+  //return match[0];
+  return results;
 }
 
 requestQueue.process(WORKERS, function(job, done) {
@@ -300,7 +301,8 @@ requestQueue.process(WORKERS, function(job, done) {
   var srcRepoUrl = pr.url;
 
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
-  var testRepoUrl = TEST_REPO_URL;
+  //var testRepoUrl = TEST_REPO_URL;
+  var params = JSON.parse(process.env.TEST_REPO_URLS).shift(srcRepoUrl);
   var execOpts = {
     cwd: null,  // Current working directory
     env: null,  // Environment key-value pairs
@@ -314,7 +316,8 @@ requestQueue.process(WORKERS, function(job, done) {
   }
 
   // Run the script file
-  execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
+  //execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
+  execFile(cmd, params, execOpts, function(error, stdout, stderr) {
     if (error !== null)
       done(Error('Exec failed to run cmd. ' + error));
     else
