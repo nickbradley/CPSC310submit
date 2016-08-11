@@ -30,7 +30,7 @@ then
 fi
 
 
-
+echo "before looping through params"
 for var in "$@"
 do
   echo "$var"
