@@ -302,7 +302,7 @@ requestQueue.process(WORKERS, function(job, done) {
 
   var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
   //var testRepoUrl = TEST_REPO_URL;
-  var params = JSON.parse(process.env.TEST_REPO_URLS).shift(srcRepoUrl);
+  var params = JSON.parse(process.env.TEST_REPO_URLS).unshift(srcRepoUrl);
   var execOpts = {
     cwd: null,  // Current working directory
     env: null,  // Environment key-value pairs
