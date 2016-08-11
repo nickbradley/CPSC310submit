@@ -314,6 +314,8 @@ requestQueue.process(WORKERS, function(job, done) {
   //if (!cmd || !srcRepoUrl || !testRepoUrl) {
   //  done(Error('Parameter opts missing property cmd, srcReporUrl or testRepoUrl.'));
   //}
+  console.log(process.env.TEST_REPO_URLS);
+  console.log(JSON.parse(process.env.TEST_REPO_URLS));
   console.log(params);
   // Run the script file
   //execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
