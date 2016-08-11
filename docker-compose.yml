@@ -17,7 +17,7 @@ services:
       DB_NAME: cpsc310
       WORKERS: 3
       TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
-      TEST_REPO_URLS: ['URL_1', 'URL_2', 'URL_3']
+      TEST_REPO_URLS: '["URL_1", "URL_2", "URL_3"]'
       CMD_SCRIPT: 'runTest.sh'
     volumes:
       # expose the host docker socket
