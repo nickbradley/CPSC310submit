@@ -23,8 +23,9 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
 4. To submit the changes for testing, click **New pull request**.
 
 ## Administration
+### Environment Variables
 ### Messages and Logging
-### Service responses
+#### Service responses
 <table>
   <tr>
     <th>Posted Message</th>
@@ -52,7 +53,7 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
   </tr>
 </table>
 
-### Error log messages
+#### Error log messages
 <table>
   <tr>
     <th>Message</th>
@@ -133,18 +134,18 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
   </tr>
   <tr>
     <td>Required environment variable TEST_REPO_URLS is invalid: <i>JSON.parse() exception</i></td>
-    <td></td>
-    <td></td>
+    <td>TEST_REPO_URLS environment variable failed to parse.</td>
+    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
   </tr>
   <tr>
     <td>Required environment variable TEST_REPO_URLS is invalid: not array.</td>
-    <td></td>
-    <td></td>
+    <td>TEST_REPO_URLS environment variable did not parse as an array.</td>
+    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
   </tr>
   <tr>
     <td>Required environment variable TEST_REPO_URLS is invalid: array is empty.</td>
-    <td></td>
-    <td></td>
+    <td>Parsing the TEST_REPO_URLS environment variable resulted in an empty array.</td>
+    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
   </tr>
   <tr>
     <td>SSL certificate or key is missing or not accessible.</td>
@@ -185,7 +186,7 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
 </table>
 
 
-### Connect to the database
+#### Connect to the database
 CouchDB is used as the database. Connect to CouchDB's management interface, Futon, by going to `https://<hostname>/cpsc310/db/_utils/` while the testing service is running. You will need to login to view and update the database.
 
 Alternatively, use the following cUrl command snippets:
