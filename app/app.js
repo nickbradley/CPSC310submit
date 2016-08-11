@@ -32,12 +32,19 @@ var WORKERS = process.env.WORKERS || 1;
 var CMD_TIMEOUT = process.env.CMD_TIMEOUT || 500000; // milliseconds
 
 var CMD_SCRIPT = process.env.CMD_SCRIPT; //'execTest.sh';
-var TEST_REPO_URL = process.env.TEST_REPO_URL;
+var TEST_REPO_URL_ARRAY = process.env.TEST_REPO_URLS;
 
 if (!CMD_SCRIPT) throw 'Required environment variable CMD_SCRIPT is not set.';
-if (!TEST_REPO_URL) throw 'Required environment variable TEST_REPO_URL is not set.';
+if (!TEST_REPO_URL_ARRAY) throw 'Required environment variable TEST_REPO_URLS is not set.';
 
-
+try {
+  var TEST_REPO_URLS = JSON.parse(TEST_REPO_URL_ARRAY);
+  if (!Array.isArray(TEST_REPO_URLS)) throw 'not array.';
+  if (TEST_REPO_URLS.length < 1) throw 'array is empty.'
+}
+catch (ex) {
+  throw 'Required environment variable TEST_REPO_URLS is invalid: ' + ex;
+}
 
 
 // Load required packages
@@ -300,10 +307,9 @@ requestQueue.process(WORKERS, function(job, done) {
   var pr = job.data;
   var srcRepoUrl = pr.url;
 
-  var cmd = ('./' + CMD_SCRIPT).replace('//', '/');
-  //var testRepoUrl = TEST_REPO_URL;
-  var params = [srcRepoUrl].concat(JSON.parse(process.env.TEST_REPO_URLS));
-  var execOpts = {
+  var file = ('./' + CMD_SCRIPT).replace('//', '/');
+  var args = [srcRepoUrl].concat(TEST_REPO_URLS));  // [src_repo, test_repo_1, test_repo_2,...]
+  var options = {
     cwd: null,  // Current working directory
     env: null,  // Environment key-value pairs
     encoding: 'utf8',
@@ -311,15 +317,8 @@ requestQueue.process(WORKERS, function(job, done) {
     maxBuffer: 500*1024,  // 500 KB
   };
 
-  //if (!cmd || !srcRepoUrl || !testRepoUrl) {
-  //  done(Error('Parameter opts missing property cmd, srcReporUrl or testRepoUrl.'));
-  //}
-  console.log(process.env.TEST_REPO_URLS);
-  console.log(JSON.parse(process.env.TEST_REPO_URLS));
-  console.log(params);
   // Run the script file
-  //execFile(cmd, [testRepoUrl, srcRepoUrl], execOpts, function(error, stdout, stderr) {
-  execFile(cmd, params, execOpts, function(error, stdout, stderr) {
+  execFile(file, args, options, function(error, stdout, stderr) {
     if (error !== null)
       done(Error('Exec failed to run cmd. ' + error));
     else
