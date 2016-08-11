@@ -2,14 +2,6 @@
 
 
 STUDENT_REPO_URL=$1
-echo "${STUDENT_REPO_URL}"
-for var in "$@"
-do
-  echo "$var"
-done
-
-exit 0;
-
 
 # Pares the student repository URL
 REGEX="https://api.github.com/repos/(.*?)/(.*?)/pulls/([0-9]+)"
@@ -38,11 +30,20 @@ then
 fi
 
 
+
+for var in "$@"
+do
+  echo "$var"
+
+  # Determine which test repository to use based on the STUDENT_REPO_URL REPO_NAME
+  TEST_REPO=/repos/test
+done
+
 # Set the test repository directory based on the pull request
 #case "${REPO_NAME}" in
 #"Test") TEST_REPO=/repos/test ;;
 #esac
-TEST_REPO=/repos/test
+
 # Clone the test repo if it doesn't already exist
 if [[ ! -d "${TEST_REPO}" ]]
 then
