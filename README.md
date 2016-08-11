@@ -100,7 +100,7 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
   </tr>
 </table>
 
-### Fatal errors
+#### Fatal errors
 <table>
   <tr>
     <th>Message</th>
@@ -186,7 +186,7 @@ To make a submission, open a [pull request](https://help.github.com/articles/usi
 </table>
 
 
-#### Connect to the database
+### Connect to the database
 CouchDB is used as the database. Connect to CouchDB's management interface, Futon, by going to `https://<hostname>/cpsc310/db/_utils/` while the testing service is running. You will need to login to view and update the database.
 
 Alternatively, use the following cUrl command snippets:
