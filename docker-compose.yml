@@ -16,8 +16,7 @@ services:
       MAX_REQUESTS: 1000000
       DB_NAME: cpsc310
       WORKERS: 3
-      TEST_REPO_URL: 'https://github.com/nickbradley/cpsc310-tester.git'
-      TEST_REPO_URLS: '[]'
+      TEST_REPO_URLS: '["https://github.com/nickbradley/cpsc310-tester.git"]'
       CMD_SCRIPT: 'runTest.sh'
     volumes:
       # expose the host docker socket
