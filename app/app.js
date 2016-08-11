@@ -308,7 +308,7 @@ requestQueue.process(WORKERS, function(job, done) {
   var srcRepoUrl = pr.url;
 
   var file = ('./' + CMD_SCRIPT).replace('//', '/');
-  var args = [srcRepoUrl].concat(TEST_REPO_URLS));  // [src_repo, test_repo_1, test_repo_2,...]
+  var args = [srcRepoUrl].concat(TEST_REPO_URLS);  // [src_repo, test_repo_1, test_repo_2,...]
   var options = {
     cwd: null,  // Current working directory
     env: null,  // Environment key-value pairs
