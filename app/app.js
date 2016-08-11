@@ -293,7 +293,7 @@ function testResultsFormatter(result) {
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
   //return match[0];
-  return results;
+  return result;
 }
 
 requestQueue.process(WORKERS, function(job, done) {
