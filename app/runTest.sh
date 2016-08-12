@@ -29,8 +29,7 @@ then
   exit 1
 fi
 
-
-echo "before looping through params"
+# Loop through all arguments
 for var in "$@"
 do
   echo "$var"
