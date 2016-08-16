@@ -18,7 +18,7 @@ Connect to the server using SSH at `<hostname>:22`. After logging in, `cd ~/<app
 To make a submission, open a [pull request](https://help.github.com/articles/using-pull-requests/) on a repository configured with the submission service.
 
 1. Navigate to the repository on GitHub.
-2. Click **Fork**.
+2. Click **Fork**. Set up the webhook on the repository.
 3. Make changes to your fork on a new branch.
 4. To submit the changes for testing, click **New pull request**.
 
