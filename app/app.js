@@ -277,7 +277,7 @@ function comment(pullRequest, msg) {
     }
   };
 console.log('**** Comment Posted ****', msg);
-/*
+
   // Set up the post request
   var req = https.request(options, function(res) {
     if (res.statusCode != 201) {
@@ -289,7 +289,7 @@ console.log('**** Comment Posted ****', msg);
   // Post the data
   req.write(comment);
   req.end();
-*/
+
 }  // comment
 
 
