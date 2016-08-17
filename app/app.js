@@ -85,21 +85,7 @@ catch (ex) {
   throw 'SSL certificate or key is missing or not accessible.';
 }
 
-/*
-function logRequest(pullRequest, status) {
-  logger.info(status + " for pull request " + pullRequest.fullname, pullRequest);
-}
-*/
 
-//logger.info('CPSC310 GitHub Listener has started.');
-
-// Check that connections to db and redis succeeded and start listening
-
-
-// Start listening for requests
-
-//set timeout {}
-// jobQueue.on('ready', function() {})  // put below line in here
 
 console.log('Preparing to start CPSC310 GitHub Listener');
 
@@ -151,8 +137,8 @@ nano.db.list(function(err, body){
 
 /**
  * Authenticates against DB
- * @param {string} doc A document id in the DB
- * @param callback Function to call after successfully authenticating.
+ * @param {string} docId A document id in the DB
+ * @param {function} callback Function to call after successfully authenticating.
  * @throws Failed to login to database.
  */
 function dbAuth(docId, callback) {
@@ -167,6 +153,7 @@ function dbAuth(docId, callback) {
       auth = headers['set-cookie'][0];
     }
 
+    // pass the handle to authenticated database connection
     callback(require('nano')({url: conn + '/' + DB_NAME, cookie: auth}), docId);
   })
 };
@@ -175,7 +162,11 @@ function dbAuth(docId, callback) {
 
 
 
-
+/**
+  * descsdas
+ * @param {Object} req
+ * @param {Object} res
+ */
 function receiveGitHubPullRequest(req, res) {
   if (req.method == 'POST' && req.headers['x-github-event'] == 'pull_request') {
     var reqPayload = '';
@@ -256,7 +247,11 @@ function receiveGitHubPullRequest(req, res) {
 }  // receiveGitHubPullRequest
 
 
-
+/**
+ * Post a message to the comments section of the Pull Request on GitHub
+ * @param {Object} pullRequest
+ * @param {string} msg
+ */
 
 function comment(pullRequest, msg) {
   var pr = pullRequest;
@@ -277,7 +272,7 @@ function comment(pullRequest, msg) {
     }
   };
 console.log('**** Comment Posted ****', msg);
-
+/*
   // Set up the post request
   var req = https.request(options, function(res) {
     if (res.statusCode != 201) {
@@ -289,7 +284,7 @@ console.log('**** Comment Posted ****', msg);
   // Post the data
   req.write(comment);
   req.end();
-
+*/
 }  // comment
 
 
@@ -299,8 +294,8 @@ function testResultsFormatter(result) {
 
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
-  return match[0];
-  //return result;
+  //return match[0];
+  return result;
 }
 
 requestQueue.process(WORKERS, function(job, done) {
