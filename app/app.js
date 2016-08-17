@@ -1,7 +1,6 @@
 /**
  * @author Nick Bradley <nbrad11@cs.ubc.ca>
- * @summary
- * @description Listens to pull requests from GitHub.
+ * @description Listens for open pull requests from GitHub.
  * @version 1.0
  */
 
@@ -19,8 +18,8 @@ var DB_NAME = process.env.DB_NAME || 'cspc310';
 var DB_LOGS = (process.env.DB_NAME || 'cspc310') + '-logs';
 
 
-var DB_USERNAME = 'jan';
-var DB_PASSWORD = 'apple';
+var DB_USERNAME = process.env.DB_USERNAME;
+var DB_PASSWORD = process.env.DB_PASSWORD;
 var TOKEN = process.env.GITHUB_API_KEY;
 
 if (!DB_USERNAME) throw 'Required environment variable DB_USERNAME is not set.';
@@ -164,8 +163,8 @@ function dbAuth(docId, callback) {
 
 /**
   * descsdas
- * @param {Object} req
- * @param {Object} res
+ * @param {Object} req - Remote request. NodeJS http.IncomingMessage object.
+ * @param {Object} res - Reponse to the request. NodeJS http.ServerRespone object.
  */
 function receiveGitHubPullRequest(req, res) {
   if (req.method == 'POST' && req.headers['x-github-event'] == 'pull_request') {
@@ -248,11 +247,10 @@ function receiveGitHubPullRequest(req, res) {
 
 
 /**
- * Post a message to the comments section of the Pull Request on GitHub
- * @param {Object} pullRequest
- * @param {string} msg
+ * Post a message to the comments section of the Pull Request on GitHub.
+ * @param {Object} pullRequest - PullRequest object with the URL to post the comment to.
+ * @param {string} msg - The comment that should be posted to GitHub.
  */
-
 function comment(pullRequest, msg) {
   var pr = pullRequest;
   var commentUrl = url.parse(pr.commentUrl);
@@ -271,8 +269,7 @@ function comment(pullRequest, msg) {
         'Authorization': 'token ' + TOKEN
     }
   };
-console.log('**** Comment Posted ****', msg);
-/*
+
   // Set up the post request
   var req = https.request(options, function(res) {
     if (res.statusCode != 201) {
@@ -284,20 +281,26 @@ console.log('**** Comment Posted ****', msg);
   // Post the data
   req.write(comment);
   req.end();
-*/
+
 }  // comment
 
-
+/**
+ * Formats the test reults to be output as GitHub comment.
+ * Output is of the form: X specs, Y failures.
+ * @param {string} result - stdout from running the test container.
+ */
 function testResultsFormatter(result) {
   var regex = /^\d+ specs, \d+ failures$/m;
   var match = regex.exec(result);
 
   // accepts the stdout from the docker command
   // returns a string that will be posted to GitHub
-  //return match[0];
-  return result;
+  return match[0];
+  //return result;
 }
 
+// Process queued pull requests
+// Pull requests will be processed in parallel on WORKERS processes.
 requestQueue.process(WORKERS, function(job, done) {
   var pr = job.data;
   var srcRepoUrl = pr.url;
@@ -337,6 +340,13 @@ requestQueue.on('failed', function(job, error) {
 });
 
 
+// Insert results to database.
+// Results are queued to be inserted into the database to prevent revision conflicts
+// which occur when the same document is updated by two queued pull requests completing
+// simultaneously.
+
+// Queueing hould not be a bottleneck because running the tests takes significantly
+// longer than updating the documents in the database.
 dbInsertQueue.process(function(job, done) {
   var pr = job.data.pullRequest;
   var docId = pr.fullname;
