@@ -1,0 +1,39 @@
+var AppSetting;
+if (!process.env.GITHUB_API_KEY)
+    throw "Required environment variable GITHUB_API_KEY is not set.";
+if (!process.env.TEST_REPO_URLS)
+    throw "Required environment variable TEST_REPO_URLS is not set.";
+var TEST_REPO_URLS = [];
+try {
+    TEST_REPO_URLS = JSON.parse(process.env.TEST_REPO_URLS);
+    if (!Array.isArray(TEST_REPO_URLS))
+        throw 'not array.';
+    if (TEST_REPO_URLS.length < 1)
+        throw 'array is empty.';
+}
+catch (ex) {
+    throw 'Required environment variable TEST_REPO_URLS is invalid: ' + ex;
+}
+AppSetting.token = process.env.GITHUB_API_KEY;
+AppSetting.testRepoUrls = TEST_REPO_URLS;
+AppSetting.port = process.env.PORT || 4430;
+AppSetting.maxRequests = process.env.MAX_REQUESTS || 10;
+AppSetting.cmd.concurrency = process.env.WORKERS || 1;
+AppSetting.cmd.timeout = process.env.CMD_TIMEOUT || 500000;
+AppSetting.cmd.script = process.env.CMD_SCRIPT || "app.sh";
+AppSetting.cache.port = process.env.REDIS_PORT || 6379;
+AppSetting.cache.address = process.env.REDIS_ADDR || 'cache' || '127.0.0.1';
+AppSetting.dbServer.port = process.env.DB_PORT || 5984;
+AppSetting.dbServer.address = process.env.DB_ADDR || 'db' || '127.0.0.1';
+AppSetting.dbServer.connection = url.format({
+    protocol: 'http',
+    hostname: AppSetting.dbServer.address,
+    port: AppSetting.dbServer.port
+});
+AppSetting.dbData.name = process.env.DB_DATA_NAME || 'cspc310';
+AppSetting.dbData.username = process.env.DB_DATA_USERNAME || "";
+AppSetting.dbData.password = process.env.DB_DATA_PASSWORD || "";
+AppSetting.dbLogs.name = (process.env.DB_LOGS_NAME || 'cspc310') + '-logs';
+AppSetting.dbLogs.username = process.env.DB_LOGS_USERNAME || "";
+AppSetting.dbLogs.password = process.env.DB_LOGS_PASSWORD || "";
+//# sourceMappingURL=appSettings.js.map

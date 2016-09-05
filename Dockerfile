@@ -14,16 +14,14 @@ RUN groupadd -r app && useradd -r -g app app
 RUN mkdir /app
 WORKDIR /app
 
-COPY cpsc310-2016Fall.key .
-COPY cpsc310-2016Fall.crt .
 
 COPY package.json .
 RUN npm install
 
-COPY app.js .
-COPY runTest.sh .
+COPY src/app.js .
+COPY app.sh .
 
-RUN chmod a+x runTest.sh
+RUN chmod a+x app.sh
 
 #USER app
 CMD ["node", "app.js"]
