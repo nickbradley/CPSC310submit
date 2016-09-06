@@ -27,6 +27,8 @@
     "router":"",
     "url":"",
     "nano": "",
-    "body-parser": ""
+    "body-parser": "",
+    "winston": "",
+    "winston-couchdb": ""
   }
 }

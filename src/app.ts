@@ -49,6 +49,12 @@ let deliverables: IDeliverable = {
 }
 
 
+let users = ["cpsc310project_team1/nickbradley"];
+
+
+
+
+
 // object to store running repos
 
 
@@ -65,7 +71,8 @@ let bodyParser = require("body-parser");
 var Queue = require("bull");
 var execFile = require("child_process").execFile;
 
-
+let winston = require("winston");
+let winstonCouch = require("winston-couchdb").Couchdb;
 
 
 
@@ -109,13 +116,27 @@ let AppSetting: IAppSetting = {
 }
 
 
+//Setup logging with winston
+let logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)(),
+    new (winston.transports.Couchdb)({
+      host: AppSetting.dbServer.address,
+      port: AppSetting.dbServer.port,
+      db: "cpsc310-logs",
+      auth: { username: AppSetting.dbServer.username, password: AppSetting.dbServer.password },
+      secure: false,
+      level: "info"
+    })
+  ]
+});
+
+
+
 let router = Router();
 var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppSetting.cache.address);
 
 // Setup the database connection
-//function dbAuth(dbServer: any, callback: Function): void {}
-//function getLatestRun(team: string, user: string, callback: Function): number { return 0; }
-
 let nano = require("nano")(AppSetting.dbServer.connection);
 
 function dbAuth(dbServer: any, callback: Function): void {
@@ -184,54 +205,85 @@ submitHandler.post("/", (req:any, res:any) => {
 
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;
-  let user: string = req.body.repository.owner.login;
+  let user: string = req.body.comment.user.login;
   let postComment: string;
+  let submission: ISubmission;
+  let testRepoURL: string;
+  let deliverable: string;
+  let msgInfo: string = "";
 
   if (comment.includes("@cpsc310bot")) {
-    //let lastRunDate: number = Date.parse(getLastRunDate(team)) || Date.now();
-    getLatestRun(team, user, (latestRun:number) => {
-      let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-      if (runDiff > 0) {
+    deliverable = extractDeliverable(comment) || deliverables["current"];
 
-        postComment = "Request received; should be processed within 2 minutes.";
+    if (deliverable == deliverables["current"]) {
+      testRepoURL = deliverables[deliverables["current"]].private;
+    }
+    else if (deliverable < deliverables["current"] && deliverable >= "d1") {
+      testRepoURL = deliverables[deliverable].private;
+      msgInfo = "\nInfo: Running specs for previous deliverable " + deliverable + ".";
+    }
+    else {
+      testRepoURL = deliverables[deliverables["current"]].private;
+      msgInfo = "\nWarn: Invalid deliverable specified, using latest.";
+    }
 
 
-        let deliverable: string = extractDeliverable(comment) || deliverables["current"];
-        let testRepoURL: string = deliverables[deliverables["current"]].private;
-        let submission: ISubmission;
 
-        if (deliverable < deliverables["current"]) {
-          testRepoURL = deliverables[deliverable].private;
-          postComment += "\nInfo: Running specs for previous deliverable " + deliverable + ".";
+    submission = {
+      username: req.body.comment.user.login,
+      reponame: req.body.repository.name,
+      repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+      commentURL: req.body.repository.commits_url.replace("{/sha}", "/" + req.body.comment.commit_id) + "/comments",
+      commitSHA: req.body.comment.commit_id,
+      testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+      deliverable: deliverable
+    };
+    let jobId: string = submission.reponame + "/" + submission.username;
+
+
+console.log(team+"/"+user);
+
+    if (users.includes(team+"/"+user)) {
+
+      getLatestRun(team, user, (latestRun:number) => {
+        let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
+        if (runDiff > 0) {
+          requestQueue.getJob(jobId).then((job: any) => {
+            if (!job) {
+              requestQueue.count().then((queueLength: number) => {
+                requestQueue.add(submission, {jobId: jobId});
+                //requestQueue.add(pr);
+                //logger.info('Request received for pull request ' + pr.fullname, pr);
+                //comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
+
+
+                commentGitHub(submission, "Request received; should be processed within " + (queueLength * 2 + 2) + " minutes." + msgInfo);
+              });
+            }
+            else {
+              commentGitHub(submission, "Request is already queued for processing.");
+            }
+          });
         }
-        else if (deliverable > deliverables["current"]) {
-          // warn
-          postComment += "\nWarn: Invalid deliverable specified, using latest.";
+        else {
+          // too early to run next test
+          commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + -1*runDiff + "ms before trying again.");
         }
 
-        submission = {
-          username: req.body.comment.user.login,
-          reponame: req.body.repository.name,
-          repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
-          commentURL: req.body.repository.commits_url.replace("{/sha}", "/" + req.body.comment.commit_id) + "/comments",
-          commitSHA: req.body.comment.commit_id,
-          testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
-          deliverable: deliverable
-        };
-        requestQueue.add(submission);
-      }
-      else {
-        // too early to run next test
-        postComment = "Request cannot be processed. Rate limit exceeded; please wait " + -1*runDiff + "ms before trying again.";
-      }
-    });
+      });
+    }
+    else {
+      // don't process - team/user is not registered
+      console.log("Not registered")
+    }
   }
   else {
-    // don't process
+    // don't process - comment doesn't include @cpsc310bot
+
   }
 
 
-  commentGitHub(postComment);
+  //commentGitHub(submission, postComment);
 
   res.writeHead(200);
   res.end();
@@ -248,17 +300,39 @@ function extractDeliverable(comment: string): string {
   return deliverable;
 }  // extractDeliverable
 
+
+function commentGitHub(submission: ISubmission, msg: string): void {
 /*
-function getLastRunDate(team: string): string {
-  var result = new Date();
-  result.setDate(result.getDate() - 1);
-  return result.toISOString();
-  //return (new Date()).toISOString();
-}
-*/
-function commentGitHub(msg:string): void {
-  console.log(msg);
-}
+  let commentUrl: any = url.parse(submission.commentURL);
+  let comment: string = JSON.stringify({body: msg});
+
+  // setup post options
+  let options: any = {
+    host: commentUrl.host,
+    port: '443',
+    path: commentUrl.path,
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(comment),
+        'User-Agent': 'cpsc310-github-listener',
+        'Authorization': 'token ' + AppSetting.github.token
+    }
+  };
+
+  // Set up the post request
+  var req = https.request(options, (res) => {
+    if (res.statusCode != 201) {
+      logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+    }
+  });
+
+  // Post the data
+  req.write(comment);
+  req.end();
+  */
+  console.log("**** " + msg + "****");
+}  // commentGitHub
 
 function formatResult(result: any): any {
   return result;
@@ -268,31 +342,27 @@ function formatResult(result: any): any {
   // Pull requests will be processed in parallel on WORKERS processes.
   requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
     let submission: ISubmission = job.data;
-    //var srcRepoUrl = pr.url;
 
-    var file = ('./' + AppSetting.cmd.file).replace('//', '/');
-    var args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
+    let file: string = ('./' + AppSetting.cmd.file).replace('//', '/');
+    let args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
     let options: IExecOptions = {
-      //timeout: CMD_TIMEOUT,
+      timeout: AppSetting.cmd.timeout,
       maxBuffer: 500*1024  // 500 KB
     };
 
     // Run the script file
-    execFile(file, args, options, function(error:any, stdout:any, stderr:any) {
+    execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
       if (error !== null)
         done(Error('Exec failed to run cmd. ' + error));
       else
         done(null, { stdout: stdout, stderr: stderr });
     });
-  }); //jobQueue.process
+  });
   requestQueue.on('active', function(job:any, jobPromise:any) {
-    console.log("Active");
-    var pr = job.data;
-    //logger.info('Started running tests for pull request ' + pr.fullname, pr);
+    let submission: ISubmission = job.data;
+    logger.info("Started running tests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
   });
   requestQueue.on('completed', function(job:any, result:any) {
-    console.log("Completed");
-    console.log(result);
     let submission: ISubmission = job.data;
     let doc: IResultDoc = {
       team: submission.reponame,
@@ -304,58 +374,21 @@ function formatResult(result: any): any {
       timestamp: Date.now()
     }
     dbAuth(AppSetting.dbServer, (db: any) => {
-      db.insert(doc, (err: any, body: any) => {
+      db.insert(doc, (error: any, body: any) => {
         //check for error
+        if (!error) {
+          logger.error("Inserting document failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
+          commentGitHub(submission, 'Failed to execute tests.');
+        }
+        else {
+          logger.info("Finished running tests for "  + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+          commentGitHub(submission, doc.output);
+        }
       });
     });
-    //dbInsertQueue.add({ pullRequest: pr, result: result });
-    //logger.info('Finished running tests for pull request ' + pr.fullname, pr);
   });
   requestQueue.on('failed', function(job:any, error:any) {
-    console.log("Failed");
-    console.log(error);
-    var pr = job.data;
-    //userRequests[pr.fullname]--;
-    //logger.error('Executing tests failed for pull request ' + pr.fullname, pr, error);
-    //comment(pr, 'Failed to execute tests.');
+    let submission: ISubmission = job.data;
+    logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
+    commentGitHub(submission, 'Failed to execute tests.');
   });
-
-
-
-
-/*
- * @CPSC310Bot => "Request queued" + exec + "Result"
- * @CPSC310Bot #D3 => "Request queued" + "Warning: invalid deliverable specified, using latest." + exec + "Result"
- * @CPSC310Bot #D1 => "Request queued. Info: running specs for earlier deliverable" + exec + "Result"
-
-
-function commitCommentHandler(commitComment:any, deliverables:any): ISubmission {
-  let submission: ISubmission;
-  let testRepoURL: string;
-  let matches: Array<string>;
-  let comment: string = commitComment.comment.body.toLowerCase();
-  let deliverable: string;
-  if (!comment.includes("@cpsc310bot"))
-    return null;
-
-  matches = / .*#[dD](\d{1,2}).* /i.exec(comment);  // comment includes #d1 or #D1 or #d01
-  if (matches) {  // if comment specifies deliverable test suite
-    deliverable = "d" + +matches[1];
-    testRepoURL = deliverables[deliverable].private;
-  }
-  else {
-    testRepoURL = deliverables[deliverables.current].private;
-  }
-
-  submission = {
-    username: commitComment.repository.owner.login,
-    reponame: commitComment.repository.name,
-    repoURL: commitComment.repository.html_url,
-    commentURL: commitComment.repository.commits_url.replace("{/sha}", "/" + commitComment.comment.commit_id) + "/comments",
-    commitSHA: commitComment.comment.commit_id,
-    testRepoURL: testRepoURL
-    //deliverable: deliverable
-  };
-  return submission;
-}  // commitCommentHandler
-*/
