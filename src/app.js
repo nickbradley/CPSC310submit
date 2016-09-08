@@ -266,8 +266,8 @@ function formatResult(result) {
         passes = +passMatches[1];
     if (failMatches)
         fails = +failMatches[1];
-    var m = /^.*\d+ failing.*$/m.exec(result);
-    console.log("reults", m);
+    var m = /^.*1\) (\w+)$/m.exec(result);
+    console.log("reults", m[1]);
     if (passes == 0 && fails == 0)
         return result;
     else
