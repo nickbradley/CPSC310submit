@@ -458,6 +458,9 @@ function formatResult(result: any): any {
   if (failMatches)
     fails = +failMatches[1];
 
+    var m = /^.*\d+ failing.*$^.*$^.*1\) (.*)$/m.exec(result);
+    console.log(m);
+
   if (passes == 0 && fails == 0)
     return result;
     //return "Invalid Mocha output.";
