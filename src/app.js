@@ -63,7 +63,11 @@ dbAuth(AppSetting.dbServer, function (db) {
         if (error) {
             console.log("Warning: failed to retreive deliverables document from database.");
         }
-        deliverables = body;
+        deliverables = {
+            current: "d1",
+            d1: { public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git" },
+            d2: { public: "", private: "" }
+        };
     });
     db.get("users", function (error, body) {
         if (error) {

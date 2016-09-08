@@ -311,29 +311,29 @@ The following will configure the database:
 Create users
 ```bash
 # Admin user
-curl -X PUT http://localhost:5984/db/_config/admins/${DB_ADMIN_USER} \
+curl -X PUT http://localhost:5984/_config/admins/${DB_ADMIN_USER} \
      -k \
      -d '"${DB_ADMIN_PASSWORD}"'
 
 # App user
-curl -X PUT http://localhost:5984/db/_users/org.couchdb.user:${DB_APP_USERNAME} \
+curl -X PUT http://localhost:5984/_users/org.couchdb.user:${DB_APP_USERNAME} \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \     
      -H 'content-type:application/json' \
-     -d '{"name": "${DB_APP_USERNAME}", "password": "${DB_APP_PASSWORD}", "roles": [], "type": "user"}'
+     -d '{"name": "'${DB_APP_USERNAME}'", "password": "'${DB_APP_PASSWORD}'", "roles": [], "type": "user"}'
 
 ```
 
 Create databases
 ```bash
 # Create database cpsc310
-curl -X PUT http://localhost:5984/db/cpsc310 \
+curl -X PUT http://localhost:5984/cpsc310 \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H 'content-type:application/json'
 
 # Create database cpsc310-logs
-curl -X PUT http://localhost:5984/db/cpsc310-logs \
+curl -X PUT http://localhost:5984/cpsc310-logs \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H 'content-type:application/json'
@@ -342,18 +342,18 @@ curl -X PUT http://localhost:5984/db/cpsc310-logs \
 Assign users to database
 ```bash
 # Add users to cpsc310
-curl -X PUT http://localhost:5984/db/cpsc310/_security \
+curl -X PUT http://localhost:5984/cpsc310/_security \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H "Content-Type: application/json" \
-     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}"], "roles": [] } }'
+     -d '{"admins": { "names": ["'${DB_ADMIN_USERNAME}'"], "roles": [] }, "members": { "names": ["'${DB_APP_USERNAME}'"], "roles": [] } }'
 
 # Add users to cpsc310-logs
-curl -X PUT http://localhost:5984/db/cpsc310-logs/_security \
+curl -X PUT http://localhost:5984/cpsc310-logs/_security \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H "Content-Type: application/json" \
-     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}"], "roles": [] } }'
+     -d '{"admins": { "names": ["'${DB_ADMIN_USERNAME}'"], "roles": [] }, "members": { "names": ["'${DB_APP_USERNAME}'"], "roles": [] } }'
 ```
 
 Create views
