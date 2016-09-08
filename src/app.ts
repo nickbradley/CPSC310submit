@@ -85,7 +85,7 @@ let AppSetting: IAppSetting = {
   },
   cmd: {
     concurrency: process.env.WORKERS || 1,
-    timeout: process.env.CMD_TIMEOUT || 500000, // milliseconds
+    timeout: process.env.CMD_TIMEOUT || 120000, // milliseconds
     file: process.env.CMD_SCRIPT || "app.sh",
   },
   cache: {
@@ -383,7 +383,6 @@ function extractDeliverable(comment: string): string {
 
 
 function commentGitHub(submission: ISubmission, msg: string): void {
-/*
   let commentUrl: any = url.parse(submission.commentURL);
   let comment: string = JSON.stringify({body: msg});
 
@@ -411,8 +410,6 @@ function commentGitHub(submission: ISubmission, msg: string): void {
   // Post the data
   req.write(comment);
   req.end();
-  */
-  console.log("**** " + msg + "****");
 }  // commentGitHub
 
 function formatResult(result: any): any {

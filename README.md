@@ -1,26 +1,22 @@
 # CPSC 310 Automated Submission Service for GitHub
-This service consumes pull request webhooks from configured repositories on GitHub. Upon receiving a request, the service will clone the repository, run the tests and publish the results as a comment on the pull request.
+This service consumes commit comment webhooks from configured repositories on GitHub. Upon receiving a request, the service will clone the repository, run the tests and publish the results as a comment on the commit.
 
 ## Usage
 ### Start the service
-Connect to the server using SSH at `<hostname>:22`. After logging in, `cd ~/<appdir>` and run
+Connect to the server using SSH at `shaka.cs.ubc.ca:22`. After logging in, `cd /app` and run
 `sudo docker-compose up` to start the service.
 
 ### Configure the webhook on a GitHub repository
 1. Go to **Settings**, **Webhooks & services**
 2. Click **Add webhook**
 3. Configure the webhook:
-  1. In the _Payload URL_ field, enter `https://<hostname>/cpsc310/test-service`
-  2. Click **Disable SSL verification**
-  3. Under Which events would you like to trigger this webhook?, select _Let me select individual events._ and choose only _Pull request_.
+  1. In the _Payload URL_ field, enter `http://shaka.cs.ubc.ca:8080/submit`
+  2. Under Which events would you like to trigger this webhook?, select _Let me select individual events._ and choose only _Commit comment_.
 
-### Make a pull request
-To make a submission, open a [pull request](https://help.github.com/articles/using-pull-requests/) on a repository configured with the submission service.
+### Make a request
+To make a submission, comment on the commit that should be tested. Include @CPSC310Bot in the comment text.
 
-1. Navigate to the repository on GitHub.
-2. Click **Fork**. Set up the webhook on the repository.
-3. Make changes to your fork on a new branch.
-4. To submit the changes for testing, click **New pull request**.
+
 
 ## Administration
 ### Environment Variables
@@ -260,10 +256,9 @@ sudo systemctl enable docker
 To set up the app on production:
 
 1.  Clone the source files from GitHub
-2.  Configure the production environment files
-3.  Install the SSL certificates
-4.  Create a persistent Docker data volume
-5.  Build the service with Docker Compose
+2.  Configure the production environment file
+3.  Create a persistent Docker data volume
+4.  Build the service with Docker Compose
 
 ```bash
 DB_ADMIN_USERNAME=
@@ -272,45 +267,29 @@ DB_ADMIN_PASSWORD=
 DB_APP_USERNAME=
 DB_APP_PASSWORD=
 
-DB_STD_USERNAME=
-DB_STD_PASSWORD=
-
 GITHUB_API_KEY=
 
-CERT_CRT_PATH=
-CERT_KEY_PATH=
+
+cd /app
+git clone https://github.com/nickbradley/CPSC310submit.git .
 
 
+cat <<EOT > ./app.env
+DB_DATA_USERNAME=${DB_APP_USERNAME}
+DB_DATA_PASSWORD=${DB_APP_PASSWORD}
 
-cd ~
-git clone <GitHub_repo_url> cpsc310tester
+COUCHDB_USER=${DB_ADMIN_USER}
+COUCHDB_PASSWORD=${DB_ADMIN_PASSWORD}
 
-cd cpsc310tester
-
-cat <<EOT > ./web.env
-DB_USERNAME=${DB_APP_USERNAME}
-DB_PASSWORD=${DB_APP_PASSWORD}
 GITHUB_API_KEY=${GITHUB_API_KEY}
 EOT
 
-# Set the database administrator account
-cat <<EOT > ./db.env
-COUCHDB_USER=${DB_ADMIN_USERNAME}
-COUCHDB_PASSWORD=${DB_ADMIN_PASSWORD}
-EOT
-
-# Copy the certificates
-cp ${CERT_CRT_PATH} app/
-cp ${CERT_KEY_PATH} app/
-
-cp ${CERT_CRT_PATH} nginx/
-cp ${CERT_KEY_PATH} nginx/
 
 # Create a persistent data volume to hold database files
 sudo docker volume create --name cpsc310-couchdb-store
 
 # Build and start the service
-cd ${APP_DIR}
+cd /app
 sudo docker-compose build
 sudo docker-compose up -d
 ```
@@ -332,35 +311,29 @@ The following will configure the database:
 Create users
 ```bash
 # Admin user
-curl -X PUT https://<hostname>/cpsc310/db/_config/admins/${DB_ADMIN_USER} \
+curl -X PUT http://localhost:5984/db/_config/admins/${DB_ADMIN_USER} \
      -k \
      -d '"${DB_ADMIN_PASSWORD}"'
 
 # App user
-curl -X PUT https://<hostname>/cpsc310/db/_users/org.couchdb.user:${DB_APP_USERNAME} \
+curl -X PUT http://localhost:5984/db/_users/org.couchdb.user:${DB_APP_USERNAME} \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \     
      -H 'content-type:application/json' \
      -d '{"name": "${DB_APP_USERNAME}", "password": "${DB_APP_PASSWORD}", "roles": [], "type": "user"}'
 
-# Standard user
-curl -X PUT https://<hostname>/cpsc310/db/_users/org.couchdb.user:${DB_STD_USERNAME} \
-     -k \
-     -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
-     -H 'content-type:application/json' \
-     -d '{"name": "${DB_STD_USERNAME}", "password": "${DB_STD_PASSWORD}", "roles": [], "type": "user"}'
 ```
 
 Create databases
 ```bash
 # Create database cpsc310
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310 \
+curl -X PUT http://localhost:5984/db/cpsc310 \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H 'content-type:application/json'
 
 # Create database cpsc310-logs
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310-logs \
+curl -X PUT http://localhost:5984/db/cpsc310-logs \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H 'content-type:application/json'
@@ -369,31 +342,20 @@ curl -X PUT https://<hostname>/cpsc310/db/cpsc310-logs \
 Assign users to database
 ```bash
 # Add users to cpsc310
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310/_security \
+curl -X PUT http://localhost:5984/db/cpsc310/_security \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H "Content-Type: application/json" \
-     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}", "${DB_STD_USERNAME}"], "roles": [] } }'
+     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}"], "roles": [] } }'
 
 # Add users to cpsc310-logs
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310-logs/_security \
+curl -X PUT http://localhost:5984/db/cpsc310-logs/_security \
      -k \
      -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
      -H "Content-Type: application/json" \
-     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}", "${DB_STD_USERNAME}"], "roles": [] } }'
+     -d '{"admins": { "names": ["${DB_ADMIN_USERNAME}"], "roles": [] }, "members": { "names": ["${DB_APP_USERNAME}"], "roles": [] } }'
 ```
 
 Create views
 ```bash
-```
-
-This command will add a single GitHub user to the database.
-```bash
-GITHUB_USERNAME=
-GITHUB_REPONAME=
-
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310/${GITHUB_USERNAME}%2F${GITHUB_REPONAME} \
-     -k \
-     -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
-     -H 'content-type:application/json' \
 ```

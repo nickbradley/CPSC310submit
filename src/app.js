@@ -21,7 +21,7 @@ var AppSetting = {
     },
     cmd: {
         concurrency: process.env.WORKERS || 1,
-        timeout: process.env.CMD_TIMEOUT || 500000,
+        timeout: process.env.CMD_TIMEOUT || 120000,
         file: process.env.CMD_SCRIPT || "app.sh",
     },
     cache: {
@@ -244,7 +244,27 @@ function extractDeliverable(comment) {
     return deliverable;
 }
 function commentGitHub(submission, msg) {
-    console.log("**** " + msg + "****");
+    var commentUrl = url.parse(submission.commentURL);
+    var comment = JSON.stringify({ body: msg });
+    var options = {
+        host: commentUrl.host,
+        port: '443',
+        path: commentUrl.path,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(comment),
+            'User-Agent': 'cpsc310-github-listener',
+            'Authorization': 'token ' + AppSetting.github.token
+        }
+    };
+    var req = https.request(options, function (res) {
+        if (res.statusCode != 201) {
+            logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+        }
+    });
+    req.write(comment);
+    req.end();
 }
 function formatResult(result) {
     var passMatches = /^.*(\d+) passing.*$/m.exec(result);
