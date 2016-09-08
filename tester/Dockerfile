@@ -8,7 +8,8 @@ CMD { \
   cd /project/cpsc310d1-priv && \
   npm run configure && \
   npm run build; \
-  } > /dev/null 2>&1 && \
+  #} > /dev/null 2>&1 && \
+  } > /dev/null && \
   npm run test
   #&& \
 #  npm run coverage
