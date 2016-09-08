@@ -388,6 +388,7 @@ function extractDeliverable(comment: string): string {
 
 
 function commentGitHub(submission: ISubmission, msg: string): void {
+  /*
   let commentUrl: any = url.parse(submission.commentURL);
   let comment: string = JSON.stringify({body: msg});
 
@@ -415,6 +416,8 @@ function commentGitHub(submission: ISubmission, msg: string): void {
   // Post the data
   req.write(comment);
   req.end();
+  */
+  console.log("**** " + msg + " ****");
 }  // commentGitHub
 
 function formatResult(result: any): any {
