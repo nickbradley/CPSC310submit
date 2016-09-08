@@ -6,7 +6,6 @@ services:
     build: .
     env_file:
       - ./app.env
-    environment:
     volumes:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
