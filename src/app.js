@@ -185,17 +185,21 @@ submitHandler.post("/", function (req, res) {
     var deliverable;
     var msgInfo = "";
     if (comment.includes("@cpsc310bot")) {
-        deliverable = extractDeliverable(comment) || deliverables["current"];
+        deliverable = extractDeliverable(comment);
+        if (!deliverable) {
+            msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+            deliverable = deliverables["current"];
+        }
         if (deliverable == deliverables["current"]) {
             testRepoURL = deliverables[deliverables["current"]].private;
         }
         else if (deliverable < deliverables["current"] && deliverable >= "d1") {
             testRepoURL = deliverables[deliverable].private;
-            msgInfo = "\nInfo: Running specs for previous deliverable " + deliverable + ".";
+            msgInfo = "\nNote: Running specs for previous deliverable " + deliverable + ".";
         }
         else {
             testRepoURL = deliverables[deliverables["current"]].private;
-            msgInfo = "\nWarn: Invalid deliverable specified, using latest.";
+            msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
         }
         submission = {
             username: req.body.comment.user.login,
@@ -249,28 +253,9 @@ function extractDeliverable(comment) {
     return deliverable;
 }
 function commentGitHub(submission, msg) {
-    var commentUrl = url.parse(submission.commentURL);
-    var comment = JSON.stringify({ body: msg });
-    var options = {
-        host: commentUrl.host,
-        port: '443',
-        path: commentUrl.path,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(comment),
-            'User-Agent': 'cpsc310-github-listener',
-            'Authorization': 'token ' + AppSetting.github.token
-        }
-    };
-    var req = https.request(options, function (res) {
-        if (res.statusCode != 201) {
-            logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-        }
-    });
-    req.write(comment);
-    req.end();
-    console.log("**** " + msg + " ****");
+    if (submission.commentURL) {
+        console.log("**** " + msg + " ****");
+    }
 }
 function formatResult(result) {
     var passMatches = /^.*(\d+) passing.*$/m.exec(result);

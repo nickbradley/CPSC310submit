@@ -290,11 +290,28 @@ usersHandler.post("/", (req: any, res: any) => {
 /*
 let gradeHandler = Router();
 router.use("/grade", gradeHandler);
-gradeHandler.use();
+gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", (req:any, res:any) => {
+  // assume var delv
+  let delv: string = "d1";
+  let submission: ISubmission;
+  let testRepoURL: string = deliverables[delv]
+  users.forEach() {
+    submission = {
+      username: "cpsc310bot",
+      reponame: req.body.repository.name,
+      repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+      commentURL: null,
+      commitSHA: "date",
+      testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+      deliverable: delv
+    };
+  }
+
 
 });
 */
+
 
 let submitHandler = Router();
 router.use("/submit", submitHandler);
@@ -312,18 +329,23 @@ submitHandler.post("/", (req:any, res:any) => {
   let msgInfo: string = "";
 
   if (comment.includes("@cpsc310bot")) {
-    deliverable = extractDeliverable(comment) || deliverables["current"];
+    deliverable = extractDeliverable(comment);
+
+    if (!deliverable) {
+      msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+      deliverable = deliverables["current"];
+    }
 
     if (deliverable == deliverables["current"]) {
       testRepoURL = deliverables[deliverables["current"]].private;
     }
     else if (deliverable < deliverables["current"] && deliverable >= "d1") {
       testRepoURL = deliverables[deliverable].private;
-      msgInfo = "\nInfo: Running specs for previous deliverable " + deliverable + ".";
+      msgInfo = "\nNote: Running specs for previous deliverable " + deliverable + ".";
     }
     else {
       testRepoURL = deliverables[deliverables["current"]].private;
-      msgInfo = "\nWarn: Invalid deliverable specified, using latest.";
+      msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
     }
 
     submission = {
@@ -389,36 +411,38 @@ function extractDeliverable(comment: string): string {
 
 
 function commentGitHub(submission: ISubmission, msg: string): void {
+  if (submission.commentURL) {
+    /*
+    let commentUrl: any = url.parse(submission.commentURL);
+    let comment: string = JSON.stringify({body: msg});
 
-  let commentUrl: any = url.parse(submission.commentURL);
-  let comment: string = JSON.stringify({body: msg});
+    // setup post options
+    let options: any = {
+      host: commentUrl.host,
+      port: '443',
+      path: commentUrl.path,
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(comment),
+          'User-Agent': 'cpsc310-github-listener',
+          'Authorization': 'token ' + AppSetting.github.token
+      }
+    };
 
-  // setup post options
-  let options: any = {
-    host: commentUrl.host,
-    port: '443',
-    path: commentUrl.path,
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(comment),
-        'User-Agent': 'cpsc310-github-listener',
-        'Authorization': 'token ' + AppSetting.github.token
-    }
-  };
+    // Set up the post request
+    var req = https.request(options, (res) => {
+      if (res.statusCode != 201) {
+        logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+      }
+    });
 
-  // Set up the post request
-  var req = https.request(options, (res) => {
-    if (res.statusCode != 201) {
-      logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-    }
-  });
-
-  // Post the data
-  req.write(comment);
-  req.end();
-
-  console.log("**** " + msg + " ****");
+    // Post the data
+    req.write(comment);
+    req.end();
+    */
+    console.log("**** " + msg + " ****");
+  }
 }  // commentGitHub
 
 function formatResult(result: any): any {
