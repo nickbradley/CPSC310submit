@@ -35,7 +35,7 @@ TEST_REPO_NAME=${TEST_REPO_FULLNAME%%.*}
 
 TMP=$(mktemp -d)
 TMP_DIR=/repos${TMP:4}
-STUDENT_REPO=/repos${TMP:4}/cpsc310project
+STUDENT_REPO=/app/repos${TMP:4}/cpsc310project
 mkdir -p "${STUDENT_REPO}"
 cd "${STUDENT_REPO}"
 git clone "${STUDENT_REPO_URL}" "${STUDENT_REPO}"
@@ -52,7 +52,7 @@ then
 fi
 
 # Clone/pull the test suite repo
-TEST_REPO=/repos/${TEST_REPO_NAME}
+TEST_REPO=/app/repos/${TEST_REPO_NAME}
 
 if [[ -d "${TEST_REPO}" ]]
 then
