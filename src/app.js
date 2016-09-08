@@ -187,7 +187,7 @@ submitHandler.post("/", function (req, res) {
     if (comment.includes("@cpsc310bot")) {
         deliverable = extractDeliverable(comment);
         if (!deliverable) {
-            msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+            msgInfo = "\nNote: No deliverable specified, using latest.";
             deliverable = deliverables["current"];
         }
         if (deliverable == deliverables["current"]) {
@@ -199,7 +199,7 @@ submitHandler.post("/", function (req, res) {
         }
         else {
             testRepoURL = deliverables[deliverables["current"]].private;
-            msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+            msgInfo = "\nNote: Invalid deliverable specified, using latest.";
         }
         submission = {
             username: req.body.comment.user.login,

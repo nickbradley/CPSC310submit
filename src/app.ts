@@ -332,7 +332,7 @@ submitHandler.post("/", (req:any, res:any) => {
     deliverable = extractDeliverable(comment);
 
     if (!deliverable) {
-      msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+      msgInfo = "\nNote: No deliverable specified, using latest.";
       deliverable = deliverables["current"];
     }
 
@@ -345,7 +345,7 @@ submitHandler.post("/", (req:any, res:any) => {
     }
     else {
       testRepoURL = deliverables[deliverables["current"]].private;
-      msgInfo = "\nNote: No/Invalid deliverable specified, using latest.";
+      msgInfo = "\nNote: Invalid deliverable specified, using latest.";
     }
 
     submission = {
