@@ -8,6 +8,7 @@ var Queue = require("bull");
 var execFile = require("child_process").execFile;
 var winston = require("winston");
 var winstonCouch = require("winston-couchdb").Couchdb;
+var moment = require("moment");
 if (!process.env.GITHUB_API_KEY)
     throw "Required environment variable GITHUB_API_KEY is not set.";
 var AppSetting = {
@@ -106,9 +107,61 @@ function getLatestRun(team, user, callback) {
         });
     });
 }
-var server = http.createServer(function (req, res) {
-    router(req, res, finalhandler(req, res));
-}).listen(AppSetting.port);
+function extractDeliverable(comment) {
+    var deliverable = null;
+    var matches = /.*#[dD](\d{1,2}).*/i.exec(comment);
+    if (matches) {
+        deliverable = "d" + +matches[1];
+    }
+    return deliverable;
+}
+function commentGitHub(submission, msg) {
+    if (submission.commentURL) {
+        var commentUrl = url.parse(submission.commentURL);
+        var comment = JSON.stringify({ body: msg });
+        var options = {
+            host: commentUrl.host,
+            port: '443',
+            path: commentUrl.path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(comment),
+                'User-Agent': 'cpsc310-github-listener',
+                'Authorization': 'token ' + AppSetting.github.token
+            }
+        };
+        var req = https.request(options, function (res) {
+            if (res.statusCode != 201) {
+                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+            }
+        });
+        req.write(comment);
+        req.end();
+        console.log("**** " + msg + " ****");
+    }
+}
+function formatResult(result) {
+    var passMatches = /^.*(\d+) passing.*$/m.exec(result);
+    var failMatches = /^.*(\d+) failing.*$/m.exec(result);
+    var passes = 0;
+    var fails = 0;
+    var firstFailTestName = "";
+    if (passMatches)
+        passes = +passMatches[1];
+    if (failMatches) {
+        fails = +failMatches[1];
+        var matches = /^.*1\) (.+)$/m.exec(result);
+        if (matches)
+            firstFailTestName = matches[1];
+    }
+    if (passes == 0 && fails == 0)
+        return "Invalid Mocha output.";
+    else if (fails == 0)
+        return passes + " passing, " + fails + " failing";
+    else
+        return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
+}
 var deliverableHandler = Router();
 router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
@@ -225,7 +278,7 @@ submitHandler.post("/", function (req, res) {
                     }
                     else {
                         logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-                        commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + -1 * runDiff + "ms before trying again.");
+                        commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1 * runDiff).humanize() + " before trying again.");
                     }
                 });
             }
@@ -244,61 +297,6 @@ submitHandler.post("/", function (req, res) {
     res.writeHead(200);
     res.end();
 });
-function extractDeliverable(comment) {
-    var deliverable = null;
-    var matches = /.*#[dD](\d{1,2}).*/i.exec(comment);
-    if (matches) {
-        deliverable = "d" + +matches[1];
-    }
-    return deliverable;
-}
-function commentGitHub(submission, msg) {
-    if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
-        console.log("**** " + msg + " ****");
-    }
-}
-function formatResult(result) {
-    var passMatches = /^.*(\d+) passing.*$/m.exec(result);
-    var failMatches = /^.*(\d+) failing.*$/m.exec(result);
-    var passes = 0;
-    var fails = 0;
-    var firstFailTestName = "";
-    if (passMatches)
-        passes = +passMatches[1];
-    if (failMatches) {
-        fails = +failMatches[1];
-        var matches = /^.*1\) (.+)$/m.exec(result);
-        if (matches)
-            firstFailTestName = matches[1];
-    }
-    if (passes == 0 && fails == 0)
-        return "Invalid Mocha output.";
-    else if (fails == 0)
-        return passes + " passing, " + fails + " failing";
-    else
-        return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
-}
 requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var submission = job.data;
     var file = ('./' + AppSetting.cmd.file).replace('//', '/');
@@ -307,7 +305,6 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
         timeout: AppSetting.cmd.timeout,
         maxBuffer: 500 * 1024
     };
-    console.log(file, args);
     var exec = execFile(file, args, options, function (error, stdout, stderr) {
         if (error !== null)
             done(Error('Exec failed to run cmd. ' + error));
@@ -350,4 +347,7 @@ requestQueue.on('failed', function (job, error) {
     logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
     commentGitHub(submission, 'Failed to execute tests.');
 });
+var server = http.createServer(function (req, res) {
+    router(req, res, finalhandler(req, res));
+}).listen(AppSetting.port);
 //# sourceMappingURL=app.js.map

@@ -1,4 +1,9 @@
-// Declarations
+/**
+ * CPSC 310 submission service.
+ * @author Nick Bradley <nbrad11@cs.ubc.ca>
+ */
+
+// Application settings
 interface IAppSetting {
   port: string,
   github: { username: string, token: string },
@@ -8,6 +13,7 @@ interface IAppSetting {
   dbServer: { port: string, address: string, connection: string, username: string, password: string }
 }
 
+// Properties for the GitHub commit comment request
 interface ISubmission {
   username: string,
   reponame: string,
@@ -18,6 +24,7 @@ interface ISubmission {
   deliverable: string
 }
 
+// Options for ExecFile
 interface IExecOptions {
   cwd?: string,  // Current working directory
   env?: any,  // Environment key-value pairs
@@ -29,6 +36,7 @@ interface IExecOptions {
   gid?: number
 }
 
+// Document that is inserted into database with test results
 interface IResultDoc {
   team: string,
   user: string,
@@ -64,14 +72,12 @@ var execFile = require("child_process").execFile;
 
 let winston = require("winston");
 let winstonCouch = require("winston-couchdb").Couchdb;
-
+let moment = require("moment");
 
 
 
 
 // Initialization
-
-
 if (!process.env.GITHUB_API_KEY) throw "Required environment variable GITHUB_API_KEY is not set.";
 
 let AppSetting: IAppSetting = {
@@ -172,7 +178,9 @@ let queuedOrActive: Array<string> = [];
 
 
 
-
+/**
+ * Runs the callback function after authenticating against the cpsc310 database.
+ */
 function dbAuth(dbServer: any, callback: Function): void {
   nano.auth(dbServer.username, dbServer.password, (err: any, body:any, headers:any) => {
     let auth:any;
@@ -192,7 +200,9 @@ function dbAuth(dbServer: any, callback: Function): void {
 }  // dbAuth
 
 
-
+/**
+ * Gets the most recent run date for the specified team and user from the db.
+ */
 function getLatestRun(team: string, user: string, callback: Function): void {
   let viewParams = {
     key: team + "/" + user,
@@ -213,11 +223,98 @@ function getLatestRun(team: string, user: string, callback: Function): void {
 }  // latestRun
 
 
+/**
+ * Searches a string for a number preceeded by #d (e.g. #d1). Will only match numbers
+ * with 2 or less digits. Returns the number if found, otherwise null.
+ *
+ * Examples:
+ *  #d1  #d01  #D1 #D01  => return 1
+ *  #d99 #D99  => return 99
+ *
+ */
+function extractDeliverable(comment: string): string {
+  let deliverable: string = null;
+  let matches: Array<string> = /.*#[dD](\d{1,2}).*/i.exec(comment);  // comment includes #d1 or #D1 or #d01
+  if (matches) {  // if comment specifies deliverable test suite
+    deliverable = "d" + +matches[1];
+  }
+
+  return deliverable;
+}  // extractDeliverable
 
 
-var server = http.createServer((req:any, res:any) => {
-  router(req, res, finalhandler(req, res));
-}).listen(AppSetting.port);
+/**
+ * Posts a message to GitHub.
+ */
+function commentGitHub(submission: ISubmission, msg: string): void {
+  if (submission.commentURL) {
+
+    let commentUrl: any = url.parse(submission.commentURL);
+    let comment: string = JSON.stringify({body: msg});
+
+    // setup post options
+    let options: any = {
+      host: commentUrl.host,
+      port: '443',
+      path: commentUrl.path,
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(comment),
+          'User-Agent': 'cpsc310-github-listener',
+          'Authorization': 'token ' + AppSetting.github.token
+      }
+    };
+
+    // Set up the post request
+    var req = https.request(options, (res) => {
+      if (res.statusCode != 201) {
+        logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+      }
+    });
+
+    // Post the data
+    req.write(comment);
+    req.end();
+
+    console.log("**** " + msg + " ****");
+  }
+}  // commentGitHub
+
+/**
+ * Takes the output from Mocha and returns only the number of pass/fails and the
+ * name of the first spec to fail.
+ */
+function formatResult(result: any): any {
+  let passMatches: Array<string> = /^.*(\d+) passing.*$/m.exec(result);
+  let failMatches: Array<string> = /^.*(\d+) failing.*$/m.exec(result);
+
+  let passes: number = 0;
+  let fails: number = 0;
+  let firstFailTestName: string = "";
+
+  if (passMatches)
+    passes = +passMatches[1];
+
+  if (failMatches) {
+    fails = +failMatches[1];
+
+    let matches: Array<string> = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
+    if (matches)
+      firstFailTestName = matches[1];
+  }
+
+  if (passes == 0 && fails == 0)
+    //return result;
+    return "Invalid Mocha output.";
+  else if (fails == 0)
+    return passes + " passing, " + fails + " failing";
+  else
+    return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
+}  // formatResult
+
+
+
 
 
 
@@ -375,7 +472,7 @@ submitHandler.post("/", (req:any, res:any) => {
           else {
             // too early to run next test
             logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-            commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + -1*runDiff + "ms before trying again.");
+            commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1*runDiff).humanize() + " before trying again.");
           }
         });
       }
@@ -399,79 +496,7 @@ submitHandler.post("/", (req:any, res:any) => {
 });
 
 
-function extractDeliverable(comment: string): string {
-  let deliverable: string = null;
-  let matches: Array<string> = /.*#[dD](\d{1,2}).*/i.exec(comment);  // comment includes #d1 or #D1 or #d01
-  if (matches) {  // if comment specifies deliverable test suite
-    deliverable = "d" + +matches[1];
-  }
 
-  return deliverable;
-}  // extractDeliverable
-
-
-function commentGitHub(submission: ISubmission, msg: string): void {
-  if (submission.commentURL) {
-
-    let commentUrl: any = url.parse(submission.commentURL);
-    let comment: string = JSON.stringify({body: msg});
-
-    // setup post options
-    let options: any = {
-      host: commentUrl.host,
-      port: '443',
-      path: commentUrl.path,
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(comment),
-          'User-Agent': 'cpsc310-github-listener',
-          'Authorization': 'token ' + AppSetting.github.token
-      }
-    };
-
-    // Set up the post request
-    var req = https.request(options, (res) => {
-      if (res.statusCode != 201) {
-        logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-      }
-    });
-
-    // Post the data
-    req.write(comment);
-    req.end();
-
-    console.log("**** " + msg + " ****");
-  }
-}  // commentGitHub
-
-function formatResult(result: any): any {
-  let passMatches: Array<string> = /^.*(\d+) passing.*$/m.exec(result);
-  let failMatches: Array<string> = /^.*(\d+) failing.*$/m.exec(result);
-
-  let passes: number = 0;
-  let fails: number = 0;
-  let firstFailTestName: string = "";
-
-  if (passMatches)
-    passes = +passMatches[1];
-
-  if (failMatches) {
-    fails = +failMatches[1];
-
-    let matches: Array<string> = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
-    if (matches)
-      firstFailTestName = matches[1];
-  }
-
-  if (passes == 0 && fails == 0)
-    //return result;
-    return "Invalid Mocha output.";
-  else if (fails == 0)
-    return passes + " passing, " + fails + " failing";
-  else
-    return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
-}  // formatResult
 
 // Process queued submission
 // Submissions will be processed in parallel AppSetting.cmd.concurrency processes.
@@ -484,8 +509,6 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
     timeout: AppSetting.cmd.timeout,
     maxBuffer: 500*1024  // 500 KB
   };
-
-  console.log(file, args);
 
   // Run the script file
   let exec = execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
@@ -537,3 +560,8 @@ requestQueue.on('failed', function(job:any, error:any) {
   logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
   commentGitHub(submission, 'Failed to execute tests.');
 });
+
+
+var server = http.createServer((req:any, res:any) => {
+  router(req, res, finalhandler(req, res));
+}).listen(AppSetting.port);

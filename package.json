@@ -30,6 +30,7 @@
     "body-parser": "",
     "winston": "",
     "winston-couchdb": "",
-    "https": ""
+    "https": "",
+    "moment": ""
   }
 }
