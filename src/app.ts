@@ -458,7 +458,7 @@ function formatResult(result: any): any {
   if (failMatches)
     fails = +failMatches[1];
 
-    var m = /^.*1\) (\w+).*$/m.exec(result);  //^.*$^.*1\) (.*)$
+    var m = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
     console.log("reults", m[1]);
 
   if (passes == 0 && fails == 0)
