@@ -182,49 +182,6 @@ To make a submission, comment on the commit that should be tested. Include @CPSC
 </table>
 
 
-### Connect to the database
-CouchDB is used as the database. Connect to CouchDB's management interface, Futon, by going to `https://<hostname>/cpsc310/db/_utils/` while the testing service is running. You will need to login to view and update the database.
-
-Alternatively, use the following cUrl command snippets:
-```bash
-DB_USER=
-DB_PASS=
-
-curl -X GET https://<hostname>/cpsc310/db/... \
-     -k \
-     -u DB_USER:DB_PASS \
-     -H 'content-type:application/json'
-
-curl -X PUT https://<hostname>/cpsc310/db/... \
-     -k \
-     -u DB_USER:DB_PASS \
-     -H 'content-type:application/json' \
-     -d '{}'
-```
-where `...` is the location of the database/document, `-k` is used to ignore unsigned certificate errors and `-d '{}'` is the
-JSON document to PUT.
-
-Note: When referring to a document with a `/` in the \_id, encode the `/` with `%2F` in the cUrl URI.
-
-### Adding GitHub users to the database
-To add a user using Futon:
-
-1.  Open the *cpsc310* database from the Overview screen.
-2.  Click _New Document_.
-3.  Type `<GitHub_username>/<repo_name>` as the *value* for the \_id field. Click the green checkmark and then click _Save Document_.
-
-To add a user using cUrl:
-```bash
-# User name and password are setup in the Initial Setup section
-DB_USER=
-DB_PASS=
-
-curl -X PUT https://<hostname>/cpsc310/db/cpsc310/<GitHub_username>%2F<repo_name> \
-     -k \
-     -u DB_USER:DB_PASS \
-     -H 'content-type:application/json' \
-     -d '{}'
-```
 
 ### Retrieving test results
 TODO: add a view and document how to run the view.
@@ -300,11 +257,10 @@ sudo docker-compose up -d
 ## Configure CouchDB
 The following will configure the database:
 
-1. Create Users (admin, app, standard)
+1. Create Users (admin, app)
 2. Create DBs (cpsc310, cpsc310-logs)
 3. Assign users to DB
 4. Create views for DB
-5. Create documents in cpsc310
 
 
 
@@ -358,4 +314,20 @@ curl -X PUT http://localhost:5984/cpsc310-logs/_security \
 
 Create views
 ```bash
+# latest_run
+curl -X PUT http://localhost:5984/cpsc310/_design/default \
+     -u ${DB_ADMIN_USERNAME}:${DB_ADMIN_PASSWORD} \
+     -H "Content-Type: application/json" \
+     -d '{
+          "_id" : "_design/default",
+          "views" : {
+            "latest_run" : {
+              "map" : "function(doc){ if (doc.team && doc.user) emit(doc.team+"/"+doc.user, doc.timestamp)}",
+              "reduce": "function(key,values,rereduce){return Math.max.apply(null, values);}"
+            }
+          }
+        }'
+
+
+
 ```

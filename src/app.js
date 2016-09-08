@@ -248,6 +248,27 @@ function extractDeliverable(comment) {
     return deliverable;
 }
 function commentGitHub(submission, msg) {
+    var commentUrl = url.parse(submission.commentURL);
+    var comment = JSON.stringify({ body: msg });
+    var options = {
+        host: commentUrl.host,
+        port: '443',
+        path: commentUrl.path,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(comment),
+            'User-Agent': 'cpsc310-github-listener',
+            'Authorization': 'token ' + AppSetting.github.token
+        }
+    };
+    var req = https.request(options, function (res) {
+        if (res.statusCode != 201) {
+            logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+        }
+    });
+    req.write(comment);
+    req.end();
     console.log("**** " + msg + " ****");
 }
 function formatResult(result) {
