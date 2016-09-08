@@ -267,7 +267,7 @@ function formatResult(result) {
     if (failMatches)
         fails = +failMatches[1];
     if (passes == 0 && fails == 0)
-        return "Invalid Mocha output.";
+        return result;
     else
         return passes + " passing, " + fails + " failing";
 }

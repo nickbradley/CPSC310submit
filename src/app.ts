@@ -459,7 +459,8 @@ function formatResult(result: any): any {
     fails = +failMatches[1];
 
   if (passes == 0 && fails == 0)
-    return "Invalid Mocha output.";
+    return result;
+    //return "Invalid Mocha output.";
   else
     return passes + " passing, " + fails + " failing";
 }  // formatResult
