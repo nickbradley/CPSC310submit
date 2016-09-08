@@ -276,9 +276,9 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
-    */
+
   }
 }  // commentGitHub
 

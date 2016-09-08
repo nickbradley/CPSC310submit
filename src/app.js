@@ -117,6 +117,7 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
+        console.log("**** " + msg + " ****");
     }
 }
 function formatResult(result) {
