@@ -3,14 +3,14 @@ This service consumes commit comment webhooks from configured repositories on Gi
 
 ## Usage
 ### Start the service
-Connect to the server using SSH at `shaka.cs.ubc.ca:22`. After logging in, `cd /app` and run
+Connect to the server using SSH at `skaha.cs.ubc.ca:22`. After logging in, `cd /app` and run
 `sudo docker-compose up` to start the service.
 
 ### Configure the webhook on a GitHub repository
 1. Go to **Settings**, **Webhooks & services**
 2. Click **Add webhook**
 3. Configure the webhook:
-  1. In the _Payload URL_ field, enter `http://shaka.cs.ubc.ca:8080/submit`
+  1. In the _Payload URL_ field, enter `http://skaha.cs.ubc.ca:8080/submit`
   2. Under Which events would you like to trigger this webhook?, select _Let me select individual events._ and choose only _Commit comment_.
 
 ### Make a request
@@ -24,77 +24,72 @@ To make a submission, comment on the commit that should be tested. Include @CPSC
 #### Service responses
 <table>
   <tr>
+    <th>Comment</th>
     <th>Posted Message</th>
     <th>Description</th>
   </tr>
   <tr>
+    <td>...@CPSC310Bot...</td>
+    <td>Request received; should be processed within <i>N</i> minutes.
+        Note: No deliverable specified, using latest.</td>
+    <td>The request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
+  </tr>
+  <tr>
+    <td>...@CPSC310Bot...#d2...</td>
     <td>Request received; should be processed within <i>N</i> minutes.</td>
-    <td>The pull request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
+    <td>The request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
   </tr>
   <tr>
-    <td><i>Test results</i></td>
-    <td>Abbreviated test results from the Docker testing container.</td>
+    <td>...@CPSC310Bot...#d1...</td>
+    <td>Request received; should be processed within N minutes.
+        Note: Running specs for previous deliverable d1.</td>
+    <td>The request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
   </tr>
   <tr>
-    <td>Request denied: exceeded number of submissions allowed for this repository.</td>
-    <td>The user has already made the maximum number of pull requests allowed for the repository.</td>
+    <td>......@CPSC310Bot...#d99...</td>
+    <td>Request received; should be processed within 2 minutes.
+    Note: Invalid deliverable specified, using latest.</td>
+    <td>The request has been added to the job queue. The wait time, <i>N</i>, is computed as 2 multiplied by the length of the queue. For an empty queue, <i>N</i>=2.</td>
   </tr>
   <tr>
-    <td>Request denied: invalid user/repo pair.</td>
-    <td>The GitHub user making the pull request is not registered in the database.</td>
+    <td>...@CPSC310Bot...</td>
+    <td>Request cannot be processed. Rate limit exceeded; please wait N hours before trying again.</td>
+    <td></td>
   </tr>
   <tr>
+    <td>...@CPSC310Bot...</td>
+    <td>Request is already queued for processing.</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>...@CPSC310Bot...</td>
+    <td>Request cannot be processed; not registered.</td>
+    <td>The team or GitHub username for the request is not in the users document in the database.</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>Invalid Mocha output.</td>
+    <td>Unable to extract the number of passes and fails from the output of the container.</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>N passing, 0 failing</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>N passing, M failing
+Name of first spec to fail: SpecName</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
     <td>Failed to execute tests.</td>
-    <td>An error occurred while executing the tests or updating the database -- see error log for details. The failed test will not count towards the user's submission limit.</td>
+    <td>Either execFile failed (the app.sh script returned a non-zero exit code) or the output could not be inserted into the database.</td>
   </tr>
 </table>
 
-#### Error log messages
-<table>
-  <tr>
-    <th>Message</th>
-    <th>Cause</th>
-  </tr>
-  <tr>
-    <td>Request body exceeded maximum length. The connection has been closed.</td>
-    <td>The body exceeded 1 MB.</td>
-  </tr>
-  <tr>
-    <td>Pull request payload is malformed. <i>payload</i></td>
-    <td>The request body could not be parsed into JSON or one of the fields was missing or blank:
-      <ul>
-        <li>pull_request.id</li>
-        <li>pull_request.url</li>
-        <li>pull_request.head.repo.full_name</li>
-        <li>pull_request._links.comments.href</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td>Request denied for pull request <i>user/repo</i>. Test limit reached.</td>
-    <td><i>user</i> has exceeded the number of pull requests for the repository <i>repo</i>. This limit is set by MAX_REQUESTS in docker-compose.yml.</td>
-  </tr>
-  <tr>
-    <td>Request denied for pull request <i>user/repo</i>. Invalid user/repo pair.</td>
-    <td>The GitHub username and repository name combination is not in the database. Only registered users are permitted to use the submission service.</td>
-  </tr>
-  <tr>
-    <td>Request was not for an opened pull request <i>user/repo</i>.</td>
-    <td>A GitHub pull request has several events: Pull request opened, closed, reopened, edited, assigned, unassigned, labeled, unlabeled, or synchronized. The submission service will only process pull requests that have been opened.</td>
-  </tr>
-  <tr>
-    <td>Failed to post comment for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>HTTP Status Code</i></td>
-    <td>The status code returned by GitHub was not 201 (Created).</td>
-  </tr>
-  <tr>
-    <td>Executing tests failed for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>error</i></td>
-    <td>A error occurred while running the runTest.sh bash script which handles cloning repos and running the testing Docker container. See <i>error</i> for details.</td>
-  </tr>
-  <tr>
-    <td>Failed to update database for pull request <i>user/repo</i> {id: <i>id</i>, url: <i>url</i>, fullname: <i>user/repo</i>, commentUrl: <i>url</i>} <i>error</i></td>
-    <td>The tests were run successfully but the results were not added to the database. The database will return the reason for the failure in <i>error</i>.</td>
-  </tr>
-</table>
+
 
 #### Fatal errors
 <table>
@@ -104,75 +99,9 @@ To make a submission, comment on the commit that should be tested. Include @CPSC
     <th>Solution</th>
   </tr>
   <tr>
-    <td>Required environment variable DB_USERNAME is not set.</td>
-    <td>DB_USERNAME has not been set and has no default.</td>
-    <td>Set DB_USERNAME in web.env</td>
-  </tr>
-  <tr>
-    <td>Required environment variable DB_PASSWORD is not set.</td>
-    <td>DB_PASSWORD has not been set and has no default.</td>
-    <td>Set DB_PASSWORD in web.env</td>
-  </tr>
-  <tr>
     <td>Required environment variable GITHUB_API_KEY is not set.</td>
     <td>GITHUB_API_KEY has not been set and has no default.</td>
     <td>Set GITHUB_API_KEY in web.env</td>
-  </tr>
-  <tr>
-    <td>Required environment variable CMD_SCRIPT is not set.</td>
-    <td>CMD_SCRIPT has not been set and has no default.</td>
-    <td>Set CMD_SCRIPT in docker-compose.yml or web.env</td>
-  </tr>
-  <tr>
-    <td>Required environment variable TEST_REPO_URLS is not set.</td>
-    <td>TEST_REPO_URLS has not been set and has no default.</td>
-    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env</td>
-  </tr>
-  <tr>
-    <td>Required environment variable TEST_REPO_URLS is invalid: <i>JSON.parse() exception</i></td>
-    <td>TEST_REPO_URLS environment variable failed to parse.</td>
-    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
-  </tr>
-  <tr>
-    <td>Required environment variable TEST_REPO_URLS is invalid: not array.</td>
-    <td>TEST_REPO_URLS environment variable did not parse as an array.</td>
-    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
-  </tr>
-  <tr>
-    <td>Required environment variable TEST_REPO_URLS is invalid: array is empty.</td>
-    <td>Parsing the TEST_REPO_URLS environment variable resulted in an empty array.</td>
-    <td>Set TEST_REPO_URLS in docker-compose.yml or web.env as a string representing an array with at least one element.</td>
-  </tr>
-  <tr>
-    <td>SSL certificate or key is missing or not accessible.</td>
-    <td>The app was unable to read either the certificate or key file from the corresponding locations specified in CRT_FILE and KEY_FILE.</td>
-    <td>The certificate is baked into the app image. Check the following:
-      <ol>
-        <li>Confirm the certificate and key file are copied to the image by checking app/Dockerfile.</li>
-        <li>Confirm that the paths specified for CRT_FILE and KEY_FILE defined in docker-compose.yml match the location of the certificate and key file used in the Dockerfile.</li>
-        <li>Check the permissions on the certificate and key files and make adjustments in the Dockerfile.</i>
-      </ol>
-    </td>
-  </tr>
-  <tr>
-    <td>Failed to retrieve database list <i>error</i></td>
-    <td>There was an error connecting to the database server. See <i>error</i> for details.</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>Failed to connect to database <var>DB_NAME</var> at <i>host:port</i>. Make sure database server is running and that the database exists.</td>
-    <td>The database <var>DB_NAME</var> does not exist on the server.</td>
-    <td>Create a new database with name <var>DB_NAME</var> and read/write access for <var>DB_USERNAME</var></td>
-  </tr>
-  <tr>
-    <td>Failed to connect to database <var>DB_LOGS</var> at <i>host:port</i>. Make sure database server is running and that the database exists.</td>
-    <td>The database <var>DB_LOGS</var> does not exist on the server.</td>
-    <td>Create a new database with name <var>DB_LOGS</var> and read/write access for <var>DB_USERNAME</var></td>
-  </tr>
-  <tr>
-    <td>Failed to initialize userRequests. Error while reading student_repos view: <i>error</i></td>
-    <td>The app failed to get a dictionary of requests per user/repo. Likely cause is the view does not exist. See <i>error</i> for details.</td>
-    <td></td>
   </tr>
   <tr>
     <td>Failed to login to database. <i>error</i></td>
@@ -195,18 +124,18 @@ TODO: add a view and document how to run the view.
 The testing service is a collection of Docker containers that are orchestrated using Docker Compose. Docker needs to be installed and configured to run on startup.
 
 ### Install operating system
-CentOS 7 is used as the server's OS. Download the [minimal ISO image](http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso) and install in a virtual machine or on bare metal. During the install make sure networking is configured and add the user _cpsc310admin_ as an administrator.
+Debian is used as the server's OS.
 
 ### Configure OS
 Install the required packages and configure the Docker daemon to start automatically at boot.
+See (Docker Debian Installation)[https://docs.docker.com/engine/installation/linux/debian/].
 ```bash
-sudo yum update
-sudo yum install git -y
-sudo yum install docker -y
-sudo yum install docker-compose -y
+sudo apt-get update
+sudo apt-get install git -y
 
-# Set docker to start automatically
-sudo systemctl enable docker
+# Refer to https://docs.docker.com/engine/installation/linux/debian/ for docker installation instructions
+
+# Refer to https://docs.docker.com/compose/install/ for docker-compose installation instructions
 ```
 
 ### Configure testing service
@@ -226,6 +155,8 @@ DB_APP_PASSWORD=
 
 GITHUB_API_KEY=
 
+mkdir /app
+mkdir /repos
 
 cd /app
 git clone https://github.com/nickbradley/CPSC310submit.git .
@@ -269,7 +200,7 @@ Create users
 # Admin user
 curl -X PUT http://localhost:5984/_config/admins/${DB_ADMIN_USER} \
      -k \
-     -d '"${DB_ADMIN_PASSWORD}"'
+     -d '"'${DB_ADMIN_PASSWORD}'"'
 
 # App user
 curl -X PUT http://localhost:5984/_users/org.couchdb.user:${DB_APP_USERNAME} \
