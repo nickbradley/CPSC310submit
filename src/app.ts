@@ -53,6 +53,7 @@ interface IDeliverable {
 // Imports
 var finalhandler = require("finalhandler");
 var http         = require("http");
+var https = require("https");
 var Router       = require("router");
 var url          = require("url");
 let bodyParser = require("body-parser");
@@ -416,7 +417,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
   // Post the data
   req.write(comment);
   req.end();
-  
+
   console.log("**** " + msg + " ****");
 }  // commentGitHub
 

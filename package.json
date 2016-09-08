@@ -29,6 +29,7 @@
     "nano": "",
     "body-parser": "",
     "winston": "",
-    "winston-couchdb": ""
+    "winston-couchdb": "",
+    "https": ""
   }
 }
