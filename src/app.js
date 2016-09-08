@@ -302,6 +302,7 @@ requestQueue.on('completed', function (job, result) {
         commit: submission.commitSHA,
         timestamp: Date.now()
     };
+    console.log(result);
     queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
     dbAuth(AppSetting.dbServer, function (db) {
         db.insert(doc, function (error, body) {

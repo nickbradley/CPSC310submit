@@ -503,7 +503,7 @@ requestQueue.on('completed', function(job:any, result:any) {
     commit: submission.commitSHA,
     timestamp: Date.now()
   }
-
+console.log(result);
   // Remove the jobId from queuedOrActive
   queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
 
