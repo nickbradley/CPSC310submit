@@ -5,12 +5,8 @@ services:
   app:
     build: .
     env_file:
-      - ./web.env
+      - ./app.env
     environment:
-      MAX_REQUESTS: 1000000
-      DB_NAME: cpsc310
-      WORKERS: 3
-      CMD_SCRIPT: 'app.sh'
     volumes:
       # expose the host docker socket
       # any containers started inside of job will run on the host as a sibiling container
@@ -18,13 +14,21 @@ services:
       - /repos:/repos:z
     privileged: true
     ports:
-      - "3000:3000"
+      - "8080:8080"
     links:
       - cache
+      - db
   db:
     image: couchdb:1.6.1
     environment:
-      COUCHDB_USER: 'admin'
-      COUCHDB_PASSWORD: 'password'
+    env_file:
+      - ./app.env
     ports:
       - "5984:5984"
+    volumes:
+      - db-data:/usr/local/var/lib/couchdb
+
+volumes:
+  db-data:
+    external:
+      name: cpsc310-couchdb-store

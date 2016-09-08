@@ -42,20 +42,10 @@ interface IResultDoc {
 interface IDeliverable {
   [key: string]: any;
 }
-let deliverables: IDeliverable = {
-  current: "d1",
-  d1: {public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git"},
-  d2: {public: "", private: ""}
-}
-
-
-let users = ["cpsc310project_team1/nickbradley"];
 
 
 
 
-
-// object to store running repos
 
 
 
@@ -84,14 +74,14 @@ let winstonCouch = require("winston-couchdb").Couchdb;
 if (!process.env.GITHUB_API_KEY) throw "Required environment variable GITHUB_API_KEY is not set.";
 
 let AppSetting: IAppSetting = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 8080,
   github: {
     username: "cpsc310bot",
     token: process.env.GITHUB_API_KEY
   },
   requestLimit: {
     maxCount: process.env.MAX_REQUESTS || 10,
-    minDelay: process.env.MIN_REQUEST_DELAY || 4320
+    minDelay: process.env.MIN_REQUEST_DELAY || 43200000
   },
   cmd: {
     concurrency: process.env.WORKERS || 1,
@@ -139,11 +129,49 @@ var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppS
 // Setup the database connection
 let nano = require("nano")(AppSetting.dbServer.connection);
 
+
+
+// Read from db
+/*
+let deliverables: IDeliverable = {
+  current: "d1",
+  d1: {public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git"},
+  d2: {public: "", private: ""}
+}
+
+// Read from db
+let users = ["cpsc310project_team1/nickbradley"];
+*/
+let deliverables: IDeliverable;
+let users;
+dbAuth(AppSetting.dbServer, (db: any) => {
+  db.get("deliverables", (error:any, body: any) => {
+    if (error) {
+      console.log("Warning: failed to retreive deliverables document from database.");
+    }
+    deliverables = body;
+  });
+  db.get("users", (error:any, body: any) => {
+    if (error) {
+      console.log("Warning: failed to retreive users document from database.");
+    }
+
+    //let users = body;
+    users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
+  })
+})
+
+
+let queuedOrActive: Array<string> = [];
+
+
+
+
 function dbAuth(dbServer: any, callback: Function): void {
   nano.auth(dbServer.username, dbServer.password, (err: any, body:any, headers:any) => {
     let auth:any;
     if (err) {
-      throw 'Failed to login to database. ' + err;
+      throw "Failed to login to database. " + err;
     }
 
     if (headers && headers['set-cookie']) {
@@ -167,8 +195,13 @@ function getLatestRun(team: string, user: string, callback: Function): void {
   dbAuth(AppSetting.dbServer, (db: any) => {
     // view needs to group by team & user then return max timestamp
     db.view("default", "latest_run", viewParams, (err: any, body: any) => {
-      //check for error
-      callback(body && body[0] || 0);  // body should look like {"team_1/user_1": 12346567}
+      if (err) {
+        callback(0);
+      }
+      else {
+        // body = {rows:[{key: "", value: ""}]}
+        callback(body.rows[0] && body.rows[0].value || 0);
+      }
     });
   });
 }  // latestRun
@@ -187,15 +220,75 @@ router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
-    res.writeHead(200);
-    deliverables = req.body;
+    dbAuth(AppSetting.dbServer, (db: any) => {
+      db.get("deliverables", (error: any, body: any) => {
+        var doc = req.body;
+        doc._id = "deliverables";
+
+        if (!error) {
+          doc._rev = body._rev;
+        }
+        db.insert(doc, (error: any, body: any) => {
+          if (error) {
+            res.writeHead(500);
+            res.end();
+          }
+          else {
+            res.writeHead(200);
+            res.end();
+            deliverables = req.body;
+          }
+        });
+      });
+    });
   }
-  else
+  else {
     res.writeHead(403);
-  res.end();
+    res.end();
+  }
 });
 
+let usersHandler = Router();
+router.use("/users", usersHandler);
+usersHandler.use(bodyParser.json());
+usersHandler.post("/", (req: any, res: any) => {
+  if (req.headers['token'] === AppSetting.github.token) {
+    dbAuth(AppSetting.dbServer, (db: any) => {
+      db.get("users", (error: any, body: any) => {
+        var doc = req.body;
+        doc._id = "users";
 
+        if (!error) {
+          doc._rev = body._rev;
+        }
+        db.insert(doc, (error: any, body: any) => {
+          if (error) {
+            res.writeHead(500);
+            res.end();
+          }
+          else {
+            res.writeHead(200);
+            res.end();
+            users = req.body;
+          }
+        });
+      });
+    });
+  }
+  else {
+    res.writeHead(403);
+    res.end();
+  }
+});
+
+/*
+let gradeHandler = Router();
+router.use("/grade", gradeHandler);
+gradeHandler.use();
+gradeHandler.get("/", (req:any, res:any) => {
+
+});
+*/
 
 let submitHandler = Router();
 router.use("/submit", submitHandler);
@@ -227,8 +320,6 @@ submitHandler.post("/", (req:any, res:any) => {
       msgInfo = "\nWarn: Invalid deliverable specified, using latest.";
     }
 
-
-
     submission = {
       username: req.body.comment.user.login,
       reponame: req.body.repository.name,
@@ -240,50 +331,40 @@ submitHandler.post("/", (req:any, res:any) => {
     };
     let jobId: string = submission.reponame + "/" + submission.username;
 
-
-console.log(team+"/"+user);
-
     if (users.includes(team+"/"+user)) {
+      if (!queuedOrActive.includes(jobId)) {
+        getLatestRun(team, user, (latestRun:number) => {
+          let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
+          if (runDiff > 0) {
+            queuedOrActive.push(jobId);
+            requestQueue.add(submission, {jobId: jobId});
 
-      getLatestRun(team, user, (latestRun:number) => {
-        let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-        if (runDiff > 0) {
-          requestQueue.getJob(jobId).then((job: any) => {
-            if (!job) {
-              requestQueue.count().then((queueLength: number) => {
-                requestQueue.add(submission, {jobId: jobId});
-                //requestQueue.add(pr);
-                //logger.info('Request received for pull request ' + pr.fullname, pr);
-                //comment(pr, 'Request received; should be processed within ' + (queueLength * 2 + 2) + ' minutes.');
-
-
-                commentGitHub(submission, "Request received; should be processed within " + (queueLength * 2 + 2) + " minutes." + msgInfo);
-              });
-            }
-            else {
-              commentGitHub(submission, "Request is already queued for processing.");
-            }
-          });
-        }
-        else {
-          // too early to run next test
-          commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + -1*runDiff + "ms before trying again.");
-        }
-
-      });
+            requestQueue.count().then((queueLength: number) => {
+              logger.info("Request received for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+              commentGitHub(submission, "Request received; should be processed within " + (queueLength * 2 + 2) + " minutes." + msgInfo);
+            });
+          }
+          else {
+            // too early to run next test
+            logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+            commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + -1*runDiff + "ms before trying again.");
+          }
+        });
+      }
+      else {
+        logger.info("Request is already queued for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+        commentGitHub(submission, "Request is already queued for processing.");
+      }
     }
     else {
       // don't process - team/user is not registered
-      console.log("Not registered")
+      logger.info("User not registered for requests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+      commentGitHub(submission, "Request cannot be processed; not registered.");
     }
   }
   else {
     // don't process - comment doesn't include @cpsc310bot
-
   }
-
-
-  //commentGitHub(submission, postComment);
 
   res.writeHead(200);
   res.end();
@@ -335,60 +416,85 @@ function commentGitHub(submission: ISubmission, msg: string): void {
 }  // commentGitHub
 
 function formatResult(result: any): any {
-  return result;
+  let passMatches: Array<string> = /^.*(\d+) passing.*$/m.exec(result);
+  let failMatches: Array<string> = /^.*(\d+) failing.*$/m.exec(result);
+
+  let passes: number = 0;
+  let fails: number = 0;
+
+  if (passMatches)
+    passes = +passMatches[1];
+
+  if (failMatches)
+    fails = +failMatches[1];
+
+  if (passes == 0 && fails == 0)
+    return "Invalid Mocha output.";
+  else
+    return passes + " passing, " + fails + " failing";
 }  // formatResult
 
-  // Process queued pull requests
-  // Pull requests will be processed in parallel on WORKERS processes.
-  requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
-    let submission: ISubmission = job.data;
+// Process queued submission
+// Submissions will be processed in parallel AppSetting.cmd.concurrency processes.
+requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
+  let submission: ISubmission = job.data;
 
-    let file: string = ('./' + AppSetting.cmd.file).replace('//', '/');
-    let args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
-    let options: IExecOptions = {
-      timeout: AppSetting.cmd.timeout,
-      maxBuffer: 500*1024  // 500 KB
-    };
+  let file: string = ('./' + AppSetting.cmd.file).replace('//', '/');
+  let args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
+  let options: IExecOptions = {
+    timeout: AppSetting.cmd.timeout,
+    maxBuffer: 500*1024  // 500 KB
+  };
 
-    // Run the script file
-    execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
-      if (error !== null)
-        done(Error('Exec failed to run cmd. ' + error));
-      else
-        done(null, { stdout: stdout, stderr: stderr });
+  console.log(file, args);
+
+  // Run the script file
+  let exec = execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
+    if (error !== null)
+      done(Error('Exec failed to run cmd. ' + error));
+    else
+      done(null, { stdout: stdout, stderr: stderr });
+  });
+
+});
+requestQueue.on('active', function(job:any, jobPromise:any) {
+  let submission: ISubmission = job.data;
+  logger.info("Started running tests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+});
+requestQueue.on('completed', function(job:any, result:any) {
+  let submission: ISubmission = job.data;
+  let doc: IResultDoc = {
+    team: submission.reponame,
+    user: submission.username,
+    result: result,
+    output: formatResult(result.stdout),
+    deliverable: submission.deliverable,
+    commit: submission.commitSHA,
+    timestamp: Date.now()
+  }
+
+  // Remove the jobId from queuedOrActive
+  queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
+
+  dbAuth(AppSetting.dbServer, (db: any) => {
+    db.insert(doc, (error: any, body: any) => {
+      if (error) {
+        logger.error("Inserting document failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
+        commentGitHub(submission, 'Failed to execute tests.');
+      }
+      else {
+        logger.info("Finished running tests for "  + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+        commentGitHub(submission, doc.output);
+      }
     });
   });
-  requestQueue.on('active', function(job:any, jobPromise:any) {
-    let submission: ISubmission = job.data;
-    logger.info("Started running tests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-  });
-  requestQueue.on('completed', function(job:any, result:any) {
-    let submission: ISubmission = job.data;
-    let doc: IResultDoc = {
-      team: submission.reponame,
-      user: submission.username,
-      result: result,
-      output: formatResult(result),
-      deliverable: submission.deliverable,
-      commit: submission.commitSHA,
-      timestamp: Date.now()
-    }
-    dbAuth(AppSetting.dbServer, (db: any) => {
-      db.insert(doc, (error: any, body: any) => {
-        //check for error
-        if (!error) {
-          logger.error("Inserting document failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-          commentGitHub(submission, 'Failed to execute tests.');
-        }
-        else {
-          logger.info("Finished running tests for "  + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-          commentGitHub(submission, doc.output);
-        }
-      });
-    });
-  });
-  requestQueue.on('failed', function(job:any, error:any) {
-    let submission: ISubmission = job.data;
-    logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-    commentGitHub(submission, 'Failed to execute tests.');
-  });
+});
+requestQueue.on('failed', function(job:any, error:any) {
+  let submission: ISubmission = job.data;
+
+  // Remove the jobId from queuedOrActive
+  queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
+
+  logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
+  commentGitHub(submission, 'Failed to execute tests.');
+});

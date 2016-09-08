@@ -17,7 +17,6 @@
 #     Can be of the form 23h34dn or the latest date
 ###############################################################################
 
-
 set -o errexit  # exit on command failure
 set -o pipefail # exit if any command in pipeline fails
 set -o nounset  # exit if undeclared variable is used
@@ -33,7 +32,10 @@ TEST_REPO_NAME=${TEST_REPO_FULLNAME%%.*}
 
 # Clone the team's repo to a temporary folder and checkout a test branch at the
 # specified commit SHA
-STUDENT_REPO=/repos/src$(mktemp -d)
+
+TMP=$(mktemp -d)
+TMP_DIR=/repos${TMP:4}
+STUDENT_REPO=/repos${TMP:4}/cpsc310project
 mkdir -p "${STUDENT_REPO}"
 cd "${STUDENT_REPO}"
 git clone "${STUDENT_REPO_URL}" "${STUDENT_REPO}"
@@ -50,22 +52,40 @@ then
 fi
 
 # Clone/pull the test suite repo
-TEST_REPO=/repos/test/${TEST_REPO_NAME}
+TEST_REPO=/repos/${TEST_REPO_NAME}
 
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
   git pull ${TEST_REPO_URL}
+
+  # if not already up-to-date, npm ...
+
 else
-  git clone ${TEST_REPO_URL} ${TEST_REPO}
+  git clone ${TEST_REPO_URL} "${TEST_REPO}"
+  # run npm clean...
 fi
 
-
+#ln -s "${TEST_REPO}" "${TMP_DIR}/${TEST_REPO_NAME}"
 
 # Run docker
 echo "*** Begin test output ***"
 
-docker run -v "${TEST_REPO}":/project/cpsc310d1-priv:z -v "${STUDENT_REPO}":/project/cpsc310project:z --privileged cpsc310/tester
+#cd "${STUDENT_REPO}"
+#npm run clean
+#npm run configure
+#npm run build
+#cd "${TMP_DIR}/${TEST_REPO_NAME}"
+##npm run clean
+##npm run configure
+##npm run build
+#npm run test
+
+
+
+docker run -v "${TEST_REPO}":/project/deliverable:z -v "${STUDENT_REPO}":/project/cpsc310project:z --privileged cpsc310/tester || true
+
+#echo "Output from docker testing container here."
 
 echo "*** End test output ***"
 

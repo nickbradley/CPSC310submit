@@ -8,7 +8,7 @@ MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 #  cd /project/cpsc310d1-priv && \
 #  npm run configure && \
 #  npm run build; \
-#  } > /dev/null 2>&1 && \
+#  } > /dev/null 2>&1 && { \
 #  npm run test && \
 #  npm run coverage
 
@@ -17,10 +17,13 @@ CMD \
   npm run clean && \
   npm run configure && \
   npm run build && \
-  cd /project/cpsc310d1-priv && \
+  cd /project/deliverable && \
   npm run clean && \
   npm run configure && \
   npm run build && \
-  mocha -c
-  #npm run test && cat npm-debug.log #&& \
+  #npm -g install mocha-spec-json-reporter && \
+  #./node_modules/.bin/mocha -R mocha-spec-json-reporter
+  #npm run "mocha -R mocha-spec-json-reporter"
+  npm run test
+   #&& cat npm-debug.log #&& \
   #npm run coverage
