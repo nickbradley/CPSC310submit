@@ -19,7 +19,6 @@ services:
       - db
   db:
     image: couchdb:1.6.1
-    environment:
     env_file:
       - ./app.env
     ports:
