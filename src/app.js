@@ -266,12 +266,12 @@ function formatResult(result) {
         passes = +passMatches[1];
     if (failMatches)
         fails = +failMatches[1];
-    var m = /^.*\d+ failing.*$^.*$^.*1\) (.*)$/m.exec(result);
-    console.log(m);
+    var m = /^.*\d+ failing.*$/m.exec(result);
+    console.log("reults", m);
     if (passes == 0 && fails == 0)
         return result;
     else
-        return result;
+        return passes + " passing, " + fails + " failing";
 }
 requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var submission = job.data;
@@ -304,7 +304,6 @@ requestQueue.on('completed', function (job, result) {
         commit: submission.commitSHA,
         timestamp: Date.now()
     };
-    console.log(result);
     queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
     dbAuth(AppSetting.dbServer, function (db) {
         db.insert(doc, function (error, body) {

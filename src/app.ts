@@ -458,14 +458,14 @@ function formatResult(result: any): any {
   if (failMatches)
     fails = +failMatches[1];
 
-    var m = /^.*\d+ failing.*$^.*$^.*1\) (.*)$/m.exec(result);
-    console.log(m);
+    var m = /^.*\d+ failing.*$/m.exec(result);  //^.*$^.*1\) (.*)$
+    console.log("reults", m);
 
   if (passes == 0 && fails == 0)
     return result;
     //return "Invalid Mocha output.";
   else
-    return result //passes + " passing, " + fails + " failing";
+    return passes + " passing, " + fails + " failing";
 }  // formatResult
 
 // Process queued submission
@@ -506,7 +506,7 @@ requestQueue.on('completed', function(job:any, result:any) {
     commit: submission.commitSHA,
     timestamp: Date.now()
   }
-console.log(result);
+
   // Remove the jobId from queuedOrActive
   queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
 
