@@ -10,7 +10,7 @@ CMD { \
   npm run build; \
   #} > /dev/null 2>&1 && \
   } > /dev/null && \
-  cd /project/deliverable && \
+  cd /project/cpsc310project && \
   npm run test
   #&& \
 #  npm run coverage
