@@ -451,21 +451,26 @@ function formatResult(result: any): any {
 
   let passes: number = 0;
   let fails: number = 0;
+  let firstFailTestName: string = "";
 
   if (passMatches)
     passes = +passMatches[1];
 
-  if (failMatches)
+  if (failMatches) {
     fails = +failMatches[1];
 
-    var m = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
-    console.log("reults", m[1]);
+    let matches: Array<string> = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
+    if (matches)
+      firstFailTestName = matches[1];
+  }
 
   if (passes == 0 && fails == 0)
-    return result;
-    //return "Invalid Mocha output.";
-  else
+    //return result;
+    return "Invalid Mocha output.";
+  else if (fails == 0)
     return passes + " passing, " + fails + " failing";
+  else
+    return passes + " passing, " + fails + " failing" + "\nName of first failing test: " +firstFailTestName;
 }  // formatResult
 
 // Process queued submission

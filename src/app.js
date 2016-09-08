@@ -262,16 +262,21 @@ function formatResult(result) {
     var failMatches = /^.*(\d+) failing.*$/m.exec(result);
     var passes = 0;
     var fails = 0;
+    var firstFailTestName = "";
     if (passMatches)
         passes = +passMatches[1];
-    if (failMatches)
+    if (failMatches) {
         fails = +failMatches[1];
-    var m = /^.*1\) (.+)$/m.exec(result);
-    console.log("reults", m[1]);
+        var matches = /^.*1\) (.+)$/m.exec(result);
+        if (matches)
+            firstFailTestName = matches[1];
+    }
     if (passes == 0 && fails == 0)
-        return result;
-    else
+        return "Invalid Mocha output.";
+    else if (fails == 0)
         return passes + " passing, " + fails + " failing";
+    else
+        return passes + " passing, " + fails + " failing" + "\nName of first failing test: " + firstFailTestName;
 }
 requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var submission = job.data;
