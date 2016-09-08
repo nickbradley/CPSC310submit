@@ -297,7 +297,7 @@ function formatResult(result) {
     else if (fails == 0)
         return passes + " passing, " + fails + " failing";
     else
-        return passes + " passing, " + fails + " failing" + "\nName of first failing test: " + firstFailTestName;
+        return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
 }
 requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var submission = job.data;

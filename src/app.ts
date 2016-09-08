@@ -412,7 +412,7 @@ function extractDeliverable(comment: string): string {
 
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-    
+
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -470,7 +470,7 @@ function formatResult(result: any): any {
   else if (fails == 0)
     return passes + " passing, " + fails + " failing";
   else
-    return passes + " passing, " + fails + " failing" + "\nName of first failing test: " +firstFailTestName;
+    return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
 }  // formatResult
 
 // Process queued submission
