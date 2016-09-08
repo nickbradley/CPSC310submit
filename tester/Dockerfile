@@ -5,11 +5,12 @@ CMD { \
   cd /project/cpsc310project && \
   npm run configure && \
   npm run build && \
-  cd /project/cpsc310d1-priv && \
+  cd /project/deliverable && \
   npm run configure && \
   npm run build; \
   #} > /dev/null 2>&1 && \
   } > /dev/null && \
+  cd /project/deliverable && \
   npm run test
   #&& \
 #  npm run coverage
