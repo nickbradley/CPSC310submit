@@ -269,7 +269,7 @@ function formatResult(result) {
     if (passes == 0 && fails == 0)
         return result;
     else
-        return passes + " passing, " + fails + " failing";
+        return result;
 }
 requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var submission = job.data;

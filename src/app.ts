@@ -462,7 +462,7 @@ function formatResult(result: any): any {
     return result;
     //return "Invalid Mocha output.";
   else
-    return passes + " passing, " + fails + " failing";
+    return result //passes + " passing, " + fails + " failing";
 }  // formatResult
 
 // Process queued submission
