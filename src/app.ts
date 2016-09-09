@@ -182,6 +182,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
       console.log("Warning: failed to retreive users document from database.");
     }
     else {
+      console.log(body);
       body.teams.forEach((team:any)=>{
         let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
         team.members.forEach((memeber: string) => {
