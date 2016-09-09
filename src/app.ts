@@ -315,6 +315,15 @@ function formatResult(result: any): any {
 }  // formatResult
 
 
+function isEmpty(obj:any) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}  // isEmpty
+
+
 
 
 
@@ -325,7 +334,7 @@ deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
     var doc = req.body;
-    if (!doc)
+    if (isEmpty(doc))
       logger.warn("Empty deliverables document received.");
 
     dbAuth(AppSetting.dbServer, (db: any) => {
@@ -361,7 +370,7 @@ usersHandler.use(bodyParser.json());
 usersHandler.post("/", (req: any, res: any) => {
   if (req.headers['token'] === AppSetting.github.token) {
     var doc = req.body;
-    if (!doc)
+    if (isEmpty(doc))
       logger.warn("Empty deliverables document received.");
 
     dbAuth(AppSetting.dbServer, (db: any) => {

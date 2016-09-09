@@ -141,13 +141,20 @@ function formatResult(result) {
     else
         return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
 }
+function isEmpty(obj) {
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
 var deliverableHandler = Router();
 router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
         var doc = req.body;
-        if (!doc)
+        if (isEmpty(doc))
             logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
             db.get("deliverables", function (error, body) {
@@ -180,7 +187,7 @@ usersHandler.use(bodyParser.json());
 usersHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
         var doc = req.body;
-        if (!doc)
+        if (isEmpty(doc))
             logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
             db.get("users", function (error, body) {
