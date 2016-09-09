@@ -168,8 +168,8 @@ deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
         dbAuth(AppSetting.dbServer, function (db) {
+            var doc = req.body;
             db.get("deliverables", function (error, body) {
-                var doc = req.body;
                 doc._id = "deliverables";
                 if (!error) {
                     doc._rev = body._rev;

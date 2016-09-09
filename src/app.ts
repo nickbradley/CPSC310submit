@@ -325,8 +325,9 @@ deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
     dbAuth(AppSetting.dbServer, (db: any) => {
+      var doc = req.body;
       db.get("deliverables", (error: any, body: any) => {
-        var doc = req.body;
+
         doc._id = "deliverables";
 
         if (!error) {
