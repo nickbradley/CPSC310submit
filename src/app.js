@@ -65,6 +65,8 @@ var teams = [
 ];
 users = teams.forEach(function (team) {
     var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
+    console.log("repoName", repoName);
+    console.log("team", team);
     team.members.forEach(function (memeber) {
         return repoName + "/" + memeber;
     });

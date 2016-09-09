@@ -157,6 +157,8 @@ let teams: Array<any> = [
 ];
 users = teams.forEach((team:any)=>{
   let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
+  console.log("repoName", repoName);
+  console.log("team", team);
   team.members.forEach((memeber: string) => {
     return repoName + "/" + memeber;
   });
