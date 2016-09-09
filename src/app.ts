@@ -402,9 +402,9 @@ usersHandler.post("/", (req: any, res: any) => {
 
 
 let gradeHandler = Router();
-router.use("/grade", gradeHandler);
+router.use("/grade/:delv", gradeHandler);
 gradeHandler.use(bodyParser.urlencoded());
-gradeHandler.get("/:delv", (req:any, res:any) => {
+gradeHandler.get("/", (req:any, res:any) => {
   let delv:string = req.params["delv"];
   console.log(req.params);
   console.log("delv", delv);

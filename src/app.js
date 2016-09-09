@@ -215,9 +215,9 @@ usersHandler.post("/", function (req, res) {
     }
 });
 var gradeHandler = Router();
-router.use("/grade", gradeHandler);
+router.use("/grade/:delv", gradeHandler);
 gradeHandler.use(bodyParser.urlencoded());
-gradeHandler.get("/:delv", function (req, res) {
+gradeHandler.get("/", function (req, res) {
     var delv = req.params["delv"];
     console.log(req.params);
     console.log("delv", delv);
