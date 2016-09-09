@@ -324,10 +324,12 @@ router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
+    var doc = req.body;
+    console.log("doc", doc);
     dbAuth(AppSetting.dbServer, (db: any) => {
-      var doc = req.body;
+      console.log("doc", doc)
       db.get("deliverables", (error: any, body: any) => {
-
+        console.log("doc", doc);
         doc._id = "deliverables";
 
         if (!error) {
