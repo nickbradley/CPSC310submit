@@ -403,14 +403,14 @@ usersHandler.post("/", (req: any, res: any) => {
 
 let gradeHandler = Router();
 router.use("/grade/:delv", gradeHandler);
-gradeHandler.use(bodyParser.urlencoded());
+//gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", (req:any, res:any) => {
   ///:delv
   //let delv:string = req.params["delv"];
   //console.log(req.params);
   //console.log("delv", delv);
   if (req.headers['token'] === AppSetting.github.token) {
-    if (deliverables.hasOwnProperty(delv)) {
+    if (deliverables.hasOwnProperty("d1")) {
       /*
       // assume var delv
       let delv: string = "d1";
@@ -431,7 +431,7 @@ gradeHandler.get("/", (req:any, res:any) => {
       res.end();
     }
     else {
-      res.writeHead();
+      res.writeHead(500);
       res.end("Invalid deliverable specified.");
     }
   }

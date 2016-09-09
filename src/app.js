@@ -216,15 +216,14 @@ usersHandler.post("/", function (req, res) {
 });
 var gradeHandler = Router();
 router.use("/grade/:delv", gradeHandler);
-gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
-        if (deliverables.hasOwnProperty(delv)) {
+        if (deliverables.hasOwnProperty("d1")) {
             res.writeHead(200);
             res.end();
         }
         else {
-            res.writeHead();
+            res.writeHead(500);
             res.end("Invalid deliverable specified.");
         }
     }
