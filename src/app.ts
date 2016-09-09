@@ -332,7 +332,8 @@ deliverableHandler.post("/", (req:any, res:any) => {
         if (!error) {
           doc._rev = body._rev;
         }
-        db.insert(doc, (error: any, body: any) => {
+        console.log("Inserting doc: ", doc)
+;        db.insert(doc, (error: any, body: any) => {
           if (error) {
             res.writeHead(500);
             res.end();

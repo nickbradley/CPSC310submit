@@ -174,6 +174,7 @@ deliverableHandler.post("/", function (req, res) {
                 if (!error) {
                     doc._rev = body._rev;
                 }
+                console.log("Inserting doc: ", doc);
                 db.insert(doc, function (error, body) {
                     if (error) {
                         res.writeHead(500);

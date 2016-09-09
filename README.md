@@ -176,6 +176,8 @@ EOT
 # Create a persistent data volume to hold database files
 sudo docker volume create --name cpsc310-couchdb-store
 
+sudo docker build -t cpsc310/tester tester/.
+
 # Build and start the service
 cd /app
 sudo docker-compose build
@@ -198,7 +200,7 @@ The following will configure the database:
 Create users
 ```bash
 # Admin user
-curl -X PUT http://localhost:5984/_config/admins/${DB_ADMIN_USER} \
+curl -X PUT http://localhost:5984/_config/admins/${DB_ADMIN_USERNAME} \
      -k \
      -d '"'${DB_ADMIN_PASSWORD}'"'
 
@@ -253,7 +255,7 @@ curl -X PUT http://localhost:5984/cpsc310/_design/default \
           "_id" : "_design/default",
           "views" : {
             "latest_run" : {
-              "map" : "function(doc){ if (doc.team && doc.user) emit(doc.team+"/"+doc.user, doc.timestamp)}",
+              "map" : "function(doc){ if (doc.team && doc.user) emit(doc.team+\"/\"+doc.user, doc.timestamp)}",
               "reduce": "function(key,values,rereduce){return Math.max.apply(null, values);}"
             }
           }
