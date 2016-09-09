@@ -439,7 +439,7 @@ usersHandler.post("/", (req: any, res: any) => {
 });
 
 
-let gradeHandler = Router();
+let gradeHandler = Router({ mergeParams: true });
 //router.get("/grade", (req:any, res:any) => {
 router.use("/grade", gradeHandler);
 //gradeHandler.use(bodyParser.urlencoded());

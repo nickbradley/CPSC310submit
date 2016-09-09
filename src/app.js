@@ -223,7 +223,7 @@ usersHandler.post("/", function (req, res) {
         res.end("Token header must be specified.");
     }
 });
-var gradeHandler = Router();
+var gradeHandler = Router({ mergeParams: true });
 router.use("/grade", gradeHandler);
 gradeHandler.get("/", function (req, res) {
     console.log("Received get request");
