@@ -149,7 +149,7 @@ function isEmpty(obj) {
     return true;
 }
 var deliverableHandler = Router();
-router.use("/deliverable", deliverableHandler);
+router.use("/deliverables", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
@@ -208,6 +208,28 @@ usersHandler.post("/", function (req, res) {
                 });
             });
         });
+    }
+    else {
+        res.writeHead(403);
+        res.end();
+    }
+});
+var gradeHandler = Router();
+router.use("/grade", gradeHandler);
+gradeHandler.use(bodyParser.urlencoded());
+gradeHandler.get("/:delv", function (req, res) {
+    var delv = req.params["delv"];
+    console.log(req.params);
+    console.log("delv", delv);
+    if (req.headers['token'] === AppSetting.github.token) {
+        if (deliverables.hasOwnProperty(delv)) {
+            res.writeHead(200);
+            res.end();
+        }
+        else {
+            res.writeHead();
+            res.end("Invalid deliverable specified.");
+        }
     }
     else {
         res.writeHead(403);

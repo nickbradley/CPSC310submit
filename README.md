@@ -19,6 +19,26 @@ To make a submission, comment on the commit that should be tested. Include @CPSC
 
 
 ## Administration
+### Updating deliverables
+Changes to the deliverables document can be made on the fly with the following curl
+request:
+
+```bash
+curl -X POST http://skaha.cs.ubc.ca:8080/deliverables \
+     -H 'token: <GITHUB_API_KEY>' \
+     -H 'content-type: application/json' \
+     -d '<DOCUMENT_TO_POST>'
+```
+
+### Updating users
+To add/update teams, issue the following curl command:
+```bash
+curl -X POST http://skaha.cs.ubc.ca:8080/users \
+     -H 'token: <GITHUB_API_KEY>' \
+     -H 'content-type: application/json' \
+     -d '<DOCUMENT_TO_POST>'
+```
+
 ### Environment Variables
 ### Messages and Logging
 #### Service responses

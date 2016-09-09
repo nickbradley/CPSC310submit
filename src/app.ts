@@ -329,7 +329,7 @@ function isEmpty(obj:any) {
 
 
 let deliverableHandler = Router();
-router.use("/deliverable", deliverableHandler);
+router.use("/deliverables", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
@@ -400,30 +400,47 @@ usersHandler.post("/", (req: any, res: any) => {
   }
 });
 
-/*
+
 let gradeHandler = Router();
 router.use("/grade", gradeHandler);
 gradeHandler.use(bodyParser.urlencoded());
-gradeHandler.get("/", (req:any, res:any) => {
-  // assume var delv
-  let delv: string = "d1";
-  let submission: ISubmission;
-  let testRepoURL: string = deliverables[delv]
-  users.forEach() {
-    submission = {
-      username: "cpsc310bot",
-      reponame: req.body.repository.name,
-      repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
-      commentURL: null,
-      commitSHA: "date",
-      testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
-      deliverable: delv
-    };
+gradeHandler.get("/:delv", (req:any, res:any) => {
+  let delv:string = req.params["delv"];
+  console.log(req.params);
+  console.log("delv", delv);
+  if (req.headers['token'] === AppSetting.github.token) {
+    if (deliverables.hasOwnProperty(delv)) {
+      /*
+      // assume var delv
+      let delv: string = "d1";
+      let submission: ISubmission;
+      let testRepoURL: string = deliverables[delv].private
+      users.forEach() {
+        submission = {
+          username: "cpsc310bot",
+          reponame: req.body.repository.name,
+          repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+          commentURL: null,
+          commitSHA: "date",
+          testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+          deliverable: delv
+        };
+      }*/
+      res.writeHead(200);
+      res.end();
+    }
+    else {
+      res.writeHead();
+      res.end("Invalid deliverable specified.");
+    }
+  }
+  else {
+    res.writeHead(403);
+    res.end();
   }
 
-
 });
-*/
+
 
 
 let submitHandler = Router();
