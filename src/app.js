@@ -59,7 +59,7 @@ var router = Router();
 var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppSetting.cache.address);
 var nano = require("nano")(AppSetting.dbServer.connection);
 var deliverables;
-var users;
+var users = [];
 var teams = [
     { "team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"] }
 ];

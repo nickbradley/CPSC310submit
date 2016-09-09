@@ -150,7 +150,7 @@ let deliverables: IDeliverable = {
 let users = ["cpsc310project_team1/nickbradley"];
 */
 let deliverables: IDeliverable;
-let users;
+let users: Array<string> = [];
 
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
