@@ -60,6 +60,16 @@ var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppS
 var nano = require("nano")(AppSetting.dbServer.connection);
 var deliverables;
 var users;
+var teams = [
+    { "team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"] }
+];
+users = teams.forEach(function (team) {
+    var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
+    team.members.forEach(function (memeber) {
+        return repoName + "/" + memeber;
+    });
+});
+console.log("users", users);
 dbAuth(AppSetting.dbServer, function (db) {
     db.get("deliverables", function (error, body) {
         if (error) {
@@ -75,7 +85,6 @@ dbAuth(AppSetting.dbServer, function (db) {
         if (error) {
             console.log("Warning: failed to retreive users document from database.");
         }
-        users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
     });
 });
 var queuedOrActive = [];
@@ -218,6 +227,21 @@ var gradeHandler = Router();
 router.get("/grade/:delv", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
         if (deliverables.hasOwnProperty("d1")) {
+            var delv_1 = "d1";
+            var submission_1;
+            var testRepoURL_1 = deliverables[delv_1].private;
+            users.forEach(function (user) {
+                submission_1 = {
+                    username: "cpsc310bot",
+                    reponame: req.body.repository.name,
+                    repoURL: user.team.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+                    commentURL: null,
+                    commitSHA: deliverables[delv_1].due,
+                    testRepoURL: testRepoURL_1.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+                    deliverable: delv_1
+                };
+                requestQueue.add(submission_1);
+            });
             res.writeHead(200);
             res.end();
         }

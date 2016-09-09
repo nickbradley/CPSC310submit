@@ -151,6 +151,18 @@ let users = ["cpsc310project_team1/nickbradley"];
 */
 let deliverables: IDeliverable;
 let users;
+
+let teams: Array<any> = [
+  {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
+];
+users = teams.forEach((team:any)=>{
+  let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
+  team.members.forEach((memeber: string) => {
+    return repoName + "/" + memeber;
+  });
+});
+console.log("users", users);
+
 dbAuth(AppSetting.dbServer, (db: any) => {
   db.get("deliverables", (error:any, body: any) => {
     if (error) {
@@ -169,7 +181,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
     }
 
     //let users = body;
-    users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
+    //users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
   })
 })
 
@@ -412,22 +424,25 @@ router.get("/grade/:delv", (req:any, res:any) => {
   //console.log("delv", delv);
   if (req.headers['token'] === AppSetting.github.token) {
     if (deliverables.hasOwnProperty("d1")) {
-      /*
+
       // assume var delv
       let delv: string = "d1";
       let submission: ISubmission;
       let testRepoURL: string = deliverables[delv].private
-      users.forEach() {
+      users.forEach((user: any) => {
+
         submission = {
           username: "cpsc310bot",
           reponame: req.body.repository.name,
-          repoURL: req.body.repository.html_url.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
+          repoURL: user.team.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
           commentURL: null,
-          commitSHA: "date",
+          commitSHA: deliverables[delv].due,
           testRepoURL: testRepoURL.replace("//", "//"+AppSetting.github.username+":"+AppSetting.github.token+"@"),
           deliverable: delv
         };
-      }*/
+
+        requestQueue.add(submission);
+      });
       res.writeHead(200);
       res.end();
     }
