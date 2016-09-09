@@ -324,6 +324,8 @@ router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
+    console.log(req);
+    console.log(req.body);
     var doc = req.body;
     console.log("doc", doc);
     dbAuth(AppSetting.dbServer, (db: any) => {
