@@ -78,13 +78,6 @@ dbAuth(AppSetting.dbServer, function (db) {
             console.log("Warning: failed to retreive users document from database.");
         }
         else {
-            console.log(body);
-            body.teams.forEach(function (team) {
-                var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
-                team.members.forEach(function (memeber) {
-                    users.push(repoName + "/" + memeber);
-                });
-            });
         }
     });
 });
