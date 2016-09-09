@@ -397,7 +397,7 @@ deliverableHandler.post("/", (req:any, res:any) => {
   }
   else {
     res.writeHead(403);
-    res.end();
+    res.end("Token header must be specified.");
   }
 });
 
@@ -434,20 +434,21 @@ usersHandler.post("/", (req: any, res: any) => {
   }
   else {
     res.writeHead(403);
-    res.end();
+    res.end("Token header must be specified.");
   }
 });
 
 
 let gradeHandler = Router();
 //router.get("/grade", (req:any, res:any) => {
-router.use("/grade", gradeHandler);
+router.use("/grade/:delv", gradeHandler);
 //gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", (req:any, res:any) => {
+  console.log("Received get request");
   ///:delv
-  //let delv:string = req.params["delv"];
-  //console.log(req.params);
-  //console.log("delv", delv);
+  let delv:string = req.params["delv"];
+  console.log(req.params);
+  console.log("delv", delv);
   if (req.headers['token'] === AppSetting.github.token) {
     let delv: string = "d1";
     if (deliverables.hasOwnProperty(delv)) {
@@ -490,7 +491,7 @@ gradeHandler.get("/", (req:any, res:any) => {
   }
   else {
     res.writeHead(403);
-    res.end();
+    res.end("Token header must be specified.");
   }
 
 });
