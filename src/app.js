@@ -227,7 +227,9 @@ var gradeHandler = Router();
 router.use("/grade", gradeHandler);
 gradeHandler.get("/", function (req, res) {
     console.log("Received get request");
-    console.log(req);
+    console.log(req.query);
+    console.log(req.params);
+    console.log(req.body);
     var delv = req.query["delv"];
     console.log("delv", delv);
     if (req.headers['token'] === AppSetting.github.token) {

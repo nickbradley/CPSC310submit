@@ -446,7 +446,9 @@ router.use("/grade", gradeHandler);
 gradeHandler.get("/", (req:any, res:any) => {
   console.log("Received get request");
   ///:delv
-  console.log(req);
+  console.log(req.query);
+  console.log(req.params);
+  console.log(req.body);
   let delv:string = req.query["delv"];
 
   console.log("delv", delv);
