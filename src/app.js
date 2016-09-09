@@ -225,7 +225,7 @@ usersHandler.post("/", function (req, res) {
 });
 var gradeHandler = Router();
 router.use("/grade", gradeHandler);
-gradeHandler.get("/:delv", function (req, res) {
+gradeHandler.get("/", function (req, res) {
     console.log("Received get request");
     var delv = req.params["delv"];
     console.log(req.params);

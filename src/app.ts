@@ -443,7 +443,7 @@ let gradeHandler = Router();
 //router.get("/grade", (req:any, res:any) => {
 router.use("/grade", gradeHandler);
 //gradeHandler.use(bodyParser.urlencoded());
-gradeHandler.get("/:delv", (req:any, res:any) => {
+gradeHandler.get("/", (req:any, res:any) => {
   console.log("Received get request");
   ///:delv
   let delv:string = req.params["delv"];
