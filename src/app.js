@@ -63,12 +63,12 @@ var users;
 var teams = [
     { "team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"] }
 ];
-users = teams.forEach(function (team) {
+teams.forEach(function (team) {
     var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
     console.log("repoName", repoName);
     console.log("team", team);
     team.members.forEach(function (memeber) {
-        return repoName + "/" + memeber;
+        users.push(repoName + "/" + memeber);
     });
 });
 console.log("users", users);

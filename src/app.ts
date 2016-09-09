@@ -155,12 +155,12 @@ let users;
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
 ];
-users = teams.forEach((team:any)=>{
+teams.forEach((team:any)=>{
   let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
   console.log("repoName", repoName);
   console.log("team", team);
   team.members.forEach((memeber: string) => {
-    return repoName + "/" + memeber;
+    users.push(repoName + "/" + memeber);
   });
 });
 console.log("users", users);
