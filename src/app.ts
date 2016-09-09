@@ -149,39 +149,46 @@ let deliverables: IDeliverable = {
 // Read from db
 let users = ["cpsc310project_team1/nickbradley"];
 */
-let deliverables: IDeliverable;
+let deliverables: IDeliverable = {};
 let users: Array<string> = [];
-
+/*
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
 ];
 teams.forEach((team:any)=>{
   let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
-  console.log("repoName", repoName);
-  console.log("team", team);
   team.members.forEach((memeber: string) => {
     users.push(repoName + "/" + memeber);
   });
 });
 console.log("users", users);
-
+*/
 dbAuth(AppSetting.dbServer, (db: any) => {
   db.get("deliverables", (error:any, body: any) => {
     if (error) {
       console.log("Warning: failed to retreive deliverables document from database.");
     }
-    //deliverables = body;
-    deliverables = {
-      current: "d1",
-      d1: {public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git"},
-      d2: {public: "", private: ""}
+    else {
+      //deliverables = body;
+      deliverables = {
+        current: "d1",
+        d1: {public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git"},
+        d2: {public: "", private: ""}
+      }
     }
   });
-  db.get("users", (error:any, body: any) => {
+  db.get("teams", (error:any, body: any) => {
     if (error) {
       console.log("Warning: failed to retreive users document from database.");
     }
-
+    else {
+      body.teams.forEach((team:any)=>{
+        let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
+        team.members.forEach((memeber: string) => {
+          users.push(repoName + "/" + memeber);
+        });
+      });
+    }
     //let users = body;
     //users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
   })
@@ -379,7 +386,7 @@ deliverableHandler.post("/", (req:any, res:any) => {
 });
 
 let usersHandler = Router();
-router.use("/users", usersHandler);
+router.use("/teams", usersHandler);
 usersHandler.use(bodyParser.json());
 usersHandler.post("/", (req: any, res: any) => {
   if (req.headers['token'] === AppSetting.github.token) {
@@ -388,8 +395,8 @@ usersHandler.post("/", (req: any, res: any) => {
       logger.warn("Empty deliverables document received.");
 
     dbAuth(AppSetting.dbServer, (db: any) => {
-      db.get("users", (error: any, body: any) => {
-        doc._id = "users";
+      db.get("teams", (error: any, body: any) => {
+        doc._id = "teams";
 
         if (!error) {
           doc._rev = body._rev;

@@ -58,34 +58,32 @@ var logger = new (winston.Logger)({
 var router = Router();
 var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppSetting.cache.address);
 var nano = require("nano")(AppSetting.dbServer.connection);
-var deliverables;
+var deliverables = {};
 var users = [];
-var teams = [
-    { "team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"] }
-];
-teams.forEach(function (team) {
-    var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
-    console.log("repoName", repoName);
-    console.log("team", team);
-    team.members.forEach(function (memeber) {
-        users.push(repoName + "/" + memeber);
-    });
-});
-console.log("users", users);
 dbAuth(AppSetting.dbServer, function (db) {
     db.get("deliverables", function (error, body) {
         if (error) {
             console.log("Warning: failed to retreive deliverables document from database.");
         }
-        deliverables = {
-            current: "d1",
-            d1: { public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git" },
-            d2: { public: "", private: "" }
-        };
+        else {
+            deliverables = {
+                current: "d1",
+                d1: { public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git" },
+                d2: { public: "", private: "" }
+            };
+        }
     });
-    db.get("users", function (error, body) {
+    db.get("teams", function (error, body) {
         if (error) {
             console.log("Warning: failed to retreive users document from database.");
+        }
+        else {
+            body.teams.forEach(function (team) {
+                var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
+                team.members.forEach(function (memeber) {
+                    users.push(repoName + "/" + memeber);
+                });
+            });
         }
     });
 });
@@ -193,7 +191,7 @@ deliverableHandler.post("/", function (req, res) {
     }
 });
 var usersHandler = Router();
-router.use("/users", usersHandler);
+router.use("/teams", usersHandler);
 usersHandler.use(bodyParser.json());
 usersHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
@@ -201,8 +199,8 @@ usersHandler.post("/", function (req, res) {
         if (isEmpty(doc))
             logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
-            db.get("users", function (error, body) {
-                doc._id = "users";
+            db.get("teams", function (error, body) {
+                doc._id = "teams";
                 if (!error) {
                     doc._rev = body._rev;
                 }
