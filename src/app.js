@@ -223,6 +223,14 @@ usersHandler.post("/", function (req, res) {
         res.end("Token header must be specified.");
     }
 });
+var router = Router();
+router.get("/test", function (req, res) {
+    console.log(req.query);
+    console.log(req.params);
+    console.log(req.body);
+    res.writeHead(200);
+    res.end();
+});
 var gradeHandler = Router({ mergeParams: true });
 router.use("/grade", gradeHandler);
 gradeHandler.get("/", function (req, res) {

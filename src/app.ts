@@ -438,6 +438,17 @@ usersHandler.post("/", (req: any, res: any) => {
   }
 });
 
+let router = Router();
+router.get("/test", (req:any, res:any) => {
+
+  console.log(req.query);
+  console.log(req.params);
+  console.log(req.body);
+  
+  res.writeHead(200);
+  res.end();
+});
+
 
 let gradeHandler = Router({ mergeParams: true });
 //router.get("/grade", (req:any, res:any) => {
