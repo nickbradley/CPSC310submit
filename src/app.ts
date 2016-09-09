@@ -169,12 +169,13 @@ dbAuth(AppSetting.dbServer, (db: any) => {
       console.log("Warning: failed to retreive deliverables document from database.");
     }
     else {
-      //deliverables = body;
+      deliverables = body;
+      /*
       deliverables = {
         current: "d1",
         d1: {public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git"},
         d2: {public: "", private: ""}
-      }
+      }*/
     }
   });
   db.get("teams", (error:any, body: any) => {
@@ -182,13 +183,14 @@ dbAuth(AppSetting.dbServer, (db: any) => {
       console.log("Warning: failed to retreive users document from database.");
     }
     else {
-      console.log(body);
+      updateUsers(body.teams);
+      /*
       body.teams.forEach((team:any)=>{
         let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
         team.members.forEach((memeber: string) => {
           users.push(repoName + "/" + memeber);
         });
-      });
+      });*/
     }
     //let users = body;
     //users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
@@ -336,6 +338,19 @@ function formatResult(result: any): any {
     return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
 }  // formatResult
 
+/**
+ * Resets the global users object to match teams. Should be called any time the teams
+ * change.
+ */
+function updateUsers(teams: Array<any>) {
+  users = [];
+  teams.forEach((team:any)=>{
+    let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
+    team.members.forEach((memeber: string) => {
+      users.push(repoName + "/" + memeber);
+    });
+  });
+}  // updateUsers
 
 function isEmpty(obj:any) {
     for(var key in obj) {
@@ -410,7 +425,8 @@ usersHandler.post("/", (req: any, res: any) => {
           else {
             res.writeHead(200);
             res.end();
-            users = req.body;
+            //users = req.body;
+            updateUsers(doc.teams);
           }
         });
       });

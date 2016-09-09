@@ -66,11 +66,7 @@ dbAuth(AppSetting.dbServer, function (db) {
             console.log("Warning: failed to retreive deliverables document from database.");
         }
         else {
-            deliverables = {
-                current: "d1",
-                d1: { public: "", private: "https://github.com/CS310-2016Fall/cpsc310d1-priv.git" },
-                d2: { public: "", private: "" }
-            };
+            deliverables = body;
         }
     });
     db.get("teams", function (error, body) {
@@ -78,13 +74,7 @@ dbAuth(AppSetting.dbServer, function (db) {
             console.log("Warning: failed to retreive users document from database.");
         }
         else {
-            console.log(body);
-            body.teams.forEach(function (team) {
-                var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
-                team.members.forEach(function (memeber) {
-                    users.push(repoName + "/" + memeber);
-                });
-            });
+            updateUsers(body.teams);
         }
     });
 });
@@ -151,6 +141,15 @@ function formatResult(result) {
     else
         return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
 }
+function updateUsers(teams) {
+    users = [];
+    teams.forEach(function (team) {
+        var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
+        team.members.forEach(function (memeber) {
+            users.push(repoName + "/" + memeber);
+        });
+    });
+}
 function isEmpty(obj) {
     for (var key in obj) {
         if (obj.hasOwnProperty(key))
@@ -213,7 +212,7 @@ usersHandler.post("/", function (req, res) {
                     else {
                         res.writeHead(200);
                         res.end();
-                        users = req.body;
+                        updateUsers(doc.teams);
                     }
                 });
             });

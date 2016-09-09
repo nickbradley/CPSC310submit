@@ -30,6 +30,12 @@ curl -X POST http://skaha.cs.ubc.ca:8080/deliverables \
      -d '<DOCUMENT_TO_POST>'
 ```
 
+DOCUMENT_TO_POST should have the format:
+{
+  "current": "d1",
+  "d1": {"public": "repo-url", private: "repo-url", "due": "2016-10-15 12:00:00"}
+}
+
 ### Updating users
 To add/update teams, issue the following curl command:
 ```bash
@@ -38,6 +44,16 @@ curl -X POST http://skaha.cs.ubc.ca:8080/users \
      -H 'content-type: application/json' \
      -d '<DOCUMENT_TO_POST>'
 ```
+DOCUMENT_TO_POST should have the format:
+{
+  "teams": [
+    {"team": "team_1_url", "members": ["foo", "bar"]},
+    {"team": "team_2_url", "members": ["foo", "bar"]}
+  ]
+}
+
+
+
 
 ### Environment Variables
 ### Messages and Logging
