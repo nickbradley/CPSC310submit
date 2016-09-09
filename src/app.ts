@@ -248,7 +248,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-
+    /*
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -276,7 +276,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
 
   }
@@ -324,21 +324,18 @@ router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", (req:any, res:any) => {
   if (req.headers['token'] === AppSetting.github.token) {
-    console.log(req);
-    console.log(req.body);
     var doc = req.body;
-    console.log("doc", doc);
+    if (!doc)
+      logger.warn("Empty deliverables document received.");
+
     dbAuth(AppSetting.dbServer, (db: any) => {
-      console.log("doc", doc)
       db.get("deliverables", (error: any, body: any) => {
-        console.log("doc", doc);
         doc._id = "deliverables";
 
         if (!error) {
           doc._rev = body._rev;
         }
-        console.log("Inserting doc: ", doc)
-;        db.insert(doc, (error: any, body: any) => {
+        db.insert(doc, (error: any, body: any) => {
           if (error) {
             res.writeHead(500);
             res.end();
@@ -363,9 +360,12 @@ router.use("/users", usersHandler);
 usersHandler.use(bodyParser.json());
 usersHandler.post("/", (req: any, res: any) => {
   if (req.headers['token'] === AppSetting.github.token) {
+    var doc = req.body;
+    if (!doc)
+      logger.warn("Empty deliverables document received.");
+
     dbAuth(AppSetting.dbServer, (db: any) => {
       db.get("users", (error: any, body: any) => {
-        var doc = req.body;
         doc._id = "users";
 
         if (!error) {

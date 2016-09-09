@@ -117,27 +117,6 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
         console.log("**** " + msg + " ****");
     }
 }
@@ -167,19 +146,15 @@ router.use("/deliverable", deliverableHandler);
 deliverableHandler.use(bodyParser.json());
 deliverableHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
-        console.log(req);
-        console.log(req.body);
         var doc = req.body;
-        console.log("doc", doc);
+        if (!doc)
+            logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
-            console.log("doc", doc);
             db.get("deliverables", function (error, body) {
-                console.log("doc", doc);
                 doc._id = "deliverables";
                 if (!error) {
                     doc._rev = body._rev;
                 }
-                console.log("Inserting doc: ", doc);
                 db.insert(doc, function (error, body) {
                     if (error) {
                         res.writeHead(500);
@@ -204,9 +179,11 @@ router.use("/users", usersHandler);
 usersHandler.use(bodyParser.json());
 usersHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
+        var doc = req.body;
+        if (!doc)
+            logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
             db.get("users", function (error, body) {
-                var doc = req.body;
                 doc._id = "users";
                 if (!error) {
                     doc._rev = body._rev;
