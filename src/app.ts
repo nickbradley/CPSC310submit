@@ -446,8 +446,8 @@ router.use("/grade", gradeHandler);
 gradeHandler.get("/", (req:any, res:any) => {
   console.log("Received get request");
   ///:delv
-  let delv:string = req.params["delv"];
-  console.log(req.params);
+  let delv:string = req.query["delv"];
+  console.log(req.query);
   console.log("delv", delv);
   if (req.headers['token'] === AppSetting.github.token) {
     let delv: string = "d1";
