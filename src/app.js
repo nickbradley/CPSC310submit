@@ -224,7 +224,7 @@ usersHandler.post("/", function (req, res) {
     }
 });
 var gradeHandler = Router();
-router.get("/grade", function (req, res) {
+gradeHandler.get("/grade", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
         var delv_1 = "d1";
         if (deliverables.hasOwnProperty(delv_1)) {

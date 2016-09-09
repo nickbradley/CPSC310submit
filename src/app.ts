@@ -440,10 +440,10 @@ usersHandler.post("/", (req: any, res: any) => {
 
 
 let gradeHandler = Router();
-router.get("/grade", (req:any, res:any) => {
+//router.get("/grade", (req:any, res:any) => {
 //router.use("/grade/:delv", gradeHandler);
 //gradeHandler.use(bodyParser.urlencoded());
-//gradeHandler.get("/", (req:any, res:any) => {
+gradeHandler.get("/grade", (req:any, res:any) => {
   ///:delv
   //let delv:string = req.params["delv"];
   //console.log(req.params);
