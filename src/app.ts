@@ -438,13 +438,13 @@ usersHandler.post("/", (req: any, res: any) => {
   }
 });
 
-let router = Router();
+let router = Router({ mergeParams: true });
 router.get("/test", (req:any, res:any) => {
 
   console.log(req.query);
   console.log(req.params);
   console.log(req.body);
-  
+
   res.writeHead(200);
   res.end();
 });
