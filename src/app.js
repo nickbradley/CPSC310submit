@@ -224,26 +224,37 @@ usersHandler.post("/", function (req, res) {
     }
 });
 var gradeHandler = Router();
-router.get("/grade/:delv", function (req, res) {
+router.get("/grade", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
-        if (deliverables.hasOwnProperty("d1")) {
-            var delv_1 = "d1";
+        var delv_1 = "d1";
+        if (deliverables.hasOwnProperty(delv_1)) {
             var submission_1;
             var testRepoURL_1 = deliverables[delv_1].private;
-            users.forEach(function (user) {
-                submission_1 = {
-                    username: "cpsc310bot",
-                    reponame: req.body.repository.name,
-                    repoURL: user.team.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                    commentURL: null,
-                    commitSHA: deliverables[delv_1].due,
-                    testRepoURL: testRepoURL_1.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                    deliverable: delv_1
-                };
-                requestQueue.add(submission_1);
+            dbAuth(AppSetting.dbServer, function (db) {
+                db.get("teams", function (error, body) {
+                    if (error) {
+                        res.writeHead(500);
+                        res.end("Failed to get teams document from database.");
+                    }
+                    else {
+                        body.teams.forEach(function (team) {
+                            var reponame = team.team.substr(team.team.lastIndexOf('/') + 1);
+                            submission_1 = {
+                                username: "cpsc310bot",
+                                reponame: reponame,
+                                repoURL: team.team.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+                                commentURL: null,
+                                commitSHA: deliverables[delv_1].due,
+                                testRepoURL: testRepoURL_1.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+                                deliverable: delv_1
+                            };
+                            requestQueue.add(submission_1);
+                        });
+                        res.writeHead(200);
+                        res.end();
+                    }
+                });
             });
-            res.writeHead(200);
-            res.end();
         }
         else {
             res.writeHead(500);
