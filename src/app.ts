@@ -402,12 +402,13 @@ usersHandler.post("/", (req: any, res: any) => {
 
 
 let gradeHandler = Router();
-router.use("/grade/:delv", gradeHandler);
+router.use("/grade", gradeHandler);
 gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", (req:any, res:any) => {
-  let delv:string = req.params["delv"];
-  console.log(req.params);
-  console.log("delv", delv);
+  ///:delv
+  //let delv:string = req.params["delv"];
+  //console.log(req.params);
+  //console.log("delv", delv);
   if (req.headers['token'] === AppSetting.github.token) {
     if (deliverables.hasOwnProperty(delv)) {
       /*

@@ -215,12 +215,9 @@ usersHandler.post("/", function (req, res) {
     }
 });
 var gradeHandler = Router();
-router.use("/grade/:delv", gradeHandler);
+router.use("/grade", gradeHandler);
 gradeHandler.use(bodyParser.urlencoded());
 gradeHandler.get("/", function (req, res) {
-    var delv = req.params["delv"];
-    console.log(req.params);
-    console.log("delv", delv);
     if (req.headers['token'] === AppSetting.github.token) {
         if (deliverables.hasOwnProperty(delv)) {
             res.writeHead(200);
