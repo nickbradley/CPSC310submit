@@ -1,6 +1,8 @@
 FROM node:6.3.0
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
+ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
+
 CMD { \
   cd /project/cpsc310project && \
   npm run configure && \
@@ -11,7 +13,11 @@ CMD { \
   #} > /dev/null 2>&1 && \
   } > /dev/null && \
   cd /project/deliverable && \
-  npm run test
+  npm run configure && \
+  npm run build && \
+  #npm install mochawesome && \
+  #npm-do mocha -R mochawesome
+  npm run testprog
   #&& \
 #  npm run coverage
 
@@ -30,3 +36,10 @@ CMD { \
 #  npm run test
 #   #&& cat npm-debug.log #&& \
 #  #npm run coverage
+
+
+
+
+
+# npm run clean
+#

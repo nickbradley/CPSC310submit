@@ -35,7 +35,7 @@ TEST_REPO_NAME=${TEST_REPO_FULLNAME%%.*}
 
 TMP=$(mktemp -d)
 TMP_DIR=/repos${TMP:4}
-STUDENT_REPO=/repos${TMP:4}/cpsc310project
+STUDENT_REPO=/repos${TMP:4}
 mkdir -p "${STUDENT_REPO}"
 cd "${STUDENT_REPO}"
 git clone "${STUDENT_REPO_URL}" "${STUDENT_REPO}"
@@ -82,14 +82,21 @@ echo "*** Begin test output ***"
 #npm run test
 
 
-
 docker run -v "${TEST_REPO}":/project/deliverable:z -v "${STUDENT_REPO}":/project/cpsc310project:z --privileged cpsc310/tester || true
+
+
+
+#docker run -v "${TEST_REPO}":/project/deliverable:z \
+#           #-v "/repos/test":/project/deliverable/mochawesome-reports \
+#           -v "${STUDENT_REPO}":/project/cpsc310project:z \
+#           #-e MOCHAWESOME_REPORTDIR
+#           --privileged cpsc310/tester || true
 
 #echo "Output from docker testing container here."
 
 echo "*** End test output ***"
 
 
-rm -rf "${STUDENT_REPO}"
+#rm -rf "${STUDENT_REPO}"
 
 exit 0
