@@ -117,6 +117,27 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
+        var commentUrl = url.parse(submission.commentURL);
+        var comment = JSON.stringify({ body: msg });
+        var options = {
+            host: commentUrl.host,
+            port: '443',
+            path: commentUrl.path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(comment),
+                'User-Agent': 'cpsc310-github-listener',
+                'Authorization': 'token ' + AppSetting.github.token
+            }
+        };
+        var req = https.request(options, function (res) {
+            if (res.statusCode != 201) {
+                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+            }
+        });
+        req.write(comment);
+        req.end();
         console.log("**** " + msg + " ****");
     }
 }
@@ -217,64 +238,6 @@ usersHandler.post("/", function (req, res) {
                 });
             });
         });
-    }
-    else {
-        res.writeHead(403);
-        res.end("Token header must be specified.");
-    }
-});
-var router = Router({ mergeParams: true });
-router.get("/test", function (req, res) {
-    console.log(req.query);
-    console.log(req.params);
-    console.log(req.body);
-    res.writeHead(200);
-    res.end();
-});
-var gradeHandler = Router({ mergeParams: true });
-router.use("/grade", gradeHandler);
-gradeHandler.get("/", function (req, res) {
-    console.log("Received get request");
-    console.log(req.query);
-    console.log(req.params);
-    console.log(req.body);
-    var delv = req.query["delv"];
-    console.log("delv", delv);
-    if (req.headers['token'] === AppSetting.github.token) {
-        var delv_1 = "d1";
-        if (deliverables.hasOwnProperty(delv_1)) {
-            var submission_1;
-            var testRepoURL_1 = deliverables[delv_1].private;
-            dbAuth(AppSetting.dbServer, function (db) {
-                db.get("teams", function (error, body) {
-                    if (error) {
-                        res.writeHead(500);
-                        res.end("Failed to get teams document from database.");
-                    }
-                    else {
-                        body.teams.forEach(function (team) {
-                            var reponame = team.team.substr(team.team.lastIndexOf('/') + 1);
-                            submission_1 = {
-                                username: "cpsc310bot",
-                                reponame: reponame,
-                                repoURL: team.team.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                                commentURL: null,
-                                commitSHA: deliverables[delv_1].due,
-                                testRepoURL: testRepoURL_1.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                                deliverable: delv_1
-                            };
-                            requestQueue.add(submission_1);
-                        });
-                        res.writeHead(200);
-                        res.end();
-                    }
-                });
-            });
-        }
-        else {
-            res.writeHead(500);
-            res.end("Invalid deliverable specified.");
-        }
     }
     else {
         res.writeHead(403);
