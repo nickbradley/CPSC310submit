@@ -437,7 +437,7 @@ usersHandler.post("/", (req: any, res: any) => {
     res.end("Token header must be specified.");
   }
 });
-
+/*
 let router = Router({ mergeParams: true });
 router.get("/test", (req:any, res:any) => {
 
@@ -448,8 +448,8 @@ router.get("/test", (req:any, res:any) => {
   res.writeHead(200);
   res.end();
 });
-
-
+*/
+/*
 let gradeHandler = Router({ mergeParams: true });
 //router.get("/grade", (req:any, res:any) => {
 router.use("/grade", gradeHandler);
@@ -509,7 +509,7 @@ gradeHandler.get("/", (req:any, res:any) => {
   }
 
 });
-
+*/
 
 
 let submitHandler = Router();
