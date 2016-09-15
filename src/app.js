@@ -60,21 +60,30 @@ var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppS
 var nano = require("nano")(AppSetting.dbServer.connection);
 var deliverables = {};
 var users = [];
+var admins;
 dbAuth(AppSetting.dbServer, function (db) {
     db.get("deliverables", function (error, body) {
         if (error) {
             console.log("Warning: failed to retreive deliverables document from database.");
         }
         else {
-            deliverables = body;
+            deliverables = body.deliverables;
         }
     });
     db.get("teams", function (error, body) {
         if (error) {
-            console.log("Warning: failed to retreive users document from database.");
+            console.log("Warning: failed to retreive teams document from database.");
         }
         else {
             updateUsers(body.teams);
+        }
+    });
+    db.get("admins", function (error, body) {
+        if (error) {
+            console.log("Warning: failed to retreive admins documnet from database.");
+        }
+        else {
+            admins = body.admins;
         }
     });
 });
@@ -284,11 +293,12 @@ submitHandler.post("/", function (req, res) {
             deliverable: deliverable
         };
         var jobId_1 = submission.reponame + "/" + submission.username;
+        var adminUsers_1 = admins.map(function (admin) { return admin.username; }) || [];
         if (users.includes(team + "/" + user)) {
             if (!queuedOrActive.includes(jobId_1)) {
                 getLatestRun(team, user, function (latestRun) {
                     var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-                    if (runDiff > 0) {
+                    if (runDiff > 0 || adminUsers_1.includes(user)) {
                         queuedOrActive.push(jobId_1);
                         requestQueue.add(submission, { jobId: jobId_1 });
                         requestQueue.count().then(function (queueLength) {

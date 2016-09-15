@@ -151,6 +151,7 @@ let users = ["cpsc310project_team1/nickbradley"];
 */
 let deliverables: IDeliverable = {};
 let users: Array<string> = [];
+let admins: any[];
 /*
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
@@ -169,7 +170,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
       console.log("Warning: failed to retreive deliverables document from database.");
     }
     else {
-      deliverables = body;
+      deliverables = body.deliverables;
       /*
       deliverables = {
         current: "d1",
@@ -180,7 +181,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
   });
   db.get("teams", (error:any, body: any) => {
     if (error) {
-      console.log("Warning: failed to retreive users document from database.");
+      console.log("Warning: failed to retreive teams document from database.");
     }
     else {
       updateUsers(body.teams);
@@ -194,6 +195,14 @@ dbAuth(AppSetting.dbServer, (db: any) => {
     }
     //let users = body;
     //users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
+  });
+  db.get("admins", (error:any, body) => {
+    if (error) {
+      console.log("Warning: failed to retreive admins documnet from database.")
+    }
+    else {
+      admins = body.admins;
+    }
   })
 })
 
@@ -272,7 +281,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-    
+
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -557,12 +566,13 @@ submitHandler.post("/", (req:any, res:any) => {
       deliverable: deliverable
     };
     let jobId: string = submission.reponame + "/" + submission.username;
+    let adminUsers: string[] = admins.map((admin) => admin.username) || [];
 
     if (users.includes(team+"/"+user)) {
       if (!queuedOrActive.includes(jobId)) {
         getLatestRun(team, user, (latestRun:number) => {
           let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-          if (runDiff > 0) {
+          if (runDiff > 0 || adminUsers.includes(user)) {
             queuedOrActive.push(jobId);
             requestQueue.add(submission, {jobId: jobId});
 
