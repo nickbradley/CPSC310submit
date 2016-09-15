@@ -306,11 +306,44 @@ function commentGitHub(submission: ISubmission, msg: string): void {
   }
 }  // commentGitHub
 
+
+function parseScriptOutput(result: string): any {
+  let regex: RegExp = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
+  let matches: string[] = regex.exec(result);
+
+  if (matches.length == 3) {
+    return {"commit_sha": matches[1], "mocha_json": JSON.parse(matches[2])};
+  }
+  else {
+    return null;
+  }
+}
+
+
 /**
  * Takes the output from Mocha and returns only the number of pass/fails and the
  * name of the first spec to fail.
  */
 function formatResult(result: any): any {
+  let out: any = parseScriptOutput(result);
+  console.log(out.commit_sha);
+  console.log(out.mocha_json.copyrightYear);
+  let passes: number = out.mocha_json.stats.passes;
+  let fails: number = out.mocha_json.stats.failures;
+  console.log(passes + " passing, " + fails + " failing");
+  console.log(getFailedTests(out.mocha_json.suites));
+  return out;
+
+
+  //return result;
+  //let regex: string = /^\*\^\*%COMMIT:(.*)\*\*\*({.*})\*\^\*%$/;
+  //let matches: string[] = regex.exec(result.replace(/\r\n|\r|\n/gm,""));
+
+  //if (matches.length == 3) {
+
+  //}
+  //return json;
+  /*
   let passMatches: Array<string> = /^.*(\d+) passing.*$/m.exec(result);
   let failMatches: Array<string> = /^.*(\d+) failing.*$/m.exec(result);
 
@@ -336,7 +369,27 @@ function formatResult(result: any): any {
     return passes + " passing, " + fails + " failing";
   else
     return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
+  */
 }  // formatResult
+
+function getFailedTests(mochaSuites:any): string[] {
+  let stack: string[] = [];
+  if (mochaSuites.hasOwnProperty("suites") && mochaSuites.suites.length > 0) {
+    getFailedTests(mochaSuites.suites);
+    return stack;
+  }
+  else {
+    mochaSuites.forEach((test: any) => {
+      if (test.fail)
+        stack.push(test.fullTitle);
+    })
+  }
+}
+
+
+
+
+
 
 /**
  * Resets the global users object to match teams. Should be called any time the teams
@@ -438,6 +491,7 @@ usersHandler.post("/", (req: any, res: any) => {
   }
 });
 
+/*
 let router = Router({ mergeParams: true });
 router.get("/test", (req:any, res:any) => {
 
@@ -448,8 +502,8 @@ router.get("/test", (req:any, res:any) => {
   res.writeHead(200);
   res.end();
 });
-
-
+*/
+/*
 let gradeHandler = Router({ mergeParams: true });
 //router.get("/grade", (req:any, res:any) => {
 router.use("/grade", gradeHandler);
@@ -509,7 +563,7 @@ gradeHandler.get("/", (req:any, res:any) => {
   }
 
 });
-
+*/
 
 
 let submitHandler = Router();

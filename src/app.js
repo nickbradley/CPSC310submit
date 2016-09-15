@@ -120,26 +120,38 @@ function commentGitHub(submission, msg) {
         console.log("**** " + msg + " ****");
     }
 }
-function formatResult(result) {
-    var passMatches = /^.*(\d+) passing.*$/m.exec(result);
-    var failMatches = /^.*(\d+) failing.*$/m.exec(result);
-    var passes = 0;
-    var fails = 0;
-    var firstFailTestName = "";
-    if (passMatches)
-        passes = +passMatches[1];
-    if (failMatches) {
-        fails = +failMatches[1];
-        var matches = /^.*1\) (.+)$/m.exec(result);
-        if (matches)
-            firstFailTestName = matches[1];
+function parseScriptOutput(result) {
+    var regex = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
+    var matches = regex.exec(result);
+    if (matches.length == 3) {
+        return { "commit_sha": matches[1], "mocha_json": JSON.parse(matches[2]) };
     }
-    if (passes == 0 && fails == 0)
-        return "Invalid Mocha output.";
-    else if (fails == 0)
-        return passes + " passing, " + fails + " failing";
-    else
-        return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " + firstFailTestName;
+    else {
+        return null;
+    }
+}
+function formatResult(result) {
+    var out = parseScriptOutput(result);
+    console.log(out.commit_sha);
+    console.log(out.mocha_json.copyrightYear);
+    var passes = out.mocha_json.stats.passes;
+    var fails = out.mocha_json.stats.failures;
+    console.log(passes + " passing, " + fails + " failing");
+    console.log(getFailedTests(out.mocha_json.suites));
+    return out;
+}
+function getFailedTests(mochaSuites) {
+    var stack = [];
+    if (mochaSuites.hasOwnProperty("suites") && mochaSuites.suites.length > 0) {
+        getFailedTests(mochaSuites.suites);
+        return stack;
+    }
+    else {
+        mochaSuites.forEach(function (test) {
+            if (test.fail)
+                stack.push(test.fullTitle);
+        });
+    }
 }
 function updateUsers(teams) {
     users = [];
@@ -217,64 +229,6 @@ usersHandler.post("/", function (req, res) {
                 });
             });
         });
-    }
-    else {
-        res.writeHead(403);
-        res.end("Token header must be specified.");
-    }
-});
-var router = Router({ mergeParams: true });
-router.get("/test", function (req, res) {
-    console.log(req.query);
-    console.log(req.params);
-    console.log(req.body);
-    res.writeHead(200);
-    res.end();
-});
-var gradeHandler = Router({ mergeParams: true });
-router.use("/grade", gradeHandler);
-gradeHandler.get("/", function (req, res) {
-    console.log("Received get request");
-    console.log(req.query);
-    console.log(req.params);
-    console.log(req.body);
-    var delv = req.query["delv"];
-    console.log("delv", delv);
-    if (req.headers['token'] === AppSetting.github.token) {
-        var delv_1 = "d1";
-        if (deliverables.hasOwnProperty(delv_1)) {
-            var submission_1;
-            var testRepoURL_1 = deliverables[delv_1].private;
-            dbAuth(AppSetting.dbServer, function (db) {
-                db.get("teams", function (error, body) {
-                    if (error) {
-                        res.writeHead(500);
-                        res.end("Failed to get teams document from database.");
-                    }
-                    else {
-                        body.teams.forEach(function (team) {
-                            var reponame = team.team.substr(team.team.lastIndexOf('/') + 1);
-                            submission_1 = {
-                                username: "cpsc310bot",
-                                reponame: reponame,
-                                repoURL: team.team.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                                commentURL: null,
-                                commitSHA: deliverables[delv_1].due,
-                                testRepoURL: testRepoURL_1.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-                                deliverable: delv_1
-                            };
-                            requestQueue.add(submission_1);
-                        });
-                        res.writeHead(200);
-                        res.end();
-                    }
-                });
-            });
-        }
-        else {
-            res.writeHead(500);
-            res.end("Invalid deliverable specified.");
-        }
     }
     else {
         res.writeHead(403);
