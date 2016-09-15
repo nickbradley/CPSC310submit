@@ -568,7 +568,7 @@ submitHandler.post("/", (req:any, res:any) => {
     let jobId: string = submission.reponame + "/" + submission.username;
     let adminUsers: string[] = admins.map((admin) => admin.username) || [];
 
-    if (users.includes(team+"/"+user)) {
+    if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
       if (!queuedOrActive.includes(jobId)) {
         getLatestRun(team, user, (latestRun:number) => {
           let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;

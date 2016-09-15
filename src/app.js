@@ -294,7 +294,7 @@ submitHandler.post("/", function (req, res) {
         };
         var jobId_1 = submission.reponame + "/" + submission.username;
         var adminUsers_1 = admins.map(function (admin) { return admin.username; }) || [];
-        if (users.includes(team + "/" + user)) {
+        if (users.includes(team + "/" + user) || adminUsers_1.includes(user)) {
             if (!queuedOrActive.includes(jobId_1)) {
                 getLatestRun(team, user, function (latestRun) {
                     var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
