@@ -67,7 +67,7 @@ dbAuth(AppSetting.dbServer, function (db) {
             console.log("Warning: failed to retreive deliverables document from database.");
         }
         else {
-            deliverables = body.deliverables;
+            deliverables = body;
         }
     });
     db.get("teams", function (error, body) {

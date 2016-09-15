@@ -170,7 +170,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
       console.log("Warning: failed to retreive deliverables document from database.");
     }
     else {
-      deliverables = body.deliverables;
+      deliverables = body;
       /*
       deliverables = {
         current: "d1",
