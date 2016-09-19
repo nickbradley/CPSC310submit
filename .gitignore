@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 *.env
 *.ps1
 node_modules/
 typings/
+=======
+*.env
+*.ps1
+node_modules/
+typings/
+>>>>>>> master
