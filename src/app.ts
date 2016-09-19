@@ -309,7 +309,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-    
+
     console.log("**** " + msg + " ****");
 
   }
@@ -613,6 +613,7 @@ submitHandler.post("/", (req:any, res:any) => {
   }
   else {
     // don't process - comment doesn't include @cpsc310bot
+    console.log("No mention");
   }
 
   res.writeHead(200);
