@@ -320,7 +320,7 @@ submitHandler.post("/", function (req, res) {
         }
     }
     else {
-        console.log("No mention");
+        console.log("Comment doesn't mention @cpsc310bot.");
     }
     res.writeHead(200);
     res.end();
