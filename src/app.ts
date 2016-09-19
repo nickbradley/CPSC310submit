@@ -160,7 +160,7 @@ let users = ["cpsc310project_team1/nickbradley"];
 */
 let deliverables: IDeliverable = {};
 let users: string[] = [];
-let admins: any[];
+let admins: any[] = [];
 /*
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
@@ -282,6 +282,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
+    /*
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -309,7 +310,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
 
   }
