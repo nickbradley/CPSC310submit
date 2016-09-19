@@ -60,6 +60,7 @@ var requestQueue = Queue("CPSC310 Submission Queue", AppSetting.cache.port, AppS
 var nano = require("nano")(AppSetting.dbServer.connection);
 var deliverables = {};
 var users = [];
+var admins;
 dbAuth(AppSetting.dbServer, function (db) {
     db.get("deliverables", function (error, body) {
         if (error) {
@@ -123,35 +124,28 @@ function commentGitHub(submission, msg) {
 function parseScriptOutput(result) {
     var regex = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
     var matches = regex.exec(result);
-    if (matches.length == 3) {
-        return { "commit_sha": matches[1], "mocha_json": JSON.parse(matches[2]) };
+    if (matches && matches.length == 3) {
+        return { "commitSha": matches[1], "mochaJson": JSON.parse(matches[2]) };
     }
     else {
         return null;
     }
 }
-function formatResult(result) {
-    var out = parseScriptOutput(result);
-    console.log(out.commit_sha);
-    console.log(out.mocha_json.copyrightYear);
-    var passes = out.mocha_json.stats.passes;
-    var fails = out.mocha_json.stats.failures;
-    console.log(passes + " passing, " + fails + " failing");
-    console.log(getFailedTests(out.mocha_json.suites));
-    return out;
-}
-function getFailedTests(mochaSuites) {
-    var stack = [];
-    if (mochaSuites.hasOwnProperty("suites") && mochaSuites.suites.length > 0) {
-        getFailedTests(mochaSuites.suites);
-        return stack;
-    }
-    else {
-        mochaSuites.forEach(function (test) {
-            if (test.fail)
-                stack.push(test.fullTitle);
+function formatTestReport(testReport) {
+    var output = "";
+    var firstTestFailTitle = "";
+    var passes = testReport.stats.passes;
+    var fails = testReport.stats.failures;
+    var passPercent = testReport.stats.passPercent;
+    output = passes + " passing, " + fails + " failing (" + passPercent + "%)";
+    if (fails) {
+        var failedTests = testReport.allTests.filter(function (test) {
+            return test.fail;
         });
+        firstTestFailTitle = failedTests.pop().fullTitle;
+        output += "\nName of first spec to fail: " + firstTestFailTitle;
     }
+    return output;
 }
 function updateUsers(teams) {
     users = [];
@@ -275,11 +269,12 @@ submitHandler.post("/", function (req, res) {
             deliverable: deliverable
         };
         var jobId_1 = submission.reponame + "/" + submission.username;
-        if (users.includes(team + "/" + user)) {
+        var adminUsers_1 = admins.map(function (admin) { return admin.username; }) || [];
+        if (users.includes(team + "/" + user) || adminUsers_1.includes(user)) {
             if (!queuedOrActive.includes(jobId_1)) {
                 getLatestRun(team, user, function (latestRun) {
                     var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-                    if (runDiff > 0) {
+                    if (runDiff > 0 || adminUsers_1.includes(user)) {
                         queuedOrActive.push(jobId_1);
                         requestQueue.add(submission, { jobId: jobId_1 });
                         requestQueue.count().then(function (queueLength) {
@@ -329,14 +324,19 @@ requestQueue.on('active', function (job, jobPromise) {
 });
 requestQueue.on('completed', function (job, result) {
     var submission = job.data;
+    var parsedOutput = parseScriptOutput(result.stdout);
     var doc = {
+        requestCommit: submission.commitSHA,
+        actualCommit: parsedOutput.commitSha,
+        scriptStdout: result.stdout,
+        scriptStderr: result.stderr,
+        report: parsedOutput.mochaJson,
         team: submission.reponame,
         user: submission.username,
-        result: result,
-        output: formatResult(result.stdout),
+        timestamp: Date.now(),
+        displayText: formatTestReport(parsedOutput.mochaJson),
         deliverable: submission.deliverable,
-        commit: submission.commitSHA,
-        timestamp: Date.now()
+        conversation: "",
     };
     queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
     dbAuth(AppSetting.dbServer, function (db) {
@@ -347,7 +347,7 @@ requestQueue.on('completed', function (job, result) {
             }
             else {
                 logger.info("Finished running tests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-                commentGitHub(submission, doc.output);
+                commentGitHub(submission, doc.displayText);
             }
         });
     });

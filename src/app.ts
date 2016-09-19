@@ -1,3 +1,4 @@
+///<reference path="../typings/globals/node/index.d.ts"/>
 /**
  * CPSC 310 submission service.
  * @author Nick Bradley <nbrad11@cs.ubc.ca>
@@ -36,15 +37,23 @@ interface IExecOptions {
   gid?: number
 }
 
+interface ITestReport {
+
+}
+
 // Document that is inserted into database with test results
 interface IResultDoc {
+  requestCommit: string,
+  actualCommit: string,
+  scriptStdout: string,
+  scriptStderr: string,
+  report: any,
   team: string,
   user: string,
-  result: string,
-  output: string,
-  deliverable: string,
-  commit: string,
   timestamp: number
+  displayText: string,
+  deliverable: string,
+  conversation: string
 }
 /****************/
 interface IDeliverable {
@@ -150,7 +159,8 @@ let deliverables: IDeliverable = {
 let users = ["cpsc310project_team1/nickbradley"];
 */
 let deliverables: IDeliverable = {};
-let users: Array<string> = [];
+let users: string[] = [];
+let admins: any[];
 /*
 let teams: Array<any> = [
   {"team": "https://github.com/CS310-2016Fall/cpsc310project", "members": ["nickbradley"]}
@@ -311,8 +321,8 @@ function parseScriptOutput(result: string): any {
   let regex: RegExp = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
   let matches: string[] = regex.exec(result);
 
-  if (matches.length == 3) {
-    return {"commit_sha": matches[1], "mocha_json": JSON.parse(matches[2])};
+  if (matches && matches.length == 3) {
+    return {"commitSha": matches[1], "mochaJson": JSON.parse(matches[2])};
   }
   else {
     return null;
@@ -324,70 +334,28 @@ function parseScriptOutput(result: string): any {
  * Takes the output from Mocha and returns only the number of pass/fails and the
  * name of the first spec to fail.
  */
-function formatResult(result: any): any {
-  let out: any = parseScriptOutput(result);
-  console.log(out.commit_sha);
-  console.log(out.mocha_json.copyrightYear);
-  let passes: number = out.mocha_json.stats.passes;
-  let fails: number = out.mocha_json.stats.failures;
-  console.log(passes + " passing, " + fails + " failing");
-  console.log(getFailedTests(out.mocha_json.suites));
-  return out;
 
+ // TODO: check if vaild JSON passed
+function formatTestReport(testReport: any): string {
+  let output: string = "";
+  let firstTestFailTitle: string = "";
 
-  //return result;
-  //let regex: string = /^\*\^\*%COMMIT:(.*)\*\*\*({.*})\*\^\*%$/;
-  //let matches: string[] = regex.exec(result.replace(/\r\n|\r|\n/gm,""));
+  let passes: number = testReport.stats.passes;
+  let fails: number = testReport.stats.failures;
+  let passPercent: number = testReport.stats.passPercent;
 
-  //if (matches.length == 3) {
+  output = passes + " passing, " + fails + " failing (" + passPercent + "%)";
 
-  //}
-  //return json;
-  /*
-  let passMatches: Array<string> = /^.*(\d+) passing.*$/m.exec(result);
-  let failMatches: Array<string> = /^.*(\d+) failing.*$/m.exec(result);
+  if (fails) {
+    let failedTests: any[] = testReport.allTests.filter((test: any) => {
+      return test.fail;
+    });
 
-  let passes: number = 0;
-  let fails: number = 0;
-  let firstFailTestName: string = "";
-
-  if (passMatches)
-    passes = +passMatches[1];
-
-  if (failMatches) {
-    fails = +failMatches[1];
-
-    let matches: Array<string> = /^.*1\) (.+)$/m.exec(result);  //^.*$^.*1\) (.*)$
-    if (matches)
-      firstFailTestName = matches[1];
+    firstTestFailTitle = failedTests.pop().fullTitle;
+    output += "\nName of first spec to fail: " + firstTestFailTitle;
   }
-
-  if (passes == 0 && fails == 0)
-    //return result;
-    return "Invalid Mocha output.";
-  else if (fails == 0)
-    return passes + " passing, " + fails + " failing";
-  else
-    return passes + " passing, " + fails + " failing" + "\nName of first spec to fail: " +firstFailTestName;
-  */
+  return output;
 }  // formatResult
-
-function getFailedTests(mochaSuites:any): string[] {
-  let stack: string[] = [];
-  if (mochaSuites.hasOwnProperty("suites") && mochaSuites.suites.length > 0) {
-    getFailedTests(mochaSuites.suites);
-    return stack;
-  }
-  else {
-    mochaSuites.forEach((test: any) => {
-      if (test.fail)
-        stack.push(test.fullTitle);
-    })
-  }
-}
-
-
-
 
 
 
@@ -611,12 +579,13 @@ submitHandler.post("/", (req:any, res:any) => {
       deliverable: deliverable
     };
     let jobId: string = submission.reponame + "/" + submission.username;
+    let adminUsers: string[] = admins.map((admin) => admin.username) || [];
 
-    if (users.includes(team+"/"+user)) {
+    if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
       if (!queuedOrActive.includes(jobId)) {
         getLatestRun(team, user, (latestRun:number) => {
           let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-          if (runDiff > 0) {
+          if (runDiff > 0 || adminUsers.includes(user)) {
             queuedOrActive.push(jobId);
             requestQueue.add(submission, {jobId: jobId});
 
@@ -681,14 +650,20 @@ requestQueue.on('active', function(job:any, jobPromise:any) {
 });
 requestQueue.on('completed', function(job:any, result:any) {
   let submission: ISubmission = job.data;
+  let parsedOutput: any = parseScriptOutput(result.stdout);
+
   let doc: IResultDoc = {
+    requestCommit: submission.commitSHA,
+    actualCommit: parsedOutput.commitSha,
+    scriptStdout: result.stdout,
+    scriptStderr: result.stderr,
+    report: parsedOutput.mochaJson,
     team: submission.reponame,
     user: submission.username,
-    result: result,
-    output: formatResult(result.stdout),
+    timestamp: Date.now(),
+    displayText: formatTestReport(parsedOutput.mochaJson),
     deliverable: submission.deliverable,
-    commit: submission.commitSHA,
-    timestamp: Date.now()
+    conversation: "",
   }
 
   // Remove the jobId from queuedOrActive
@@ -702,7 +677,7 @@ requestQueue.on('completed', function(job:any, result:any) {
       }
       else {
         logger.info("Finished running tests for "  + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-        commentGitHub(submission, doc.output);
+        commentGitHub(submission, doc.displayText);
       }
     });
   });
