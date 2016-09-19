@@ -98,7 +98,7 @@ else
   npm run build
 fi
 
-
+echo "******** Container output follows **********"
 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
