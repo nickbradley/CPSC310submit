@@ -205,6 +205,14 @@ dbAuth(AppSetting.dbServer, (db: any) => {
     //let users = body;
     //users = ["cpsc310project_team1/nickbradley", "cpsc310project/nickbradley"];
   })
+  db.get("admins", (error:any, body: any) => {
+  if (error) {
+    console.log("Warning: failed to retreive admins documnet from database.")
+  }
+  else {
+    admins = body.admins;
+  }
+})
 })
 
 

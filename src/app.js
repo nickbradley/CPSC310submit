@@ -78,6 +78,14 @@ dbAuth(AppSetting.dbServer, function (db) {
             updateUsers(body.teams);
         }
     });
+    db.get("admins", function (error, body) {
+        if (error) {
+            console.log("Warning: failed to retreive admins documnet from database.");
+        }
+        else {
+            admins = body.admins;
+        }
+    });
 });
 var queuedOrActive = [];
 function dbAuth(dbServer, callback) {
