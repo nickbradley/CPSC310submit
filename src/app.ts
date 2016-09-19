@@ -317,7 +317,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-    
+
     console.log("**** " + msg + " ****");
 
   }
@@ -359,6 +359,7 @@ function formatTestReport(testReport: any): string {
     });
 
     firstTestFailTitle = failedTests.pop().fullTitle;
+    firstTestFailTitle = firstTestFailTitle.substring(0, firstTestFailTitle.indexOf(" \n\t["));
     output += "\nName of first spec to fail: " + firstTestFailTitle;
   }
   return output;
