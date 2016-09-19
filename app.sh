@@ -88,14 +88,14 @@ then
       git pull
       npm run clean
       npm run configure
-      #npm run build
+      npm run build
   fi
 else
   echo "Cloning test repo"
   git clone "${TEST_REPO_URL}" "${TEST_REPO}"
   cd "${TEST_REPO}"
   npm run configure
-  #npm run build
+  npm run build
 fi
 
 
