@@ -613,6 +613,7 @@ submitHandler.post("/", (req:any, res:any) => {
   }
   else {
     // don't process - comment doesn't include @cpsc310bot
+    console.log("Comment doesn't mention @cpsc310bot.");
   }
 
   res.writeHead(200);
