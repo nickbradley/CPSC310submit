@@ -290,6 +290,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
+    /*
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -317,10 +318,11 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
 
   }
+
 }  // commentGitHub
 
 
@@ -371,12 +373,20 @@ function formatTestReport(testReport: any): string {
  * Resets the global users object to match teams. Should be called any time the teams
  * change.
  */
-function updateUsers(teams: Array<any>) {
+interface Team {
+  team: number;
+  members: string[];      // github usernames
+  url?: string;           // github url (leave undefined if not set)
+  projectName?: string;   // github project name
+  teamName?: string;      // github team name
+}
+
+function updateUsers(teams: Team[]) {
   users = [];
-  teams.forEach((team:any)=>{
-    let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
+  teams.forEach((team: Team) => {
+    let name: string = team.projectName || "cpsc310project_team" + team;
     team.members.forEach((memeber: string) => {
-      users.push(repoName + "/" + memeber);
+      users.push(name + "/" + memeber);
     });
   });
 }  // updateUsers
@@ -547,6 +557,12 @@ router.use("/submit", submitHandler);
 submitHandler.use(bodyParser.json());
 submitHandler.post("/", (req:any, res:any) => {
   console.log("Submit was POSTed to!");
+  if (req.body.zen){
+    console.log("New webhook was created on GitHub");
+    res.writeHead(200);
+    res.end("AutoTest webhook setup successfully.");
+    return;
+  }
 
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;

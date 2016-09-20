@@ -126,27 +126,6 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
         console.log("**** " + msg + " ****");
     }
 }
@@ -180,9 +159,9 @@ function formatTestReport(testReport) {
 function updateUsers(teams) {
     users = [];
     teams.forEach(function (team) {
-        var repoName = team.team.substr(team.team.lastIndexOf('/') + 1);
+        var name = team.projectName || "cpsc310project_team" + team;
         team.members.forEach(function (memeber) {
-            users.push(repoName + "/" + memeber);
+            users.push(name + "/" + memeber);
         });
     });
 }
@@ -264,6 +243,12 @@ router.use("/submit", submitHandler);
 submitHandler.use(bodyParser.json());
 submitHandler.post("/", function (req, res) {
     console.log("Submit was POSTed to!");
+    if (req.body.zen) {
+        console.log("New webhook was created on GitHub");
+        res.writeHead(200);
+        res.end("AutoTest webhook setup successfully.");
+        return;
+    }
     var comment = req.body.comment.body.toLowerCase();
     var team = req.body.repository.name;
     var user = req.body.comment.user.login;

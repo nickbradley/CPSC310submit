@@ -104,6 +104,7 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
            --net=none \
+           --attach STDOUT \
            --attach STDERR \
            cpsc310/tester || true
 

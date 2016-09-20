@@ -3,3 +3,7 @@
 curl_teams.sh
 node_modules/
 typings/
+
+teams.json
+request.sh
+request_init.sh
