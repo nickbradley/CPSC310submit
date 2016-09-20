@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 *.env
 *.ps1
+curl_teams.sh
 node_modules/
 typings/
-=======
->>>>>>> master
