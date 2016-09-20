@@ -210,23 +210,25 @@ router.use("/teams", usersHandler);
 usersHandler.use(bodyParser.json());
 usersHandler.post("/", function (req, res) {
     if (req.headers['token'] === AppSetting.github.token) {
-        var doc = req.body;
+        var teams = req.body;
+        var doc = {};
         if (isEmpty(doc))
             logger.warn("Empty deliverables document received.");
         dbAuth(AppSetting.dbServer, function (db) {
             db.get("teams", function (error, body) {
                 doc._id = "teams";
+                doc.teams = teams;
                 if (!error) {
                     doc._rev = body._rev;
                 }
                 db.insert(doc, function (error, body) {
                     if (error) {
                         res.writeHead(500);
-                        res.end(error);
+                        res.end(JSON.stringify(error));
                     }
                     else {
                         res.writeHead(200);
-                        res.end(body);
+                        res.end(JSON.stringify(body));
                         updateUsers(doc.teams);
                     }
                 });
