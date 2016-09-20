@@ -222,11 +222,11 @@ usersHandler.post("/", function (req, res) {
                 db.insert(doc, function (error, body) {
                     if (error) {
                         res.writeHead(500);
-                        res.end();
+                        res.end(error);
                     }
                     else {
                         res.writeHead(200);
-                        res.end();
+                        res.end(body);
                         updateUsers(doc.teams);
                     }
                 });

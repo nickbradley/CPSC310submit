@@ -459,11 +459,11 @@ usersHandler.post("/", (req: any, res: any) => {
         db.insert(doc, (error: any, body: any) => {
           if (error) {
             res.writeHead(500);
-            res.end();
+            res.end(error);
           }
           else {
             res.writeHead(200);
-            res.end();
+            res.end(body);
             //users = req.body;
             updateUsers(doc.teams);
           }
