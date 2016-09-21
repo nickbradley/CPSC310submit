@@ -89,14 +89,16 @@ then
   then
       echo "Updating test repo"
       (>&2 echo "Updating test repo")
-      git config user.name "cpsc310bot"
-      git config user.email "cpsc310bot@gmail.com"
-      git add .git/config
-      git commit -m "some init msg"
+      #git config user.name "cpsc310bot"
+      #git config user.email "cpsc310bot@gmail.com"
+      #git add .git/config
+      #git commit -m "some init msg"
 
       (>&2 echo "Updating test repo1")
-      git pull #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
+      #git pull #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
       (>&2 echo "Updating test repo2")
+
+      git reset --hard origin/master
       npm run clean
       npm run configure
       npm run build
