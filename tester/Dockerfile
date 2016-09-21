@@ -7,4 +7,5 @@ ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
 CMD cd /project/cpsc310project && \
     npm run build && \
     cd /project/deliverable && \
+    npm run build && \
     npm run testprog
