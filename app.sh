@@ -91,7 +91,9 @@ then
       (>&2 echo "Updating test repo")
       git config user.name "cpsc310bot"
       git config user.email "cpsc310bot@gmail.com"
+      (>&2 echo "Updating test repo1")
       git pull #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
+      (>&2 echo "Updating test repo2")
       npm run clean
       npm run configure
       npm run build
@@ -106,6 +108,7 @@ else
 fi
 
 echo "******** Container output follows **********"
+(>&2 echo "******** Container output follows **********")
 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
