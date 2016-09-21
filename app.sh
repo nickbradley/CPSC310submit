@@ -101,7 +101,7 @@ then
       git reset --hard origin/master
       npm run clean
       npm run configure
-      npm run build
+  #    npm run build
   fi
 else
   echo "Cloning test repo"
@@ -109,7 +109,7 @@ else
   git clone -c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot" "${TEST_REPO_URL}" "${TEST_REPO}"
   cd "${TEST_REPO}"
   npm run configure
-  npm run build
+  #npm run build
 fi
 
 echo "******** Container output follows **********"
