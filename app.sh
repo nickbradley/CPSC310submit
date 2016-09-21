@@ -79,20 +79,21 @@ echo "Test repo path: ${TEST_REPO}"
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
-  git fetch -c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
+  echo "fetching private test repo"
+  git fetch #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
   LOCAL=$(git rev-parse @{0})
   REMOTE=$(git rev-parse @{u})
   if [ ${LOCAL} != ${REMOTE} ]
   then
       echo "Updating test repo"
-      git pull -c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
+      git pull #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
       npm run clean
       npm run configure
       npm run build
   fi
 else
   echo "Cloning test repo"
-  git clone  -c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot" "${TEST_REPO_URL}" "${TEST_REPO}"
+  git clone -c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot" "${TEST_REPO_URL}" "${TEST_REPO}"
   cd "${TEST_REPO}"
   npm run configure
   npm run build
