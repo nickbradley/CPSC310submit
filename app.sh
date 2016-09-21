@@ -45,7 +45,7 @@ echo "Student repo path: ${STUDENT_REPO}"
 
 mkdir -p "${STUDENT_REPO}"
 cd "${STUDENT_REPO}"
-git clone "${STUDENT_REPO_URL}" "${STUDENT_REPO}"
+git clone -c user.email="cpsc310bot@gmail.com" user.name="cpsc310bot" "${STUDENT_REPO_URL}" "${STUDENT_REPO}"
 
 # If a commit SHA is specified then checkout a test branch at the commit
 if [[ -n "${COMMIT}" ]]
@@ -79,20 +79,20 @@ echo "Test repo path: ${TEST_REPO}"
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
-  git fetch
+  git fetch -c user.email="cpsc310bot@gmail.com" user.name="cpsc310bot"
   LOCAL=$(git rev-parse @{0})
   REMOTE=$(git rev-parse @{u})
   if [ ${LOCAL} != ${REMOTE} ]
   then
       echo "Updating test repo"
-      git pull
+      git pull -c user.email="cpsc310bot@gmail.com" user.name="cpsc310bot"
       npm run clean
       npm run configure
       npm run build
   fi
 else
   echo "Cloning test repo"
-  git clone "${TEST_REPO_URL}" "${TEST_REPO}"
+  git clone  -c user.email="cpsc310bot@gmail.com" user.name="cpsc310bot" "${TEST_REPO_URL}" "${TEST_REPO}"
   cd "${TEST_REPO}"
   npm run configure
   npm run build
