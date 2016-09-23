@@ -290,6 +290,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
+
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -657,7 +658,7 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
   let args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
   let options: IExecOptions = {
     timeout: AppSetting.cmd.timeout,
-    maxBuffer: 500*1024  // 500 KB
+    maxBuffer: 5000*1024  // 500 KB
   };
 
   // Run the script file
