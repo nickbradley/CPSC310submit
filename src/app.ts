@@ -290,7 +290,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-/*
+
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -318,7 +318,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-*/
+
     console.log("**** " + msg + " ****");
 
   }
@@ -565,9 +565,9 @@ submitHandler.post("/", (req:any, res:any) => {
     return;
   }
 
-  console.log("\n\n********REQ_START********");
-  console.log(JSON.stringify(req.body);
-  console.log("\n\n********REQ_END********");
+  //console.log("\n\n********REQ_START********");
+  //console.log(JSON.stringify(req.body);
+  //console.log("\n\n********REQ_END********");
 
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;
@@ -668,16 +668,21 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
 
   // Run the script file
   let exec = execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
-    if (error !== null)
-      done(Error(error));
+    if (error !== null) {
+      console.log("-----------------| ERROR |--------------");
+      console.log(error);
+      done(Error(error.code));
+    }
     else
       done(null, { stdout: stdout, stderr: stderr });
 
+/*
     console.log("***** STDOUT ******");
     console.log(stdout);
 
     console.log("***** STDERR ******");
     console.log(stderr);
+  */
   });
 
 });
@@ -710,7 +715,7 @@ requestQueue.on('completed', function(job:any, result:any) {
     db.insert(doc, (error: any, body: any) => {
       if (error) {
         logger.error("Inserting document failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-        commentGitHub(submission, 'Failed to execute tests.');
+        commentGitHub(submission, "Service Error: Test results could not be saved to database.");
       }
       else {
         logger.info("Finished running tests for "  + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
@@ -727,7 +732,7 @@ requestQueue.on('failed', function(job:any, error:any) {
   queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
 
   logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-  switch (error.code) {
+  switch (+error.message) {
     case 7:
       comment = "Build failed. Unable to execute tests.";
       break;
