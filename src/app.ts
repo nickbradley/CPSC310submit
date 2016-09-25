@@ -309,7 +309,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     };
 
     // Set up the post request
-    var req = https.request(options, (res) => {
+    var req = https.request(options, (res:any) => {
       if (res.statusCode != 201) {
         logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
       }
@@ -351,9 +351,10 @@ function formatTestReport(testReport: any): string {
 
   let passes: number = testReport.stats.passes;
   let fails: number = testReport.stats.failures;
+  let skipped: number = testReport.stats.skipped;
   let passPercent: number = testReport.stats.passPercent;
 
-  output = passes + " passing, " + fails + " failing (" + passPercent + "%)";
+  output = passes + " passing, " + fails + " failing, " + skipped + " skipped" + " (" + passPercent + "%)";
 
   if (fails) {
     let failedTests: any[] = testReport.allTests.filter((test: any) => {

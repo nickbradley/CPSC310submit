@@ -166,8 +166,9 @@ function formatTestReport(testReport) {
     var firstTestFailTitle = "";
     var passes = testReport.stats.passes;
     var fails = testReport.stats.failures;
+    var skipped = testReport.stats.skipped;
     var passPercent = testReport.stats.passPercent;
-    output = passes + " passing, " + fails + " failing (" + passPercent + "%)";
+    output = passes + " passing, " + fails + " failing, " + skipped + " skipped" + " (" + passPercent + "%)";
     if (fails) {
         var failedTests = testReport.allTests.filter(function (test) {
             return test.fail;
