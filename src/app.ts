@@ -194,6 +194,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
     }
     else {
       updateUsers(body.teams);
+
       /*
       body.teams.forEach((team:any)=>{
         let repoName: string = team.team.substr(team.team.lastIndexOf('/') + 1);
@@ -217,7 +218,7 @@ dbAuth(AppSetting.dbServer, (db: any) => {
 
 
 let queuedOrActive: Array<string> = [];
-
+console.log(users);
 
 
 /**
@@ -290,7 +291,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-/*
+
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -318,7 +319,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-*/
+
     console.log("**** " + msg + " ****");
 
   }
@@ -615,8 +616,8 @@ submitHandler.post("/", (req:any, res:any) => {
     };
     let jobId: string = submission.reponame + "/" + submission.username;
     let adminUsers: string[] = admins.map((admin) => admin.username) || [];
-    //console.log(team+"/"+user);
-    //console.log(users);
+    console.log(team+"/"+user);
+
     //if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
       if (!queuedOrActive.includes(jobId)) {
         getLatestRun(team, user, (latestRun:number) => {
