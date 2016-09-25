@@ -252,7 +252,7 @@ submitHandler.post("/", function (req, res) {
         res.end("AutoTest webhook setup successfully.");
         return;
     }
-    fs.writeFile('request_failBuild.json', JSON.stringify(req.body), function (err) {
+    fs.writeFile('/app/request_failBuild.json', JSON.stringify(req.body), function (err) {
         if (err)
             throw err;
         console.log('It\'s saved!');
@@ -337,7 +337,7 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     };
     var exec = execFile(file, args, options, function (error, stdout, stderr) {
         if (error !== null)
-            done(Error('Exec failed to run cmd. ' + error));
+            done(Error(error));
         else
             done(null, { stdout: stdout, stderr: stderr });
         console.log("***** STDOUT ******");
@@ -382,9 +382,24 @@ requestQueue.on('completed', function (job, result) {
 });
 requestQueue.on('failed', function (job, error) {
     var submission = job.data;
+    var comment = "";
     queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
     logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-    commentGitHub(submission, 'Failed to execute tests.');
+    switch (error.code) {
+        case 7:
+            comment = "Build failed. Unable to execute tests.";
+            break;
+        case 8:
+            comment = "Service Error: Failed to build test suite.";
+            break;
+        case 9:
+            comment = "Service Error: Failed to run test suite.";
+            break;
+        default:
+            comment = "Service Error: Unexpected termination of testing script.";
+            break;
+    }
+    commentGitHub(submission, comment);
 });
 var server = http.createServer(function (req, res) {
     router(req, res, finalhandler(req, res));

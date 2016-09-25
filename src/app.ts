@@ -566,7 +566,7 @@ submitHandler.post("/", (req:any, res:any) => {
   }
 
 
-  fs.writeFile('request_failBuild.json', JSON.stringify(req.body), (err:any) => {
+  fs.writeFile('/app/request_failBuild.json', JSON.stringify(req.body), (err:any) => {
     if (err) throw err;
       console.log('It\'s saved!');
   });
@@ -671,7 +671,7 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
   // Run the script file
   let exec = execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
     if (error !== null)
-      done(Error('Exec failed to run cmd. ' + error));
+      done(Error(error));
     else
       done(null, { stdout: stdout, stderr: stderr });
 
@@ -723,12 +723,27 @@ requestQueue.on('completed', function(job:any, result:any) {
 });
 requestQueue.on('failed', function(job:any, error:any) {
   let submission: ISubmission = job.data;
+  let comment: string = "";
 
   // Remove the jobId from queuedOrActive
   queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
 
   logger.error("Executing tests failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-  commentGitHub(submission, 'Failed to execute tests.');
+  switch (error.code) {
+    case 7:
+      comment = "Build failed. Unable to execute tests.";
+      break;
+    case 8:
+      comment = "Service Error: Failed to build test suite."
+      break;
+    case 9:
+      comment = "Service Error: Failed to run test suite."
+      break;
+    default:
+      comment = "Service Error: Unexpected termination of testing script.";
+      break;
+  }
+  commentGitHub(submission, comment);
 });
 
 

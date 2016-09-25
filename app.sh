@@ -114,14 +114,14 @@ fi
 
 echo "******** Container output follows **********"
 (>&2 echo "******** Container output follows **********")
-(>&2 docker run --volume "${TEST_REPO}":/project/deliverable:z \
+docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
            --net=none \
            --attach STDOUT \
            --attach STDERR \
-           cpsc310/tester || true)
+           cpsc310/tester
 
 
 
