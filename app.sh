@@ -128,7 +128,7 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
 
 
 echo "%@%@COMMIT:${COMMIT:0:7}###"
-cat "${STUDENT_REPO}"/mocha_output/mochawesome.json
+cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
 echo "%@%@"
 
 rm -rf "${STUDENT_REPO}"
