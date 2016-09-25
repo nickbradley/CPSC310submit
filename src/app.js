@@ -127,31 +127,12 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
         console.log("**** " + msg + " ****");
     }
 }
 function parseScriptOutput(result) {
+    console.log("****** MochaJSON DOC **********");
+    console.log(result);
     var regex = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
     var matches = regex.exec(result);
     if (matches && matches.length == 3) {
@@ -360,6 +341,10 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
         }
         else
             done(null, { stdout: stdout, stderr: stderr });
+        console.log("***** STDOUT ******");
+        console.log(stdout);
+        console.log("***** STDERR ******");
+        console.log(stderr);
     });
 });
 requestQueue.on('active', function (job, jobPromise) {
@@ -406,13 +391,13 @@ requestQueue.on('failed', function (job, error) {
             comment = "Build failed. Unable to execute tests.";
             break;
         case 8:
-            comment = "Service Error: Failed to build test suite.";
+            comment = "AutoTest Error: Failed to build test suite.";
             break;
         case 9:
-            comment = "Service Error: Failed to run test suite.";
+            comment = "AutoTest Error: Failed to run test suite.";
             break;
         default:
-            comment = "Service Error: Unexpected termination of testing script.";
+            comment = "AutoTest Error: Unexpected termination of testing script.";
             break;
     }
     commentGitHub(submission, comment);

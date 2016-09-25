@@ -290,7 +290,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-
+/*
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -318,7 +318,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
 
   }
@@ -327,6 +327,9 @@ function commentGitHub(submission: ISubmission, msg: string): void {
 
 
 function parseScriptOutput(result: string): any {
+  console.log("****** MochaJSON DOC **********");
+  console.log(result);
+
   let regex: RegExp = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
   let matches: string[] = regex.exec(result);
 
@@ -677,13 +680,13 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
     else
       done(null, { stdout: stdout, stderr: stderr });
 
-/*
+
     console.log("***** STDOUT ******");
     console.log(stdout);
 
     console.log("***** STDERR ******");
     console.log(stderr);
-  */
+
   });
 
 });
@@ -738,13 +741,13 @@ requestQueue.on('failed', function(job:any, error:any) {
       comment = "Build failed. Unable to execute tests.";
       break;
     case 8:
-      comment = "Service Error: Failed to build test suite."
+      comment = "AutoTest Error: Failed to build test suite."
       break;
     case 9:
-      comment = "Service Error: Failed to run test suite."
+      comment = "AutoTest Error: Failed to run test suite."
       break;
     default:
-      comment = "Service Error: Unexpected termination of testing script.";
+      comment = "AutoTest Error: Unexpected termination of testing script.";
       break;
   }
   commentGitHub(submission, comment);

@@ -74,30 +74,15 @@ rm -rf typings || true
 
 # Checkout the latest version of the test suite repo
 TEST_REPO=/repos/${TEST_REPO_NAME}
-echo "Test repo path: ${TEST_REPO}"
-(>&2 echo "Test repo")
 
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
-  echo "fetching private test repo"
-  (>&2 echo "fetching private test repo")
   git fetch #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
   LOCAL=$(git rev-parse @{0})
   REMOTE=$(git rev-parse @{u})
   if [ ${LOCAL} != ${REMOTE} ]
   then
-      echo "Updating test repo"
-      (>&2 echo "Updating test repo")
-      #git config user.name "cpsc310bot"
-      #git config user.email "cpsc310bot@gmail.com"
-      #git add .git/config
-      #git commit -m "some init msg"
-
-      (>&2 echo "Updating test repo1")
-      #git pull #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
-      (>&2 echo "Updating test repo2")
-
       git reset --hard origin/master
       npm run clean
       npm run configure > /dev/null
@@ -112,30 +97,41 @@ else
   #npm run build
 fi
 
-echo "******** Container output follows **********"
-(>&2 echo "******** Container output follows **********")
-docker run --volume "${TEST_REPO}":/project/deliverable:z \
+(>&2 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
            --net=none \
-           --attach STDOUT \
-           --attach STDERR \
-           cpsc310/tester
+           cpsc310/tester) || DOCKER_EXIT_CODE=$? || true
 
-DOCKER_EXIT_CODE = $?
+#           --attach STDOUT \
+#           --attach STDERR \
+#DOCKER_EXIT_CODE=$?
 
-
-if [ DOCKER_EXIT_CODE -eq 9 ]
+if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
-
+  rm -rf "${STUDENT_REPO}"
+  exit ${DOCKER_EXIT_CODE}
+else
   echo "%@%@COMMIT:${COMMIT:0:7}###"
   cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
   echo "%@%@"
   rm -rf "${STUDENT_REPO}"
-else
-  rm -rf "${STUDENT_REPO}"
-  exit DOCKER_EXIT_CODE
 fi
+
+
+
+#if [ ${DOCKER_EXIT_CODE} -ne 7 -a ${DOCKER_EXIT_CODE} -ne 8]
+#then
+  #echo "Should read the output file"
+#  echo "%@%@COMMIT:${COMMIT:0:7}###"
+#  cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
+#  echo "%@%@"
+#  rm -rf "${STUDENT_REPO}"
+#else
+#  echo "Something failed in docker"
+#  rm -rf "${STUDENT_REPO}"
+#  exit ${DOCKER_EXIT_CODE}
+#fi
 
 exit 0
