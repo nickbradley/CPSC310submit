@@ -566,7 +566,7 @@ submitHandler.post("/", (req:any, res:any) => {
   }
 
   console.log("\n\n********REQ_START********");
-  console.log(req.body);
+  console.log(JSON.stringify(req.body);
   console.log("\n\n********REQ_END********");
 
   let comment: string = req.body.comment.body.toLowerCase();

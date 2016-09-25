@@ -253,7 +253,7 @@ submitHandler.post("/", function (req, res) {
         return;
     }
     console.log("\n\n********REQ_START********");
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     console.log("\n\n********REQ_END********");
     var comment = req.body.comment.body.toLowerCase();
     var team = req.body.repository.name;
