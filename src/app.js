@@ -4,6 +4,7 @@ var https = require("https");
 var Router = require("router");
 var url = require("url");
 var bodyParser = require("body-parser");
+var fs = require("fs");
 var Queue = require("bull");
 var execFile = require("child_process").execFile;
 var winston = require("winston");
@@ -126,27 +127,6 @@ function extractDeliverable(comment) {
 }
 function commentGitHub(submission, msg) {
     if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
         console.log("**** " + msg + " ****");
     }
 }
@@ -272,6 +252,11 @@ submitHandler.post("/", function (req, res) {
         res.end("AutoTest webhook setup successfully.");
         return;
     }
+    fs.writeFile('request_failBuild.json', JSON.stringify(req.body), function (err) {
+        if (err)
+            throw err;
+        console.log('It\'s saved!');
+    });
     var comment = req.body.comment.body.toLowerCase();
     var team = req.body.repository.name;
     var user = req.body.comment.user.login;
@@ -283,7 +268,7 @@ submitHandler.post("/", function (req, res) {
     if (comment.includes("@cpsc310bot")) {
         deliverable = extractDeliverable(comment);
         if (!deliverable) {
-            msgInfo = "\nNote: No deliverable specified, using latest.";
+            msgInfo = "";
             deliverable = deliverables["current"];
         }
         if (deliverable == deliverables["current"]) {
@@ -355,6 +340,10 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
             done(Error('Exec failed to run cmd. ' + error));
         else
             done(null, { stdout: stdout, stderr: stderr });
+        console.log("***** STDOUT ******");
+        console.log(stdout);
+        console.log("***** STDERR ******");
+        console.log(stderr);
     });
 });
 requestQueue.on('active', function (job, jobPromise) {

@@ -74,7 +74,7 @@ var https = require("https");
 var Router       = require("router");
 var url          = require("url");
 let bodyParser = require("body-parser");
-
+let fs = require("fs");
 // submit module
 var Queue = require("bull");
 var execFile = require("child_process").execFile;
@@ -290,7 +290,7 @@ function extractDeliverable(comment: string): string {
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
   if (submission.commentURL) {
-
+/*
     let commentUrl: any = url.parse(submission.commentURL);
     let comment: string = JSON.stringify({body: msg});
 
@@ -318,7 +318,7 @@ function commentGitHub(submission: ISubmission, msg: string): void {
     // Post the data
     req.write(comment);
     req.end();
-
+*/
     console.log("**** " + msg + " ****");
 
   }
@@ -565,6 +565,12 @@ submitHandler.post("/", (req:any, res:any) => {
     return;
   }
 
+
+  fs.writeFile('request_failBuild.json', JSON.stringify(req.body), (err:any) => {
+    if (err) throw err;
+      console.log('It\'s saved!');
+  });
+
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;
   let user: string = req.body.comment.user.login;
@@ -578,7 +584,8 @@ submitHandler.post("/", (req:any, res:any) => {
     deliverable = extractDeliverable(comment);
 
     if (!deliverable) {
-      msgInfo = "\nNote: No deliverable specified, using latest.";
+      //msgInfo = "\nNote: No deliverable specified, using latest.";
+      msgInfo = "";
       deliverable = deliverables["current"];
     }
 
@@ -667,6 +674,12 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
       done(Error('Exec failed to run cmd. ' + error));
     else
       done(null, { stdout: stdout, stderr: stderr });
+
+    console.log("***** STDOUT ******");
+    console.log(stdout);
+
+    console.log("***** STDERR ******");
+    console.log(stderr);
   });
 
 });
