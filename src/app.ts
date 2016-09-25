@@ -390,7 +390,8 @@ interface Team {
 function updateUsers(teams: Team[]) {
   users = [];
   teams.forEach((team: Team) => {
-    let name: string = team.projectName || "cpsc310project_team" + team;
+    //let name: string = team.projectName || "cpsc310project_team" + team;
+    let name: string = "cpsc310project_team" + team;
     team.members.forEach((memeber: string) => {
       users.push(name + "/" + memeber);
       console.log("Added user " + name + "/" + memeber);
