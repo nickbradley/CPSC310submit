@@ -182,7 +182,7 @@ function formatTestReport(testReport) {
 function updateUsers(teams) {
     users = [];
     teams.forEach(function (team) {
-        var name = "cpsc310project_team" + team;
+        var name = "cpsc310project_team" + team.team;
         team.members.forEach(function (memeber) {
             users.push(name + "/" + memeber);
             console.log("Added user " + name + "/" + memeber);
