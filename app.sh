@@ -123,14 +123,19 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --attach STDERR \
            cpsc310/tester
 
+DOCKER_EXIT_CODE = $?
 
 
+if [ DOCKER_EXIT_CODE -eq 9 ]
+then
 
-
-echo "%@%@COMMIT:${COMMIT:0:7}###"
-cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
-echo "%@%@"
-
-rm -rf "${STUDENT_REPO}"
+  echo "%@%@COMMIT:${COMMIT:0:7}###"
+  cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
+  echo "%@%@"
+  rm -rf "${STUDENT_REPO}"
+else
+  rm -rf "${STUDENT_REPO}"
+  exit DOCKER_EXIT_CODE
+fi
 
 exit 0
