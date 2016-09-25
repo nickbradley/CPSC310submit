@@ -89,7 +89,6 @@ dbAuth(AppSetting.dbServer, function (db) {
     });
 });
 var queuedOrActive = [];
-console.log(users);
 function dbAuth(dbServer, callback) {
     nano.auth(dbServer.username, dbServer.password, function (err, body, headers) {
         var auth;
@@ -186,6 +185,7 @@ function updateUsers(teams) {
         var name = team.projectName || "cpsc310project_team" + team;
         team.members.forEach(function (memeber) {
             users.push(name + "/" + memeber);
+            console.log("Added user " + name + "/" + memeber);
         });
     });
 }
