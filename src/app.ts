@@ -565,11 +565,9 @@ submitHandler.post("/", (req:any, res:any) => {
     return;
   }
 
-
-  fs.writeFile('/app/request_failBuild.json', JSON.stringify(req.body), (err:any) => {
-    if (err) throw err;
-      console.log('It\'s saved!');
-  });
+  console.log("\n\n********REQ_START********");
+  console.log(req.body);
+  console.log("\n\n********REQ_END********");
 
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;

@@ -252,11 +252,9 @@ submitHandler.post("/", function (req, res) {
         res.end("AutoTest webhook setup successfully.");
         return;
     }
-    fs.writeFile('/app/request_failBuild.json', JSON.stringify(req.body), function (err) {
-        if (err)
-            throw err;
-        console.log('It\'s saved!');
-    });
+    console.log("\n\n********REQ_START********");
+    console.log(req.body);
+    console.log("\n\n********REQ_END********");
     var comment = req.body.comment.body.toLowerCase();
     var team = req.body.repository.name;
     var user = req.body.comment.user.login;
