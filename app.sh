@@ -96,7 +96,7 @@ else
   npm run configure > /dev/null
   #npm run build
 fi
-
+DOCKER_EXIT_CODE=0
 (>&2 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
