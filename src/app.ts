@@ -620,7 +620,7 @@ submitHandler.post("/", (req:any, res:any) => {
     let adminUsers: string[] = admins.map((admin) => admin.username) || [];
     console.log(team+"/"+user);
 
-    //if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
+    if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
       if (!queuedOrActive.includes(jobId)) {
         getLatestRun(team, user, (latestRun:number) => {
           let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
@@ -644,12 +644,12 @@ submitHandler.post("/", (req:any, res:any) => {
         logger.info("Request is already queued for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
         commentGitHub(submission, "Request is already queued for processing.");
       }
-    //}
-    //else {
+    }
+    else {
       // don't process - team/user is not registered
-      //logger.info("User not registered for requests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-      //commentGitHub(submission, "Request cannot be processed; not registered.");
-    //}
+      logger.info("User not registered for requests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+      commentGitHub(submission, "Request cannot be processed; not registered.");
+    }
   }
   else {
     // don't process - comment doesn't include @cpsc310bot

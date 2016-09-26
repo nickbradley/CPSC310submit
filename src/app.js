@@ -312,26 +312,32 @@ submitHandler.post("/", function (req, res) {
         var jobId_1 = submission.reponame + "/" + submission.username;
         var adminUsers_1 = admins.map(function (admin) { return admin.username; }) || [];
         console.log(team + "/" + user);
-        if (!queuedOrActive.includes(jobId_1)) {
-            getLatestRun(team, user, function (latestRun) {
-                var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
-                if (runDiff > 0 || adminUsers_1.includes(user)) {
-                    queuedOrActive.push(jobId_1);
-                    requestQueue.add(submission, { jobId: jobId_1 });
-                    requestQueue.count().then(function (queueLength) {
-                        logger.info("Request received for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-                        commentGitHub(submission, "Request received; should be processed within " + (queueLength * 2 + 2) + " minutes." + msgInfo);
-                    });
-                }
-                else {
-                    logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-                    commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1 * runDiff).humanize() + " before trying again.");
-                }
-            });
+        if (users.includes(team + "/" + user) || adminUsers_1.includes(user)) {
+            if (!queuedOrActive.includes(jobId_1)) {
+                getLatestRun(team, user, function (latestRun) {
+                    var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
+                    if (runDiff > 0 || adminUsers_1.includes(user)) {
+                        queuedOrActive.push(jobId_1);
+                        requestQueue.add(submission, { jobId: jobId_1 });
+                        requestQueue.count().then(function (queueLength) {
+                            logger.info("Request received for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+                            commentGitHub(submission, "Request received; should be processed within " + (queueLength * 2 + 2) + " minutes." + msgInfo);
+                        });
+                    }
+                    else {
+                        logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+                        commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1 * runDiff).humanize() + " before trying again.");
+                    }
+                });
+            }
+            else {
+                logger.info("Request is already queued for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+                commentGitHub(submission, "Request is already queued for processing.");
+            }
         }
         else {
-            logger.info("Request is already queued for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-            commentGitHub(submission, "Request is already queued for processing.");
+            logger.info("User not registered for requests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
+            commentGitHub(submission, "Request cannot be processed; not registered.");
         }
     }
     else {
