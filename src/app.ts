@@ -365,7 +365,7 @@ function formatTestReport(testReport: any): string {
       return test.fail;
     });
 
-    firstTestFailTitle = failedTests.pop().fullTitle;
+    firstTestFailTitle = failedTests[0].fullTitle;
     firstTestFailTitle = firstTestFailTitle.substring(0, firstTestFailTitle.indexOf(" \n\t["));
     //firstTestFailTitle = firstTestFailTitle.substring(firstTestFailTitle.lastIndexOf("~")+1);
     output += "\nName of first spec to fail: " + firstTestFailTitle;
