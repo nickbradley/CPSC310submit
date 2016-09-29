@@ -356,7 +356,12 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     };
     var exec = execFile(file, args, options, function (error, stdout, stderr) {
         if (error !== null) {
-            console.log("-----------------| ERROR |--------------");
+            console.log("-----------------| ERROR |----------------");
+            console.log("---| STDOUT |---");
+            console.log(stdout);
+            console.log("---| STDERR |---");
+            console.log(stderr);
+            console.log("---| ERROR |---");
             console.log(error);
             done(Error(error.code));
         }

@@ -678,7 +678,12 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
   // Run the script file
   let exec = execFile(file, args, options, (error:any, stdout:any, stderr:any) => {
     if (error !== null) {
-      console.log("-----------------| ERROR |--------------");
+      console.log("-----------------| ERROR |----------------");
+      console.log("---| STDOUT |---");
+      console.log(stdout);
+      console.log("---| STDERR |---");
+      console.log(stderr);
+      console.log("---| ERROR |---");
       console.log(error);
       done(Error(error.code));
     }
