@@ -672,7 +672,7 @@ requestQueue.process(AppSetting.cmd.concurrency, (job: any, done: Function) => {
   let args: Array<string> = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
   let options: IExecOptions = {
     timeout: AppSetting.cmd.timeout,
-    maxBuffer: 5000*1024  // 500 KB
+    maxBuffer: 100000*1024  // 500 KB
   };
 
   // Run the script file

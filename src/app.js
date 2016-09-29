@@ -352,7 +352,7 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     var args = [submission.testRepoURL, submission.repoURL, submission.commitSHA];
     var options = {
         timeout: AppSetting.cmd.timeout,
-        maxBuffer: 5000 * 1024
+        maxBuffer: 100000 * 1024
     };
     var exec = execFile(file, args, options, function (error, stdout, stderr) {
         if (error !== null) {
