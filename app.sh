@@ -97,16 +97,18 @@ else
   #npm run build
 fi
 DOCKER_EXIT_CODE=0
-(>&2 docker run --volume "${TEST_REPO}":/project/deliverable:z \
+docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
            --net=none \
-           cpsc310/tester) || DOCKER_EXIT_CODE=$? || true
+           cpsc310/tester || DOCKER_EXIT_CODE=$? || true
 
 #           --attach STDOUT \
 #           --attach STDERR \
 #DOCKER_EXIT_CODE=$?
+
+echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
