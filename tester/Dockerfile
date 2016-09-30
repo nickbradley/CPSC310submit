@@ -7,4 +7,4 @@ ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
 CMD { cd /project/cpsc310project && \
       { npm run build || exit 7; } && \
       cd /project/deliverable; } && \
-    { npm run build; { npm run testprog || exit 9; } > /dev/null 2>&1 }
+    { npm run build; { npm run testprog || exit 9; } > /dev/null 2>&1; }
