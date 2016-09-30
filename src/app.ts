@@ -101,7 +101,7 @@ let AppSetting: IAppSetting = {
   },
   cmd: {
     concurrency: process.env.WORKERS || 1,
-    timeout: process.env.CMD_TIMEOUT || 120000, // milliseconds
+    timeout: process.env.CMD_TIMEOUT || 5*60*1000, // milliseconds
     file: process.env.CMD_SCRIPT || "app.sh",
   },
   cache: {
