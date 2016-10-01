@@ -757,7 +757,7 @@ requestQueue.on('failed', function(job:any, error:any) {
       comment = "AutoTest Error: Failed to run test suite."
       break;
     default:
-      comment = "AutoTest Error: Unexpected termination of testing script.";
+      comment = "AutoTest Failed: This is usually caused by the script taking too long or writing too much to the console.";
       break;
   }
   commentGitHub(submission, comment);
