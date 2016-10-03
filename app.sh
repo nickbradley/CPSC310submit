@@ -123,11 +123,12 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
+           --memory "512m"
            --net=none \
            --detach \
            cpsc310/tester
 )
-DOCKER_EXIT_CODE=$(timeout 5s docker wait "${CONTAINER}" || true)
+DOCKER_EXIT_CODE=$(timeout 5m docker wait "${CONTAINER}" || true)
 docker kill ${CONTAINER} &> /dev/null
 #           --attach STDOUT \
 #           --attach STDERR \
