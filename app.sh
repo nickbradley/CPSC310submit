@@ -117,13 +117,13 @@ echo "In directory ${PWD}"
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
   rm -rf "${STUDENT_REPO}"
-  run git clean -d -x -f
+  git clean -d -x -f
   exit ${DOCKER_EXIT_CODE}
 else
   echo "%@%@COMMIT:${COMMIT:0:7}###"
   cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
   echo "%@%@"
-  run git clean -d -x -f
+  git clean -d -x -f
   rm -rf "${STUDENT_REPO}"
 fi
 
