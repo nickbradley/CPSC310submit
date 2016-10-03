@@ -112,7 +112,7 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
 echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
 
 cd "${TEST_REPO}"
-echo "In directory ${pwd}"
+echo "In directory ${PWD}"
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
