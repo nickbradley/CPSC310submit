@@ -126,8 +126,6 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --memory "512m" \
            --net=none \
            --detach \
-           --attach STDOUT \
-           --attach STDERR \
            cpsc310/tester
 )
 DOCKER_EXIT_CODE=$(timeout 5m docker wait "${CONTAINER}" || true)
