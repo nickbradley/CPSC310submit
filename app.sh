@@ -114,8 +114,8 @@ fi
 #echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
 
 
-
-
+echo "---- BEGIN CONTAINER OUTPUT ----"
+echo "---- BEGIN CONTAINER ERROR OUTPUT ----" >&2
 DOCKER_EXIT_CODE=0
 ## http://stackoverflow.com/questions/31375720/docker-kill-an-infinite-process-in-a-container-after-x-amount-of-time
 CONTAINER=$(
@@ -126,13 +126,16 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --memory "512m" \
            --net=none \
            --detach \
+           --attach STDOUT \
+           --attach STDERR \
            cpsc310/tester
 )
 DOCKER_EXIT_CODE=$(timeout 5m docker wait "${CONTAINER}" || true)
 docker kill ${CONTAINER} &> /dev/null
 #           --attach STDOUT \
 #           --attach STDERR \
-
+echo "---- END CONTAINER OUTPUT ----"
+echo "---- END CONTAINER ERROR OUTPUT ----" >&2
 echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
