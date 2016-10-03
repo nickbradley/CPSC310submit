@@ -78,6 +78,7 @@ TEST_REPO=/repos/${TEST_REPO_NAME}
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
+  git clean -d -x -f
   git fetch #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
   LOCAL=$(git rev-parse @{0})
   REMOTE=$(git rev-parse @{u})
@@ -102,28 +103,23 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
-           --attach STDOUT \
-           --attach STDERR \
            --net=none \
            cpsc310/tester || DOCKER_EXIT_CODE=$? || true
 
-
+#           --attach STDOUT \
+#           --attach STDERR \
 
 echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
 
-cd "${TEST_REPO}"
-echo "In directory ${PWD}"
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
   rm -rf "${STUDENT_REPO}"
-  git clean -d -x -f
   exit ${DOCKER_EXIT_CODE}
 else
   echo "%@%@COMMIT:${COMMIT:0:7}###"
   cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
   echo "%@%@"
-  git clean -d -x -f
   rm -rf "${STUDENT_REPO}"
 fi
 
