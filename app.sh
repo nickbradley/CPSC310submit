@@ -78,7 +78,9 @@ TEST_REPO=/repos/${TEST_REPO_NAME}
 if [[ -d "${TEST_REPO}" ]]
 then
   cd "${TEST_REPO}"
-  git clean -d -x -f
+  #git clean -d -x -f
+  git clean -d -x -e node_modules/ -e typings/ -f
+  npm run configure > /dev/null
   git fetch #-c user.email="cpsc310bot@gmail.com" -c user.name="cpsc310bot"
   LOCAL=$(git rev-parse @{0})
   REMOTE=$(git rev-parse @{u})
