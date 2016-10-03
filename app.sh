@@ -96,44 +96,35 @@ else
   npm run configure > /dev/null
   #npm run build
 fi
+
 DOCKER_EXIT_CODE=0
 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
+           --attach STDOUT \
+           --attach STDERR \
            --net=none \
            cpsc310/tester || DOCKER_EXIT_CODE=$? || true
 
-#           --attach STDOUT \
-#           --attach STDERR \
-#DOCKER_EXIT_CODE=$?
+
 
 echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
+
+cd "${TEST_REPO}"
+echo "In directory ${pwd}"
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
   rm -rf "${STUDENT_REPO}"
+  run git clean -d -x -f
   exit ${DOCKER_EXIT_CODE}
 else
   echo "%@%@COMMIT:${COMMIT:0:7}###"
   cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
   echo "%@%@"
+  run git clean -d -x -f
   rm -rf "${STUDENT_REPO}"
 fi
-
-
-
-#if [ ${DOCKER_EXIT_CODE} -ne 7 -a ${DOCKER_EXIT_CODE} -ne 8]
-#then
-  #echo "Should read the output file"
-#  echo "%@%@COMMIT:${COMMIT:0:7}###"
-#  cat "${STUDENT_REPO}"/mocha_output/mochawesome.json || exit 9
-#  echo "%@%@"
-#  rm -rf "${STUDENT_REPO}"
-#else
-#  echo "Something failed in docker"
-#  rm -rf "${STUDENT_REPO}"
-#  exit ${DOCKER_EXIT_CODE}
-#fi
 
 exit 0
