@@ -129,6 +129,7 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            cpsc310/tester
 )
 DOCKER_EXIT_CODE=$(timeout 5m docker wait "${CONTAINER}" || true)
+docker logs ${CONTAINER}
 docker kill ${CONTAINER} &> /dev/null
 #           --attach STDOUT \
 #           --attach STDERR \
