@@ -4,11 +4,13 @@ function(doc) {
       repo: doc.team,
       executor: doc.user,
       deliverable: doc.deliverable,
+      firstFailure: doc.displayText.indexOf('~') > 0 ? doc.displayText.substring(doc.displayText.indexOf('~')) : "",
       stats: {
         pass: doc.report.stats.passes,
         fail: doc.report.stats.failures,
         skip: doc.report.stats.skipped,
-        percentPass: doc.report.stats.passPercent
+        percentPass: doc.report.stats.passPercent,
+        duration: doc.report.stats.duration
       },
       testKeywords: {
         pass: doc.report.allPasses.map(function(test) {

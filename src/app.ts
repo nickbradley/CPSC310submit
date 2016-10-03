@@ -708,6 +708,9 @@ requestQueue.on('completed', function(job:any, result:any) {
   let submission: ISubmission = job.data;
   let parsedOutput: any = parseScriptOutput(result.stdout);
 
+  console.log("****** Output  **********")
+  console.log(result.stdout);
+
   let doc: IResultDoc = {
     requestCommit: submission.commitSHA,
     actualCommit: parsedOutput.commitSha,
