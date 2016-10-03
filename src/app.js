@@ -24,7 +24,7 @@ var AppSetting = {
     },
     cmd: {
         concurrency: process.env.WORKERS || 1,
-        timeout: process.env.CMD_TIMEOUT || 5 * 60 * 1000,
+        timeout: process.env.CMD_TIMEOUT || 10 * 60 * 1000,
         file: process.env.CMD_SCRIPT || "app.sh",
     },
     cache: {
