@@ -123,7 +123,7 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
-           --memory "512m"
+           --memory "512m" \
            --net=none \
            --detach \
            cpsc310/tester
