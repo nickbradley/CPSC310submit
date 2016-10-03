@@ -100,19 +100,39 @@ else
   #npm run build
 fi
 
+#DOCKER_EXIT_CODE=0
+#docker run --volume "${TEST_REPO}":/project/deliverable:z \
+#           --volume "${STUDENT_REPO}":/project/cpsc310project:z \
+#           --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
+#           --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
+#           --net=none \
+#           cpsc310/tester || DOCKER_EXIT_CODE=$? || true
+#
+#           --attach STDOUT \
+#           --attach STDERR \
+#
+#echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
+
+
+
+
 DOCKER_EXIT_CODE=0
+## http://stackoverflow.com/questions/31375720/docker-kill-an-infinite-process-in-a-container-after-x-amount-of-time
+CONTAINER=$(
 docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
            --net=none \
-           cpsc310/tester || DOCKER_EXIT_CODE=$? || true
-
+           --detach \
+           cpsc310/tester
+)
+DOCKER_EXIT_CODE=$(timeout --kill-after=5m docker wait "${CONTAINER}" || true)
+docker kill ${CONTAINER} &> /dev/null
 #           --attach STDOUT \
 #           --attach STDERR \
 
 echo "Container cpsc310/tester exited with code ${DOCKER_EXIT_CODE}."
-
 
 if [[ (${DOCKER_EXIT_CODE} -eq 7) || (${DOCKER_EXIT_CODE} -eq 8) ]]
 then
