@@ -376,8 +376,6 @@ requestQueue.on('active', function (job, jobPromise) {
 requestQueue.on('completed', function (job, result) {
     var submission = job.data;
     var parsedOutput = parseScriptOutput(result.stdout);
-    console.log("****** Output  **********");
-    console.log(result.stdout);
     var doc = {
         requestCommit: submission.commitSHA,
         actualCommit: parsedOutput.commitSha,
