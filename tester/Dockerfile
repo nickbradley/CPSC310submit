@@ -1,5 +1,6 @@
 #FROM node:6.3.0
-FROM node:4
+#FROM node:4
+FROM node:6
 #FROM kenjones/nodejs-mocha
 ##FROM djudorange/node-gulp-mocha
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
