@@ -1,4 +1,6 @@
-FROM node:6.3.0
+#FROM node:6.3.0
+#FROM node
+FROM kenjones/nodejs-mocha
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
