@@ -1,6 +1,7 @@
 #FROM node:6.3.0
-#FROM node
-FROM kenjones/nodejs-mocha
+FROM node:4
+#FROM kenjones/nodejs-mocha
+##FROM djudorange/node-gulp-mocha
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
