@@ -41,6 +41,7 @@ TEST_REPO_NAME=${TEST_REPO_FULLNAME%%.*}
 
 TMP=$(mktemp -d)
 STUDENT_REPO=/repos${TMP:4}
+echo "Student repo URL: ${STUDENT_REPO}"
 echo "Student repo path: ${STUDENT_REPO}"
 
 mkdir -p "${STUDENT_REPO}"

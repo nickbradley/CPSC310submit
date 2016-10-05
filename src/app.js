@@ -356,6 +356,7 @@ requestQueue.process(AppSetting.cmd.concurrency, function (job, done) {
     };
     var exec = execFile(file, args, options, function (error, stdout, stderr) {
         if (error !== null) {
+            logger.error("Test failed.", error, stdout, stderr);
             console.log("-----------------| ERROR |----------------");
             console.log("---| STDOUT |---");
             console.log(stdout);
