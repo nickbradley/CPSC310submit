@@ -361,14 +361,18 @@ function formatTestReport(testReport: any): string {
   output = passes + " passing, " + fails + " failing, " + skipped + " skipped" + " (" + passPercent + "%)";
 
   if (fails) {
-    let failedTests: any[] = testReport.allTests.filter((test: any) => {
-      return test.fail;
+    output += "\n\nFailing tests:";
+    testReport.allFailures.forEach((failedTest: any) => {
+      output += "\n\t - " + failedTest.substring(0, failedTest.indexOf(" \n\t["));
     });
-
-    firstTestFailTitle = failedTests[0].fullTitle;
-    firstTestFailTitle = firstTestFailTitle.substring(0, firstTestFailTitle.indexOf(" \n\t["));
-    //firstTestFailTitle = firstTestFailTitle.substring(firstTestFailTitle.lastIndexOf("~")+1);
-    output += "\nName of first spec to fail: " + firstTestFailTitle;
+    //let failedTests: any[] = testReport.allTests.filter((test: any) => {
+    //  return test.fail;
+    //});
+    //
+    // firstTestFailTitle = failedTests[0].fullTitle;
+    // firstTestFailTitle = firstTestFailTitle.substring(0, firstTestFailTitle.indexOf(" \n\t["));
+    // //firstTestFailTitle = firstTestFailTitle.substring(firstTestFailTitle.lastIndexOf("~")+1);
+    // output += "\nName of first spec to fail: " + firstTestFailTitle;
   }
   return output;
 }  // formatResult

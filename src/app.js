@@ -170,12 +170,10 @@ function formatTestReport(testReport) {
     var passPercent = testReport.stats.passPercent;
     output = passes + " passing, " + fails + " failing, " + skipped + " skipped" + " (" + passPercent + "%)";
     if (fails) {
-        var failedTests = testReport.allTests.filter(function (test) {
-            return test.fail;
+        output += "\n\nFailing tests:";
+        testReport.allFailures.forEach(function (failedTest) {
+            output += "\n\t - " + failedTest.substring(0, failedTest.indexOf(" \n\t["));
         });
-        firstTestFailTitle = failedTests[0].fullTitle;
-        firstTestFailTitle = firstTestFailTitle.substring(0, firstTestFailTitle.indexOf(" \n\t["));
-        output += "\nName of first spec to fail: " + firstTestFailTitle;
     }
     return output;
 }
