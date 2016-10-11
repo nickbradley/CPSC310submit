@@ -363,6 +363,7 @@ function formatTestReport(testReport: any): string {
   if (fails) {
     output += "\n\nFailing tests:";
     testReport.allFailures.forEach((failedTest: any) => {
+      console.log(failedTest);
       output += "\n\t - " + failedTest.substring(0, failedTest.indexOf(" \n\t["));
     });
     //let failedTests: any[] = testReport.allTests.filter((test: any) => {
