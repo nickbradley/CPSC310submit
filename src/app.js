@@ -172,8 +172,8 @@ function formatTestReport(testReport) {
     if (fails) {
         output += "\n\nFailing tests:";
         testReport.allFailures.forEach(function (failedTest) {
-            console.log(failedTest);
-            output += "\n\t - " + failedTest.substring(0, failedTest.indexOf(" \n\t["));
+            var test = failedTest.fullTitle;
+            output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
         });
     }
     return output;
