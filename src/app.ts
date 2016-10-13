@@ -365,7 +365,7 @@ function formatTestReport(testReport: any): string {
     testReport.allFailures.forEach((failedTest: any) => {
       let test: string = failedTest.fullTitle;
       let testCodeName: string = test.substring(test.indexOf("~")+1, test.lastIndexOf("~"));
-      let cleanString: string = test.replace(" \n\t[.*", ".");
+      let cleanString: string = test.replace(/ \n\t\[.*/, ".");
       let stringEnd: number = test.indexOf(".") || test.length;
       //output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
 
