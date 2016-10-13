@@ -364,7 +364,9 @@ function formatTestReport(testReport: any): string {
     output += "\n\nFailing tests:";
     testReport.allFailures.forEach((failedTest: any) => {
       let test: string = failedTest.fullTitle;
-      output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
+      let testCodeName: string = test.substring(test.indexOf("~")+1, test.lastIndexOf("~"));
+      //output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
+      output += "\n* " + "**" + testCodeName + "**" + test.substring(test.lastIndexOf("~")+1, test.indexOf(".")+1);
     });
     //let failedTests: any[] = testReport.allTests.filter((test: any) => {
     //  return test.fail;
