@@ -607,6 +607,12 @@ submitHandler.post("/", (req:any, res:any) => {
       testRepoURL = deliverables[deliverable].private;
       msgInfo = "\nNote: Running specs for previous deliverable " + deliverable + ".";
     }
+
+    else if (deliverable > deliverables["current"] && deliverable <= "d2") {
+      testRepoURL = deliverables[deliverable].private;
+      msgInfo = "\n***Warning: Running specs for deliverable " + deliverable + ".*** This should be removed in production.";
+    }
+
     else {
       testRepoURL = deliverables[deliverables["current"]].private;
       msgInfo = "\nNote: Invalid deliverable specified, using latest.";
