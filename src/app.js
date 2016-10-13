@@ -174,7 +174,9 @@ function formatTestReport(testReport) {
         testReport.allFailures.forEach(function (failedTest) {
             var test = failedTest.fullTitle;
             var testCodeName = test.substring(test.indexOf("~") + 1, test.lastIndexOf("~"));
-            output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
+            var cleanString = test.replace(" \n\t[.*", ".");
+            var stringEnd = test.indexOf(".") || test.length;
+            output += "\n* " + testCodeName + ": " + test.substring(test.lastIndexOf("~") + 1, stringEnd + 1);
         });
     }
     return output;
