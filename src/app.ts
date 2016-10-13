@@ -608,26 +608,29 @@ submitHandler.post("/", (req:any, res:any) => {
 
     if (!deliverable) {
       //msgInfo = "\nNote: No deliverable specified, using latest.";
-      msgInfo = "";
+
       deliverable = deliverables["current"];
+      msgInfo = "\nNote: running tests for latest deliverable (**" + deliverable + "**).";
     }
 
     if (deliverable == deliverables["current"]) {
       testRepoURL = deliverables[deliverables["current"]].private;
+      msgInfo = "\nNote: running tests for deliverable **" + deliverable + "**.";
     }
     else if (deliverable < deliverables["current"] && deliverable >= "d1") {
       testRepoURL = deliverables[deliverable].private;
-      msgInfo = "\nNote: Running specs for previous deliverable " + deliverable + ".";
+      msgInfo = "\nNote: Running tests for previous deliverable (**" + deliverable + "**).";
     }
-
+/*
     else if (deliverable > deliverables["current"] && deliverable <= "d2") {
       testRepoURL = deliverables[deliverable].private;
       msgInfo = "\n***Warning: Running specs for deliverable " + deliverable + ".*** This should be removed in production.";
     }
-
+*/
     else {
       testRepoURL = deliverables[deliverables["current"]].private;
-      msgInfo = "\nNote: Invalid deliverable specified, using latest.";
+      deliverable = deliverables["current"];
+      msgInfo = "\nNote: Invalid deliverable specified, using latest (**" + deliverable + "**).";
     }
 
     submission = {
