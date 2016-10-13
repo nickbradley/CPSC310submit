@@ -365,11 +365,18 @@ function formatTestReport(testReport: any): string {
     testReport.allFailures.forEach((failedTest: any) => {
       let test: string = failedTest.fullTitle;
       let testCodeName: string = test.substring(test.indexOf("~")+1, test.lastIndexOf("~"));
-      let cleanString: string = test.replace(/ \n\t\[.*/, ".");
-      let stringEnd: number = test.indexOf(".") || test.length;
-      //output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
 
-      output += "\n* " + testCodeName + ": "+  test.substring(test.lastIndexOf("~")+1, stringEnd+1);
+      //let cleanString: string = test.replace(/ \n\t\[.*/, ".");
+      //let stringEnd: number = test.indexOf(".");
+      //let testDescription: string;
+      //if (stringEnd) {
+      //  testDescription = test.substring(test.lastIndexOf("~")+1, stringEnd+1)
+      //}
+
+
+      output += "\n\t - " + test.substring(0, test.indexOf(" \n\t["));
+
+      //output += "\n* " + testCodeName + ": "+  test.substring(test.lastIndexOf("~")+1, stringEnd+1);
     });
     //let failedTests: any[] = testReport.allTests.filter((test: any) => {
     //  return test.fail;
