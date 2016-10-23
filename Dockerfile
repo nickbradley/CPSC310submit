@@ -19,6 +19,7 @@ COPY package.json .
 RUN npm install
 
 COPY src/app.js .
+COPY src/view/* /app/view/
 COPY app.sh .
 
 RUN chmod a+x app.sh

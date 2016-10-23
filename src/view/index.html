@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>AutoTest Dashboard</title>
+
+    <style>
+      #repoUrl {
+        width: 80%;
+      }
+      .queue-item {
+
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>AutoTest Dashboard</h1>
+
+    <div>
+      <h3>Out-of-Band Test</h3>
+      <form method="post" name="submitTest" id="submitTest">
+        <label for="repoUrl">GitHub Url</label><br/>
+        <input id="repoUrl" type="text" name="githubUrl"><br/>
+        <select name="deliverable">
+          <option value="d1" selected>Deliverable 1</option>
+          <option value="d2">Deliverable 2</option>
+        </select>
+        <input id="submit" type="submit" value="Submit Test">
+      </form>
+      <!-- <div id="result" class="queue-item completed">
+        <dl>
+          <dt>Team</dt>
+          <dd></dd>
+          <dt>Commit</dt>
+          <dd></dd>
+          <dt>Called by</dt>
+          <dd></dd>
+          <dt>Deliverable</dt>
+          <dd></dd>
+          <dt>Grade</dt>
+          <dd></dd>
+        </dl>
+      </div> -->
+    </div>
+
+
+    <script>
+        var frm = $('form');
+        frm.submit(function (ev) {
+            ev.preventDefault();
+
+            $.ajax({
+                type: frm.attr('method'),
+                url: frm.attr('action'),
+                data: frm.serialize(),
+                success: function (data) {
+                    alert('Submission successful');
+                    $('#submitTest').reset();
+                }
+                error: function(){
+                  alert('Submission failed. Invalid url.')
+                }
+            });
+
+
+            return false;
+        });
+    </script>
+
+    <script>
+    // var source = new EventSource('/test');
+    // source.onmessage = function(e) {
+    //   addQueueItem(e);
+    //   var btn = document.getElementById("submit");
+    //   btn.disabled = false;
+    //   btn.value = "Submit Test";
+    //
+    //   var div = document.getElementById("result");
+    //   div.classList.remove("hidden");
+    // };
+    //
+    // function submitTest() {
+    //   var btn = document.getElementById("submit");
+    //   btn.disabled = true;
+    //   btn.value = "Testing...";
+    //   var div = document.getElementById("result");
+    //   div.classList.add("hidden");
+    //   //var btn = document.querySelector("#submit");
+    //   // change text
+    //   // disable
+    // }
+    //
+    // function addQueueItem(e) {
+    //   var data = JSON.parse(e.data);
+    //
+    //   var q = document.querySelector(".queue-item");
+    //   var fields = q.querySelectorAll("dd");
+    //   fields[0].appendChild(createA(data.team.name, data.team.url));
+    //   fields[1].appendChild(createA(data.commit.sha, data.commit.url));
+    //   fields[2].appendChild(createA(data.callee.name, data.callee.url));
+    //   fields[3].appendChild(createA(data.deliverable.name, data.deliverable.url));
+    //   fields[4].appendChild(createA(data.grade.value, data.grade.url));
+    // }
+    //
+    // function createA(text, href) {
+    //   var a = document.createElement("a");
+    //   a.innerText = text;
+    //   if (href)
+    //     a.setAttribute("href", href);
+    //   return a;
+    // }
+  </script>
+  </body>
+</html>

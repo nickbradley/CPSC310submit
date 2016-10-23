@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>AutoTest Dashboard</title>
+
+    <style>
+      #pending-queue {
+
+      }
+      #active-queue {
+
+      }
+      #completed-queue {
+
+      }
+
+      .queue-item {
+        background-color: black;
+        height: 100px;
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AutoTest Dashboard</h1>
+
+    <div>
+      <h3>Out-of-Band Test</h3>
+      <form action="" method="post">
+        <label for="repoUrl">GitHub Url</label>
+        <input id="repoUrl" type="text">
+        <select name="deliverable">
+          <option value="d1" selected>Deliverable 1</option>
+          <option value="d2">Deliverable 2</option>
+        </select>
+        <input type="submit" value="Test">
+      </form>
+    </div>
+
+    <!-- Event Section -->
+    <div>
+      <!-- Queued -->
+      <div id="pending-queue">
+
+      </div>
+
+      <!-- Active -->
+      <div id="active-queue">
+
+      </div>
+
+      <!-- Complete -->
+      <div id="completed-queue">
+
+      </div>
+    </div>
+
+    <script>
+    var source = new EventSource('/dashboard');
+    source.onmessage = function(e) {
+      document.body.innerHTML += e.data + '<br>';
+    };
+  </script>
+  </body>
+</html>

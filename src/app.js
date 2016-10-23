@@ -20,7 +20,7 @@ var AppSetting = {
     },
     requestLimit: {
         maxCount: process.env.MAX_REQUESTS || 10,
-        minDelay: process.env.MIN_REQUEST_DELAY || 43200000
+        minDelay: process.env.MIN_REQUEST_DELAY || 21600000
     },
     cmd: {
         concurrency: process.env.WORKERS || 1,
@@ -126,30 +126,13 @@ function extractDeliverable(comment) {
     return deliverable;
 }
 function commentGitHub(submission, msg) {
-    if (submission.commentURL) {
-        var commentUrl = url.parse(submission.commentURL);
-        var comment = JSON.stringify({ body: msg });
-        var options = {
-            host: commentUrl.host,
-            port: '443',
-            path: commentUrl.path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(comment),
-                'User-Agent': 'cpsc310-github-listener',
-                'Authorization': 'token ' + AppSetting.github.token
-            }
-        };
-        var req = https.request(options, function (res) {
-            if (res.statusCode != 201) {
-                logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-            }
-        });
-        req.write(comment);
-        req.end();
-        console.log("**** " + msg + " ****");
+}
+function notify(submission, msg) {
+    if (submission.show) {
+        console.log("Sending comment to github.");
+        commentGitHub(submission, msg);
     }
+    console.log("Notify called");
 }
 function parseScriptOutput(result) {
     var regex = /^[\s\S]*%@%@COMMIT:(.*)###\s*({[\s\S]*})\s*%@%@\s*$/;
@@ -264,6 +247,51 @@ usersHandler.post("/", function (req, res) {
         res.end("Token header must be specified.");
     }
 });
+var manageHandler = Router({ mergeParams: true });
+router.use("/manage", manageHandler);
+manageHandler.get("/", function (req, res) {
+    fs.readFile('view/index.html', 'utf8', function (err, file) {
+        if (err) {
+            res.writeHead(500);
+            console.log(JSON.stringify(err));
+        }
+        res.write(file);
+        res.end();
+    });
+});
+manageHandler.use(bodyParser.urlencoded({ extended: true }));
+manageHandler.post("/", function (req, res) {
+    var body = req.body;
+    var regex = /^https:\/\/github.com\/CS310-2016Fall\/cpsc310project_team(\d+)(?:\/commit\/(\w+))?$/;
+    var matches = regex.exec(body.githubUrl);
+    console.log(body.githubUrl);
+    console.log(matches);
+    if (matches && matches[1]) {
+        var team = matches[1];
+        var reponame = "cpsc310project_team" + team;
+        var repoUrl = "https://github.com/CS310-2016Fall/cpsc310project_team" + team;
+        var commit = matches[2] || "";
+        ;
+        var testRepoURL = deliverables[body.deliverable].private;
+        var submission = {
+            username: "CPSC310Bot",
+            reponame: reponame,
+            repoURL: repoUrl.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+            commentURL: "",
+            commitSHA: commit,
+            testRepoURL: testRepoURL.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
+            deliverable: body.deliverable,
+            show: false
+        };
+        console.log("Request added to queue");
+        requestQueue.add(submission);
+        console.log(submission);
+        res.writeHead(200);
+    }
+    else
+        res.writeHead(500);
+    res.end();
+});
 var submitHandler = Router();
 router.use("/submit", submitHandler);
 submitHandler.use(bodyParser.json());
@@ -309,7 +337,8 @@ submitHandler.post("/", function (req, res) {
             commentURL: req.body.repository.commits_url.replace("{/sha}", "/" + req.body.comment.commit_id) + "/comments",
             commitSHA: req.body.comment.commit_id,
             testRepoURL: testRepoURL.replace("//", "//" + AppSetting.github.username + ":" + AppSetting.github.token + "@"),
-            deliverable: deliverable
+            deliverable: deliverable,
+            show: true
         };
         var jobId_1 = submission.reponame + "/" + submission.username;
         var adminUsers_1 = admins.map(function (admin) { return admin.username; }) || [];
@@ -390,18 +419,18 @@ requestQueue.on('completed', function (job, result) {
         timestamp: Date.now(),
         displayText: formatTestReport(parsedOutput.mochaJson),
         deliverable: submission.deliverable,
-        conversation: "",
+        conversation: ""
     };
     queuedOrActive.splice(queuedOrActive.indexOf(job.opts.jobId), 1);
     dbAuth(AppSetting.dbServer, function (db) {
         db.insert(doc, function (error, body) {
             if (error) {
                 logger.error("Inserting document failed for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, error);
-                commentGitHub(submission, "Service Error: Test results could not be saved to database.");
+                notify(submission, "Service Error: Test results could not be saved to database.");
             }
             else {
                 logger.info("Finished running tests for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
-                commentGitHub(submission, doc.displayText);
+                notify(submission, doc.displayText);
             }
         });
     });
@@ -425,7 +454,7 @@ requestQueue.on('failed', function (job, error) {
             comment = "AutoTest Failed: This is usually caused by the script taking too long or writing too much to the console.";
             break;
     }
-    commentGitHub(submission, comment);
+    notify(submission, comment);
 });
 var server = http.createServer(function (req, res) {
     router(req, res, finalhandler(req, res));
