@@ -291,39 +291,39 @@ function extractDeliverable(comment: string): string {
  * Posts a message to GitHub.
  */
 function commentGitHub(submission: ISubmission, msg: string): void {
-  // if (submission.commentURL) {
-  //
-  //   let commentUrl: any = url.parse(submission.commentURL);
-  //   let comment: string = JSON.stringify({body: msg});
-  //
-  //   // setup post options
-  //   let options: any = {
-  //     host: commentUrl.host,
-  //     port: '443',
-  //     path: commentUrl.path,
-  //     method: 'POST',
-  //     headers: {
-  //         'Content-Type': 'application/json',
-  //         'Content-Length': Buffer.byteLength(comment),
-  //         'User-Agent': 'cpsc310-github-listener',
-  //         'Authorization': 'token ' + AppSetting.github.token
-  //     }
-  //   };
-  //
-  //   // Set up the post request
-  //   var req = https.request(options, (res:any) => {
-  //     if (res.statusCode != 201) {
-  //       logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
-  //     }
-  //   });
-  //
-  //   // Post the data
-  //   req.write(comment);
-  //   req.end();
-  //
-  //   console.log("**** " + msg + " ****");
-  //
-  // }
+  if (submission.commentURL) {
+
+    let commentUrl: any = url.parse(submission.commentURL);
+    let comment: string = JSON.stringify({body: msg});
+
+    // setup post options
+    let options: any = {
+      host: commentUrl.host,
+      port: '443',
+      path: commentUrl.path,
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(comment),
+          'User-Agent': 'cpsc310-github-listener',
+          'Authorization': 'token ' + AppSetting.github.token
+      }
+    };
+
+    // Set up the post request
+    var req = https.request(options, (res:any) => {
+      if (res.statusCode != 201) {
+        logger.error("Failed to post comment for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission, res.statusCode);
+      }
+    });
+
+    // Post the data
+    req.write(comment);
+    req.end();
+
+    console.log("**** " + msg + " ****");
+
+  }
 
 }  // commentGitHub
 
