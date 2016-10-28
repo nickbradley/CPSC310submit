@@ -349,6 +349,10 @@ submitHandler.post("/", function (req, res) {
             testRepoURL = deliverables[deliverable].private;
             msgInfo = "\nNote: Running tests for previous deliverable (**" + deliverable + "**).";
         }
+        else if (deliverable > deliverables["current"] && deliverable <= "d3") {
+            testRepoURL = deliverables[deliverable].private;
+            msgInfo = "\n***Warning: Running specs for deliverable " + deliverable + ".*** This should be removed in production.";
+        }
         else {
             testRepoURL = deliverables[deliverables["current"]].private;
             deliverable = deliverables["current"];
