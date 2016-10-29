@@ -117,6 +117,24 @@ function getLatestRun(team, user, callback) {
         });
     });
 }
+function checkRequestLimit(team, user, deliverable) {
+    return new Promise(function (resolve, reject) {
+        var viewParams = {
+            key: [team, user, deliverable],
+            group: true
+        };
+        dbAuth(AppSetting.dbServer, function (db) {
+            db.view("default", "user_runs", viewParams, function (err, body) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(body.rows[0] && body.rows[0].value || 0);
+                }
+            });
+        });
+    });
+}
 function extractDeliverable(comment) {
     var deliverable = null;
     var matches = /.*#[dD](\d{1,2}).*/i.exec(comment);
@@ -373,8 +391,9 @@ submitHandler.post("/", function (req, res) {
         console.log(team + "/" + user);
         if (users.includes(team + "/" + user) || adminUsers_1.includes(user)) {
             if (!queuedOrActive.includes(jobId_1)) {
-                getLatestRun(team, user, function (latestRun) {
-                    var runDiff = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
+                checkRequestLimit(team, user, deliverable).then(function (timestamp) {
+                    var requestLimit = deliverables[deliverable].rateLimit || AppSetting.requestLimit.minDelay;
+                    var runDiff = Date.now() - timestamp - requestLimit;
                     if (runDiff > 0 || adminUsers_1.includes(user)) {
                         queuedOrActive.push(jobId_1);
                         requestQueue.add(submission, { jobId: jobId_1 });
@@ -387,6 +406,8 @@ submitHandler.post("/", function (req, res) {
                         logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
                         commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1 * runDiff).humanize() + " before trying again.");
                     }
+                }).catch(function (err) {
+                    console.log(err);
                 });
             }
             else {

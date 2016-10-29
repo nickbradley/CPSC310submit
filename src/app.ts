@@ -266,6 +266,42 @@ function getLatestRun(team: string, user: string, callback: Function): void {
   });
 }  // latestRun
 
+// checkRequestLimit("cpsc310project_team19", "CPSC310Bot", "d1").then((timestamp) => {
+//     console.log("****** Hello from then ********");
+//     console.log(timestamp);
+//   }
+// ).catch(function(err: Error) {
+//     console.log(err);
+//   }
+// );
+
+function checkRequestLimit(team: string, user: string, deliverable: string): Promise<any> {
+  return new Promise((resolve:any,reject: any) => {
+    let viewParams = {
+      key: [team, user, deliverable],
+      group: true
+    }
+    dbAuth(AppSetting.dbServer, (db: any) => {
+      // view needs to group by team & user then return max timestamp
+      db.view("default", "user_runs", viewParams, (err: any, body: any) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          // body = {rows:[{key: "", value: ""}]}
+          resolve(body.rows[0] && body.rows[0].value || 0);
+        }
+      });
+    });
+
+  });
+}
+
+
+
+
+
+
 
 /**
  * Searches a string for a number preceeded by #d (e.g. #d1). Will only match numbers
@@ -588,6 +624,16 @@ submitHandler.post("/", (req:any, res:any) => {
   //console.log(JSON.stringify(req.body);
   //console.log("\n\n********REQ_END********");
 
+// function(doc) {
+//   if (doc.team && doc.user && doc.timestamp) {
+//     emit([doc.team, doc.user, doc.deliverable], doc.timestamp);
+//   }
+// }
+//
+// function(key,values,rereduce) {
+//   return Math.max.apply(null, values);
+// }
+
   let comment: string = req.body.comment.body.toLowerCase();
   let team: string = req.body.repository.name;
   let user: string = req.body.comment.user.login;
@@ -643,8 +689,9 @@ submitHandler.post("/", (req:any, res:any) => {
 
     if (users.includes(team+"/"+user) || adminUsers.includes(user)) {
       if (!queuedOrActive.includes(jobId)) {
-        getLatestRun(team, user, (latestRun:number) => {
-          let runDiff: number = Date.now() - latestRun - AppSetting.requestLimit.minDelay;
+        checkRequestLimit(team, user, deliverable).then((timestamp: number) => {
+          let requestLimit: number = deliverables[deliverable].rateLimit || AppSetting.requestLimit.minDelay;
+          let runDiff: number = Date.now() - timestamp - requestLimit;
           if (runDiff > 0 || adminUsers.includes(user)) {
             queuedOrActive.push(jobId);
             requestQueue.add(submission, {jobId: jobId});
@@ -659,7 +706,16 @@ submitHandler.post("/", (req:any, res:any) => {
             logger.info("Rate limit exceeded for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
             commentGitHub(submission, "Request cannot be processed. Rate limit exceeded; please wait " + moment.duration(-1*runDiff).humanize() + " before trying again.");
           }
+        }).catch(function(err: Error) {
+          console.log(err);
         });
+
+        // getLatestRun(team, user, (latestRun:number) => {
+        //
+        // });
+
+
+
       }
       else {
         logger.info("Request is already queued for " + submission.reponame + "/" + submission.username + " commit " + submission.commitSHA, submission);
