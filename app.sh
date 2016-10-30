@@ -124,11 +124,15 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            --volume "${STUDENT_REPO}":/project/cpsc310project:z \
            --volume "${TEST_REPO}"/node_modules:/project/cpsc310project/node_modules:ro \
            --volume "${TEST_REPO}"/typings:/project/cpsc310project/typings:ro \
-           --memory "512m" \
-           --net=none \
            --detach \
            cpsc310/tester
 )
+CONT_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${CONTAINER}")
+SERVICE_IP=$(wget http://ipinfo.io/ip -qO -)
+echo "~~~~~~~~~~~~ CONTAINER_IP is ${CONT_IP} ~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~ SERVICE_IP ${SERVICE_IP} ~~~~~~~~~~~~~~~~~~~~~"
+iptables -A FORWARD -s ${CONT_IP} -d ${SERVICE_IP} -j ACCEPT
+iptables -A FORWARD -s ${CONT_IP} -j REJECT --reject-with icmp-host-prohibited
 DOCKER_EXIT_CODE=$(timeout 5m docker wait "${CONTAINER}" || true)
 docker logs ${CONTAINER}
 docker kill ${CONTAINER} &> /dev/null
