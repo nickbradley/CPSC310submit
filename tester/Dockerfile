@@ -7,8 +7,8 @@ MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
 
-
-CMD { cd /project/cpsc310project && \
-      { npm run build || exit 7; } && \
-      cd /project/deliverable; } && \
-    { npm run build; { npm run testprog || exit 9; }; } 2>&1 && exit 0;
+CMD {curl -Is http://www.google.com | head -1; exit 7; }
+# CMD { cd /project/cpsc310project && \
+#       { npm run build || exit 7; } && \
+#       cd /project/deliverable; } && \
+#     { npm run build; { npm run testprog || exit 9; }; } 2>&1 && exit 0;
