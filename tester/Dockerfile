@@ -6,8 +6,8 @@ FROM node:6
 MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
-
-CMD {ping http://www.google.com; exit 7; }
+#RUN apt-get intall iputils-ping
+CMD { ping http://www.google.com; exit 7; }
 # CMD { cd /project/cpsc310project && \
 #       { npm run build || exit 7; } && \
 #       cd /project/deliverable; } && \
