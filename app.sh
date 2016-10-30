@@ -128,7 +128,8 @@ docker run --volume "${TEST_REPO}":/project/deliverable:z \
            cpsc310/tester
 )
 echo "CONTAINER ID is ${CONTAINER}"
-CONT_IP=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${CONTAINER}")
+#CONT_IP=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "${CONTAINER}")
+CONT_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${CONTAINER}")
 SERVICE_IP=$(wget http://ipinfo.io/ip -qO -)
 echo "~~~~~~~~~~~~ CONTAINER_IP is ${CONT_IP} ~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "~~~~~~~~~~~~ SERVICE_IP ${SERVICE_IP} ~~~~~~~~~~~~~~~~~~~~~"
