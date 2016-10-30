@@ -7,7 +7,7 @@ MAINTAINER Nick Bradley <nbrad11@cs.ubc.ca>
 
 ENV MOCHAWESOME_REPORTDIR=/project/cpsc310project/mocha_output
 #RUN apt-get intall iputils-ping
-CMD { ping www.google.com -c 2; exit 7; }
+CMD { ping 198.162.54.129 -c 2; exit 7; }
 # CMD { cd /project/cpsc310project && \
 #       { npm run build || exit 7; } && \
 #       cd /project/deliverable; } && \
