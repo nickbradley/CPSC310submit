@@ -20,7 +20,7 @@ var AppSetting = {
     },
     requestLimit: {
         maxCount: process.env.MAX_REQUESTS || 10,
-        minDelay: process.env.MIN_REQUEST_DELAY || 43200000
+        minDelay: process.env.MIN_REQUEST_DELAY || 21600000
     },
     cmd: {
         concurrency: process.env.WORKERS || 1,
